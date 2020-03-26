@@ -54,8 +54,9 @@ name | type | default | use
 debug | Boolean | false | Will append jet and core to global scope and every onChange event output to console
 onChange | Function | undefined | After any change of core state will be called with list of changes
 cryptKey | String | undefined | Will be used for crypting and decrypting User data
-langDefault | String | "en" | Default language
 langLibs | Array || Object | \["en"\] | Define available language packages
+langFallback | String | "en" | Define fallback on lang when there is no text in selected lang
+langDefault | String | "en" | Default language
 viewSizes | Object | * | Define constants for measure inner window size
 sessionUrl | String | null | Define path to session storage. If it's not present it will use localStorage
 apiUrl | String | null | Define rest api url

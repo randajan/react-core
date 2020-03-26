@@ -21,7 +21,7 @@ class Core extends Component {
 
     constructor(props) {
         super(props);
-        const { onChange, cryptKey, langDefault, langLibs, viewSizes, sessionUrl, apiUrl, authPath, authProviders } = props;
+        const { onChange, cryptKey, langLibs, langFallback, langDefault, viewSizes, sessionUrl, apiUrl, authPath, authProviders } = props;
         const id = CORES.push(this)-1;
 
         this.state = {
@@ -49,7 +49,7 @@ class Core extends Component {
         this.addModule("Session", sessionUrl ? Session.create(sessionUrl, this.Crypt) : this.Storage.open("session"));
         this.addModule("Auth", Auth.create(this, authPath, authProviders));
         this.addModule("Api", Api.create(this, apiUrl));
-        this.addModule("Lang", Lang.create(this, langDefault, langLibs));
+        this.addModule("Lang", Lang.create(this, langLibs, langFallback, langDefault));
 
     }
 

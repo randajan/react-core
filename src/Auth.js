@@ -23,7 +23,6 @@ class Auth {
         });
 
         this.logout();
-        this.providers.map(v=>jet.obj.addProperty(this.login, v, _=>this.login(v))); //generate function for each provider
 
         Core.onChange.add(changes=>changes.lang ? this.User.saveLang(changes.lang) : null);
     }
@@ -53,7 +52,7 @@ class Auth {
     
         if (this.User.isReal()) { return [[lang.get("auth.logout"), this.logout.bind(this)]]; }
 
-        return jet.obj.map(this.providers, v=>[lang.get("auth.providers."+v), this.login[v]]);
+        return jet.obj.map(this.providers, v=>[lang.get("auth.providers."+v), _=>this.login(v)]);
     }
 
     async login(provider) {
