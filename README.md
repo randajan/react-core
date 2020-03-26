@@ -10,21 +10,78 @@
 npm install --save @randajan/react-app-core
 ```
 
+
 ## Usage
 
 ```jsx
 import React, { Component } from 'react'
 
-import MyComponent from '@randajan/react-app-core'
+import CoreProvider, {useCore} from '@randajan/react-app-core'
 
-class Example extends Component {
+coreConfig = {
+  debug:true,
+  onChange:_=>alert(_),
+  cryptKey:"XYZ",
+  langDefault:"en",
+  langLibs:["en"],
+  viewSizes:{"xxs":(weight, height) => weight < 100 && height < 100},
+  sessionUrl:"/session",
+  apiUrl:"http://api.example.com",
+  authPath:"/auth",
+  authProviders:["google", "facebook"]
+}
+
+export default class App extends Component {
   render () {
     return (
-      <MyComponent />
+      <CoreProvider {...coreConfig}>
+        <Consumer/>
+      </CoreProvider>
     )
   }
 }
+
+function Consumer() {
+  const Core = useCore(); //or shorthand useUser()
+  return <div className="UserName">{Core.Auth.User.get("name")}</div>
+}
+
 ```
+
+## Provider Props
+name | type | default | use
+--- | --- | --- | ---
+debug | Boolean | false | Will append jet and core to global scope and every onChange event output to console
+onChange | Function | undefined | After any change of core state will be called with list of changes
+cryptKey | String | undefined | Will be used for crypting and decrypting User data
+langDefault | String | "en" | Default language
+langLibs | Array || Object | \["en"\] | Define available language packages
+viewSizes | Object | * | Define constants for measure inner window size
+sessionUrl | String | null | Define path to session storage. If it's not present it will use localStorage
+apiUrl | String | null | Define rest api url
+authPath | String | null | Define oAuth path for resolve AuthCode
+authProviders | String | null | oAuth providers
+
+_*default viewSizes_
+```jsx
+const DEFAULTSIZES = {
+    xs: w=>w<600,
+    s: w=>w>600&&w<960,
+    m: w=>w>960&&w<1280,
+    l: w=>w>1280&&w<1920,
+    xl: w=>w>1920,
+
+    gtXs: w=>w>600,
+    gtS: w=>w>960,
+    gtM: w=>w>1280,
+
+    ltM: w=>w<960,
+    ltL: w=>w<1280,
+    ltXl: w=>w<1920
+}
+```
+
+
 
 ## License
 

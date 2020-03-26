@@ -1,22 +1,38 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import { useContext, useState, useEffect } from 'react'
+import Core from "./Core";
 
-import styles from './styles.css'
+function useCore() {
+  const provider = useContext(Core.Context);
+  const setState = useState()[1];
 
-export default class ExampleComponent extends Component {
-  static propTypes = {
-    text: PropTypes.string
-  }
+  useEffect(_ => {
+      const onChange = _=>setState({});
+      provider.onChange.add(onChange);
+      return _ => provider.onChange.delete(onChange);
+  });
 
-  render() {
-    const {
-      text
-    } = this.props
+  return provider;
+}
 
-    return (
-      <div className={styles.test}>
-        Example Component: {text}
-      </div>
-    )
-  }
+function useCrypt() {return useCore().Crypt;}
+function useView() {return useCore().View;}
+function useStorage() {return useCore().Storage;}
+function useSession() {return useCore().Session;}
+function useLang() {return useCore().Lang;}
+function useApi() {return useCore().Api;}
+function useAuth() {return useCore().Auth;}
+function useUser() {return useAuth().User;}
+
+
+export default Core;
+export {
+  useCore,
+  useCrypt,
+  useView,
+  useStorage,
+  useSession,
+  useLang,
+  useApi,
+  useAuth,
+  useUser
 }
