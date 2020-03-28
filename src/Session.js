@@ -4,8 +4,8 @@ import Storage from "./Storage";
 import Api from "./Api";
 
 class Session extends Storage {
-    constructor(url, Crypt) {
-        super(null, async content => fetch(url, { method: "POST", body: Api.dataToForm({content}) }), Crypt);
+    constructor(version, url, Crypt) {
+        super(version, null, async content => fetch(url, { method: "POST", body: Api.dataToForm({content}) }), Crypt);
         jet.obj.addProperty(this, "url", url);
     }
 

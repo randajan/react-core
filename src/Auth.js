@@ -3,7 +3,7 @@ import User from "./User";
 
 class Auth {
 
-    constructor(Core, path, providers) {
+    constructor(Core, path, providers, anonymName) {
         let _user;
         
         jet.obj.addProperty(this, {
@@ -21,6 +21,10 @@ class Auth {
             },
             get:function() {return _user;}
         });
+
+        if (!this.getAnonymName()) {
+            this.setAnonymName(jet.is("function", anonymName) ? anonymName() : anonymName)
+        }
 
         this.logout();
 
@@ -41,18 +45,14 @@ class Auth {
         return access_token ? withType ? [token_type, access_token].join(" ") : access_token : "";
     }
 
-    setAnonymName(name) {
-        return this.Storage.set("users.0.profile.name", jet.get("string", name));
-    }
+    getAnonymName() {return this.Storage.get("users.0.profile.name");}
+    setAnonymName(name) {return this.Storage.set("users.0.profile.name", jet.get("string", name));}
 
     getMenu() {
         const lang = this.Core.Lang;
-
         if (!this.isReady()) {return []; }
-    
         if (this.User.isReal()) { return [[lang.get("auth.logout"), this.logout.bind(this)]]; }
-
-        return jet.obj.map(this.providers, v=>[lang.get("auth.providers."+v), _=>this.login(v)]);
+        return this.providers.map(provider=>[lang.get("auth.providers."+provider), _=>this.login(provider)]);
     }
 
     async login(provider) {
@@ -74,20 +74,20 @@ class Auth {
 
     logout() {this.setPassport(); this.User = null; }
 
-    async fetchauthCode(code) {const S = this.Core; return S.Api.post(this.path+"/token", { code }).then(data => data, S.setError.bind(S));}
-    async fetchUser() {const S = this.Core; return S.Api.get("/user").then(data => data, S.setError.bind(S));};
+    async fetchauthCode(code) {return this.Core.Tray.async("User.code", this.Core.Api.post(this.path+"/token", { code }));}
+    async fetchUser() {return this.Core.Tray.async("User.profile", this.Core.Api.get("/user"));};
 
     async start() {
-        const S = this.Core;
+        const Core = this.Core;
 
         jet.obj.addProperty(this, {
-            Session:S.Session.open("auth"),
+            Session:Core.Session.open("auth"),
         }, null, false, true);
 
         if (!this.path) { return false; }
 
-        if (window.location.pathname === this.path && S.Query.get("code")) {
-            this.setPassport(await this.fetchauthCode(S.Query.pull("code")));
+        if (window.location.pathname === this.path && Core.Query.get("code")) {
+            this.setPassport(await this.fetchauthCode(Core.Query.pull("code")));
         }
 
         this.User = await this.fetchUser();

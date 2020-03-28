@@ -1,101 +1,119 @@
 import moment from 'moment';
+
 import jet from "@randajan/jetpack";
 
-const BASELANGS = ["en", "cs"];
+class LangLib {
+    constructor(priority, path, list, fetch) {
+        [priority, path, fetch] = jet.get([["number", priority], ["string", path], ["function", fetch]]);
+        list = Lang.validateList(list);
+        jet.obj.addProperty(this, { priority, path, list }, null, false, true)
+        jet.obj.addProperty(this, "fetch", lang => list.includes(lang) ? fetch(lang) : undefined);
+    }
+
+    static create(priority, path, list, fetch) {
+        if (jet.is(LangLib, priority)) { return priority; }
+        return new LangLib(...jet.untie({ priority, path, list, fetch }));
+    }
+}
 
 class Lang {
 
-    constructor(Core, libs, fallback, def) {
-        libs = jet.get("mapable", libs, ["en"]);
+    constructor(Core, list, libs, fallback, def) {
+        [fallback, def] = jet.get([["string", fallback, "en"], ["string", def]]);
 
-        const isArray = jet.is("array", libs);
-        const list = [];
- 
-        jet.obj.map(libs, (v,k)=>{
-            const lang = Lang.fromString(isArray ? v : k);
-            if (list.includes(lang)) {return;}
-            list.push(lang);
-            jet.obj.addProperty(this, lang, jet.obj.merge(Lang.getBase(lang), isArray ? v : null), false, true);
-        });
+        const Storage = Core.Storage.open("lang");
+        list = Lang.validateList(list, fallback, def).map(lang => Storage.open(lang) ? lang : undefined);
+        libs = Lang.validateLibs(libs);
+        def = Lang.validateLang([def, list[0]], list);
+        fallback = Lang.validateLang([fallback, list[0]], list);
 
-        jet.obj.addProperty(this, {
-            Core,
-            list,
-            "def": this.validate([def, fallback, list[0]]),
-            "fallback": this.validate([fallback, def, list[0]])
-        });
+        jet.obj.addProperty(this, { Core, Storage, list, libs, def, fallback }, null, false, true);
 
-        this.select(Core.Query.pull("lang"), Core.Auth.User.loadLang());
-        Core.onChange.add(changes=>changes.user != null ? this.select(Core.Auth.User.loadLang()) : null);
-    }
-
-    set(path, val, lang) {
-        const vlang = this.validate(lang);
-        if (lang && !vlang) {return false;}
-
-        lang = vlang || this.def;
-
-        const from = path ? jet.obj.get(this[lang], path) : this[lang];
-        const to = jet.isMapable(val) ? jet.obj.merge(from, val) : val;
-
-        if (!path) {jet.obj.addProperty(this, lang, to, true, true);}
-        else {jet.obj.set(this[lang], path, to, true);}
-
-        return true;
+        Core.onChange.add(changes => changes.user != null ? this.select(Core.Auth.User.loadLang()) : null);
     }
 
     get(path, ...langs) {
-        if (!path) {return this.now;}
-        const { now, fallback } = this;
-        let result;
-        this.validate([langs, now, fallback], true).map(lang=>{
-            result = result || jet.obj.get(this[lang], path);
-        });
-        return result;
+        for (let lang of this.validateLang([langs, this.now, this.fallback], true)) {
+            const val = this.Storage[lang].get(path);
+            if (val) { return val; }
+        }
     }
 
-    select(...langs) {
-        const { now, def } = this;
-        jet.obj.addProperty(this, "now", this.validate([langs, now, def]), true);
-        if (this.now === now) {return false ;}
+    async fetchLib(lang) {
+        const data = await Core.Tray.async("Lang.lib." + lang, Promise.all(this.libs.map(lib => lib.fetch(lang))));
+        if (data) { return jet.obj.merge(...data); }
+    }
 
-        moment.locale(this.now);
-        this.Core.setState({lang:this.now});
+    async loadLib(lang, force) {
+        if (!force && jet.isFull(this.Storage[lang])) { return true; }
+        const data = await this.fetchLib(lang);
+        if (!data) { return false; }
+        this.Storage[lang].set("", data);
         return true;
     }
 
-    validate(langs, all) {
-        let list = new Set();
-        jet.obj.map(jet.obj.toArray(langs), v=>{const lang = Lang.fromString(v); if (this[lang]) {list.add(lang);}}, true);
-        list = Array.from(list);
-        return all ? list : list[0];
+    async select(...langs) {
+        langs = this.validateLang([langs, this.now, this.def], true);
+        
+        for (let lang of langs) {
+            if (lang === this.now) {return false;}
+            if (await this.loadLib(lang)) {this.now = lang; break;}
+        }
+        
+        moment.locale(this.now);
+        this.Core.setState({ lang: this.now });
+        return true;
     }
+
+    validateLang(langs, all) { return Lang.validateLang(langs, this.list, all) }
 
     getMenu() {
-        const result = [];
-        this.list.map(lang=>{
-            const path = "lang."+lang;
+        if (!this.Core.isReady()) {return []; }
+        return this.list.map(lang => {
+            const path = "lang." + lang;
             const now = this.get(path);
             const native = this.get(path, lang);
-            const label = (now && now !== native) ? now+" ("+native+")" : native;
-            if (lang !== this.now) { result.push([label, _=>this.select(lang)]);}
-        });
-        return result;
+            const label = (now && now !== native) ? now + " (" + native + ")" : native;
+            if (lang !== this.now) { return [label, _ => this.select(lang)]; }
+        }).filter(_ => _);
     }
 
-    toString(path) {
-        return this.get(path);
+    toString(path) { return this.get(path); }
+
+    async start() {
+        return this.select(Core.Query.pull("lang"), Core.Auth.User.loadLang());
     }
 
-    static create(...args) {return new Lang(...args); }
+    static create(...args) { return new Lang(...args); }
 
-    static fromString(lang) {return jet.get("string", lang).substr(0, 2).toLowerCase();}
+    static fromString(lang) { return jet.get("string", lang).substr(0, 2).toLowerCase(); }
 
-    static getBase(lang) {
-        lang = Lang.fromString(lang);
-        return BASELANGS.includes(lang) ? require("./lang/"+lang).default : {};
+    static validateList(...langs) {
+        const list = new Set();
+        jet.obj.map(langs, v => {
+            const lang = Lang.fromString(v);
+            if (lang) { list.add(lang); }
+        }, true);
+        return Array.from(list);
+    }
+
+    static validateLibs(libs) {
+        libs = jet.get("array", libs);
+        libs.unshift(LangLib.create(-1, "", ["cs", "en", "de"], lang => require("./lang/" + lang).default));
+        return jet.obj.map(libs, lib => LangLib.create(lib)).sort((a, b) => a.priority - b.priority);
+    }
+
+    
+
+    static validateLang(langs, list, all) {
+        langs = Lang.validateList(langs);
+        if (jet.is("array", list)) { langs = langs.filter(lang => list.includes(lang)); }
+        return all ? langs : langs[0];
     }
 
 }
 
 export default Lang;
+export {
+    LangLib
+}

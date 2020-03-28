@@ -26,18 +26,18 @@ class View {
         jet.obj.addProperty(this, {
             Core,
             id:SIZESET.push({})-1
-        }, null, false, false);
+        });
 
         jet.obj.addProperty(this, View.getDevice(), null, false, true);
 
         Object.defineProperties(this, {
-            width:{get:_=>Math.max(document.documentElement.clientWidth, window.innerWidth), enumerable:true},
-            height:{get:_=>Math.max(document.documentElement.clientHeight, window.innerHeight), enumerable:true},
-            size:{get:_=>jet.obj.join(this.getSizes(), " "), enumerable:true}
+            width:{get:_=>Math.max(document.documentElement.clientWidth, window.innerWidth)},
+            height:{get:_=>Math.max(document.documentElement.clientHeight, window.innerHeight)},
+            size:{get:_=>jet.obj.join(this.fetch(), " "), enumerable:true}
         })
 
         window.addEventListener("resize", this.actualize.bind(this));
-        this.addSize(sizes||DEFAULTSIZES);
+        this.add(sizes||DEFAULTSIZES);
         this.actualize();
     }
 
@@ -45,7 +45,7 @@ class View {
         this.Core.setState(this);
     }
 
-    addSize(size, check) {
+    add(size, check) {
         const sizes = SIZESET[this.id];
         check = jet.get("function", check);
 
@@ -57,11 +57,11 @@ class View {
         return true;
     }
 
-    isSize(size) {
+    is(size) {
         return this.size.includes(size);
     }
 
-    getSizes() {
+    fetch() {
         const sizes = SIZESET[this.id];
         const {width, height} = this;
         const result = [];

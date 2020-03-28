@@ -1,5 +1,13 @@
 import { useContext, useState, useEffect } from 'react'
 import Core from "./Core";
+import { usePopUp } from "@randajan/react-popup";
+import Tray, { Task } from "./Tray";
+import Query from "./Query";
+import Crypt from "./Crypt";
+import Storage from "./Storage";
+import Session from "./Session";
+import { LangLib } from "./Lang";
+
 
 function useCore() {
   const provider = useContext(Core.Context);
@@ -26,7 +34,15 @@ function useUser() {return useAuth().User;}
 
 export default Core;
 export {
+  Tray,
+  Task,
+  Query,
+  Crypt,
+  Storage,
+  Session,
+  LangLib,
   useCore,
+  usePopUp,
   useCrypt,
   useView,
   useStorage,

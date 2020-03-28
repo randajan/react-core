@@ -10,7 +10,7 @@ class Api {
         jet.obj.addProperty(this, {
             Core,
             Storage:Core.Storage.open("api"),
-            url,
+            url:jet.get("string", url, "/"),
         }, null, false, true);
     }
 
@@ -34,19 +34,18 @@ class Api {
         return options;
     }
 
-    async fetch(method, path, data, headers) {
+    fetch(method, path, data, headers) {
         return fetch(this.url + path, this.formatOptions(method, data, headers))
             .then(resp => {
                 this.Storage.set("csrf", resp.headers.get("x-csrf-token"));
                 return resp.json();
             })
-            .catch(err => console.log(err));
     }
 
-    async get(path, data, headers) {return this.fetch("GET", path, data, headers);}
-    async post(path, data, headers) {return this.fetch("POST", path, data, headers);}
-    async put(path, data, headers) {return this.fetch("PUT", path, data, headers);}
-    async delete(path, data, headers) {return this.fetch("DELETE", path, data, headers);}
+    get(path, data, headers) {return this.fetch("GET", path, data, headers);}
+    post(path, data, headers) {return this.fetch("POST", path, data, headers);}
+    put(path, data, headers) {return this.fetch("PUT", path, data, headers);}
+    delete(path, data, headers) {return this.fetch("DELETE", path, data, headers);}
 
     static dataToForm(data) {
         const form = new FormData();
