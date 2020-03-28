@@ -128,6 +128,7 @@ const DEFAULTSIZES = {
 ## Initial Core modules
 name | parent | purpose | 3rd scripts
 --- | --- | --- | --- 
+Core | - | Container for everything | __Helmet__
 Tray | Core | Handle and log every Core Task such as initialization process, loading modules, login user and selecting lang | -
 Query | Core | Handle query string and backpropagate changes to url | __query-string__
 Crypt | Core | Take care of crypting and decrypting everything | __crypt-js__

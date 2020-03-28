@@ -57,18 +57,27 @@ class Tray {
         if (!jet.is("function", fce)) { return; }
         const task = this.add(name, true);
         try {
-            const result = fce();
+            const result = fce(task);
             task.end();
             return result;
         } catch(e) { task.end(e); }
     }
 
     async async(name, prom) {
-        if (jet.is("function", prom)) {prom = prom();}
-        if (!jet.is(Promise, prom)) { return; }
-        const task = this.add(name, true);
-        const end = task.end.bind(task);        
-        return prom.then(prom=>{task.end(); return prom;}, end).catch(end);
+        let task;
+        if (jet.is("function", prom)) {
+            task = this.add(name, true);
+            try {prom = prom(task);} catch(e) {task.end(e);}
+        }
+        if (jet.is(Promise, prom)) {
+            task = task || this.add(name, true);
+            const end = task.end.bind(task); 
+            return prom.then(prom=>{end(); return prom;}, end).catch(end);
+        }
+        if (task) {
+            task.end();
+            return prom;
+        }
     }
 
     fetchTasks(kind) {
