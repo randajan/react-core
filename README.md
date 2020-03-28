@@ -108,19 +108,19 @@ _**default viewSizes:_
 ```jsx
 
 const DEFAULTSIZES = {
-    xs: w=>w<600,
-    s: w=>w>600&&w<960,
-    m: w=>w>960&&w<1280,
-    l: w=>w>1280&&w<1920,
+    xs: w=>w<=600,
+    s: w=>w>600&&w<=960,
+    m: w=>w>960&&w<=1280,
+    l: w=>w>1280&&w<=1920,
     xl: w=>w>1920,
 
     gtXs: w=>w>600,
     gtS: w=>w>960,
     gtM: w=>w>1280,
 
-    ltM: w=>w<960,
-    ltL: w=>w<1280,
-    ltXl: w=>w<1920
+    ltM: w=>w<=960,
+    ltL: w=>w<=1280,
+    ltXl: w=>w<=1920
 }
 
 ```

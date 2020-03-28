@@ -56,19 +56,16 @@ class Auth {
     }
 
     async login(provider) {
-        
         if (!this.validateProvider(provider)) {return false;}
-        
-        const S = this.Core;
+
         this.logout();
 
-        return S.Api.post(this.path+"/"+provider).then(
+        return this.Core.Tray.async("User.login", this.Core.Api.post(this.path+"/"+provider)).then(
             data => {
                 const redirect = jet.obj.get(data, "redirect_uri");
                 if (redirect) { return window.location = redirect; }
-                S.setError(jet.obj.get(data, "error"));
-            },
-            S.setError.bind(S)
+                this.Core.debug(this.Core.Lang.get("auth.error"));
+            }
         );
     }
 
