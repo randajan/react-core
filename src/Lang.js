@@ -22,14 +22,18 @@ class Lang {
         [fallback, def] = jet.get([["string", fallback, "en"], ["string", def]]);
 
         const Storage = Core.Storage.open("lang");
+        const query = Core.Query.pull("lang");
+
         list = Lang.validateList(list, fallback, def).map(lang => Storage.open(lang) ? lang : undefined);
         libs = Lang.validateLibs(libs);
         def = Lang.validateLang([def, list[0]], list);
         fallback = Lang.validateLang([fallback, list[0]], list);
 
-        jet.obj.addProperty(this, { Core, Storage, list, libs, def, fallback }, null, false, true);
+        jet.obj.addProperty(this, { Core, Storage, list, libs, def, fallback, query}, null, false, true);
 
-        Core.onChange.add(changes => changes.user != null ? this.select(Core.Auth.User.loadLang()) : null);
+        Core.onChange.add(changes => changes.user != null ? this.select(query, Core.Auth.User.loadLang()) : null);
+        
+        this.select(query, Core.Auth.User.loadLang());
     }
 
     get(path, ...langs) {
@@ -78,10 +82,10 @@ class Lang {
         }).filter(_ => _);
     }
 
-    toString(path) { return this.get(path); }
+    toString() { return this.now }
 
     async start() {
-        return this.select(Core.Query.pull("lang"), Core.Auth.User.loadLang());
+
     }
 
     static create(...args) { return new Lang(...args); }

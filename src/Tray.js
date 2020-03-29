@@ -81,7 +81,7 @@ class Tray {
     }
 
     fetchTasks(kind) {
-        return Array.from(new Set(Array.from(this[kind]).map(task=>task.name)));
+        return kind ? Array.from(new Set(Array.from(this[kind]).map(task=>task.name))) : JSON.parse(JSON.stringify(this));
     }
 
     static create(...args) {

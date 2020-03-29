@@ -24,6 +24,7 @@ class Core extends Component {
         super(props);
         const { debug, version, onChange, cryptKey, langList, langLibs, langFallback, langDefault, viewSizes, sessionUrl, apiUrl, authPath, authProviders } = props;
         const id = CORES.push(this)-1;
+        const sid = "_core"+id;
 
         this.state = {};
 
@@ -46,7 +47,7 @@ class Core extends Component {
             this.addModule("Query", Query.create());
             this.addModule("Crypt", Crypt.create(cryptKey));
             this.addModule("View", View.create(this, viewSizes));
-            this.addModule("Storage", Storage.create(localStorage.getItem("_core"+id), async data => localStorage.setItem("_core"+id, data), version, this.Crypt));
+            this.addModule("Storage", Storage.create(localStorage.getItem(sid), async data => localStorage.setItem(sid, data), version, this.Crypt));
             this.addModule("Session", sessionUrl ? Session.create(version, sessionUrl, this.Crypt) : this.Storage.open("session"));
             this.addModule("Auth", Auth.create(this, authPath, authProviders));
             this.addModule("Api", Api.create(this, apiUrl));
@@ -55,7 +56,8 @@ class Core extends Component {
 
         this.Tray.async("start", async _=>{
             for (name of this.modules) {
-                if (jet.is("function", this[name].start)) {await this.Tray.async(name, this[name].start());}
+                let module = this[name];
+                if (jet.is("function", module.start)) {await this.Tray.async(name, module.start.bind(module));}
             }
         });
     }

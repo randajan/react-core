@@ -26,9 +26,9 @@ class Auth {
             this.setAnonymName(jet.is("function", anonymName) ? anonymName() : anonymName)
         }
 
-        this.logout();
-
         Core.onChange.add(changes=>changes.lang ? this.User.saveLang(changes.lang) : null);
+
+        this.logout();
     }
 
     isReady() {return this.Core.isReady();}
@@ -58,8 +58,6 @@ class Auth {
     async login(provider) {
         if (!this.validateProvider(provider)) {return false;}
 
-        this.logout();
-
         return this.Core.Tray.async("User.login", this.Core.Api.post(this.path+"/"+provider)).then(
             data => {
                 const redirect = jet.obj.get(data, "redirect_uri");
@@ -76,6 +74,8 @@ class Auth {
 
     async start() {
         const Core = this.Core;
+
+        this.logout();
 
         jet.obj.addProperty(this, {
             Session:Core.Session.open("auth"),
