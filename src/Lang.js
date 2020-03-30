@@ -7,7 +7,11 @@ class LangLib {
         [priority, path, fetch] = jet.get([["number", priority], ["string", path], ["function", fetch]]);
         list = Lang.validateList(list);
         jet.obj.addProperty(this, { priority, path, list }, null, false, true)
-        jet.obj.addProperty(this, "fetch", lang => list.includes(lang) ? fetch(lang) : undefined);
+        jet.obj.addProperty(this, "fetch", async lang => {
+            if (!list.includes(lang)) {return}
+            const data = await fetch(lang);
+            return path ? jet.obj.set({}, path, data, true) : jet.filter("object", data);
+        })
     }
 
     static create(priority, path, list, fetch) {
@@ -83,10 +87,6 @@ class Lang {
     }
 
     toString() { return this.now }
-
-    async start() {
-
-    }
 
     static create(...args) { return new Lang(...args); }
 

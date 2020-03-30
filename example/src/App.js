@@ -4,12 +4,12 @@ import CoreProvider, { useView } from '@randajan/react-app-core'
 
 const coreConfig = {
   debug:true,
-  version:"1.0.0",
+  version:"1.0.1",
   cryptKey:"XYZ",
   langFallback:"en",
   langList:["en", "cs", "any"],
   langLibs:[
-    //{priority:10, list:["en", "cs", "any"], fetch:lang=>fetch("/"+lang+".json").then(data=>data.json())}, 
+    {priority:10, list:["cs"], path:"index", fetch:lang=>fetch("/index.html").then(data=>data.text())}, 
   ],
 }
 
