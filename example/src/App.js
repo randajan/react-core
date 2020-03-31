@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import CoreProvider, { useView } from '@randajan/react-app-core'
+import CoreProvider, { useCore, useView, useQuery } from '@randajan/react-app-core'
 
 const coreConfig = {
   debug:true,
@@ -13,17 +13,26 @@ const coreConfig = {
   ],
 }
 
-function ViewType() {
-  const view = useView();
-  return <h1>{view.size}</h1>
+function Example() {
+  const Query = useQuery();
+  console.log("RENDER");
+  
+  return (
+    <div className="Example">
+      <h1>Majestic APP</h1>
+      <h2>{useView().size}</h2>
+      <a href="#" onClick={_=>Query.set("test", !Query.get("test") ? true : undefined)}>Add to query</a>
+    </div>
+  )
+  
+
 }
 
 export default class App extends Component {
   render () {
     return (
-      <CoreProvider {...coreConfig}>
-        <div>Majestic APP</div>
-        <ViewType/>
+      <CoreProvider className="App" {...coreConfig}>
+        <Example/>
       </CoreProvider>
     )
   }

@@ -6,6 +6,10 @@ const HISTORY = window.history;
 const PARSE = qs.parse(LOCATION.search);
 
 class Query {
+    constructor(onChange) {
+        jet.obj.addProperty(this, "onChange", new Set([onChange]), false, true);
+    }
+
     get(key) {return key ? PARSE[key] : jet.copy(PARSE);}
 
     set(key, val) {
@@ -14,6 +18,7 @@ class Query {
         if (from === val) { return }
         const str = this.toString();
         HISTORY.replaceState({}, document.title, LOCATION.pathname+(str?"?":"")+str);
+        jet.run(this.onChange, this);
     }
 
     rem(key) {return this.set(key);}

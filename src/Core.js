@@ -22,9 +22,9 @@ class Core extends Component {
 
     constructor(props) {
         super(props);
-        const { debug, version, onChange, cryptKey, langList, langLibs, langFallback, langDefault, viewSizes, sessionUrl, apiUrl, authPath, authProviders } = props;
-        const id = CORES.push(this)-1;
-        const sid = "_core"+id;
+        const { debug, version, onChange, cryptKey, langList, langLibs, langFallback, langDefault, viewSizes, sessionUrl, apiUrl, authPath, authProviders, anonymUser } = props;
+        const id = CORES.push(this) - 1;
+        const sid = "_core" + id;
 
         this.state = {};
 
@@ -41,23 +41,23 @@ class Core extends Component {
             this.onChange.add(this.debug.bind(this));
         }
 
-        this.addModule("Tray", Tray.create(task=>this.setState(task)));
+        this.addModule("Tray", Tray.create(Task => this.setState(Task)));
 
-        this.Tray.sync("build", _=>{
+        this.Tray.sync("build", _ => {
             this.addModule("Query", Query.create());
             this.addModule("Crypt", Crypt.create(cryptKey));
-            this.addModule("View", View.create(this, viewSizes));
+            this.addModule("View", View.create(this, viewSizes, View => this.setState(View)));
             this.addModule("Storage", Storage.create(localStorage.getItem(sid), async data => localStorage.setItem(sid, data), version, this.Crypt));
             this.addModule("Session", sessionUrl ? Session.create(version, sessionUrl, this.Crypt) : this.Storage.open("session"));
-            this.addModule("Auth", Auth.create(this, authPath, authProviders));
+            this.addModule("Auth", Auth.create(this, authPath, authProviders, anonymUser, Auth => this.setState({ user: Auth.User.id })));
             this.addModule("Api", Api.create(this, apiUrl));
-            this.addModule("Lang", Lang.create(this, langList, langLibs, langFallback, langDefault));
+            this.addModule("Lang", Lang.create(this, langList, langLibs, langFallback, langDefault, Lang => this.setState({ lang: Lang.now })));
         });
 
-        this.Tray.async("start", async _=>{
+        this.Tray.async("start", async _ => {
             for (name of this.modules) {
                 let module = this[name];
-                if (jet.is("function", module.start)) {await this.Tray.async(name, module.start.bind(module));}
+                if (jet.is("function", module.start)) { await this.Tray.async(name, module.start.bind(module)); }
             }
         });
     }
@@ -77,13 +77,13 @@ class Core extends Component {
 
     setState(state) {
         state = !jet.is(Task, state) ? jet.get("object", state) : {
-            loading:this.Tray.fetchTasks("pending").join(" ")||false,
-            error:this.Tray.fetchTasks("error").join(" ")||false,
-            ready:this.Tray.isReady()
+            loading: this.Tray.fetchTasks("pending").join(" ") || false,
+            error: this.Tray.fetchTasks("error").join(" ") || false,
+            ready: this.Tray.isReady()
         };
-        
+
         const nState = { ...this.state, ...state }; //merge states
-        const changes = jet.obj.map(nState, (v,k)=>this.state[k] !== v ? v : undefined);
+        const changes = jet.obj.map(nState, (v, k) => this.state[k] !== v ? v : undefined);
 
         if (jet.isEmpty(changes)) { return; }
         if (nState.mounted) { super.setState(nState); } else { this.state = nState; }
@@ -91,33 +91,33 @@ class Core extends Component {
         jet.run(Array.from(this.onChange), changes);
     }
 
-    isLoading() {return !!this.state.loading;}
-    isError() {return !!this.state.error;}
-    isReady() {return this.state.ready;}
-    isMounted() {return this.state.mounted;}
-    isDebug() {return this.props.debug;}
+    isLoading() { return !!this.state.loading; }
+    isError() { return !!this.state.error; }
+    isReady() { return this.state.ready; }
+    isMounted() { return this.state.mounted; }
+    isDebug() { return this.props.debug; }
 
     debug(msg) {
-        if (this.isDebug()) {console.log(msg);}
+        if (this.isDebug()) { console.log(msg); }
     }
 
     getProps() {
         const { id, className } = this.props;
-        const main = this.id===0;
-        const props = {id, className, main};
-        jet.obj.map(this.state, (v, k) => {if (v && v != "none") {props["data-core-" + k.lower()] = v;}});
+        const main = this.id === 0;
+        const props = { id, className, main };
+        jet.obj.map(this.state, (v, k) => { if (v && v != "none") { props["data-core-" + k.lower()] = v; } });
         return props;
     }
 
-    componentDidMount() {this.setState({mounted:true});}
-    componentWillUnmount() {this.setState({mounted:false});}
-    
+    componentDidMount() { this.setState({ mounted: true }); }
+    componentWillUnmount() { this.setState({ mounted: false }); }
+
     render() {
         const lang = this.Lang.now;
 
         return (
             <Core.Context.Provider value={this}>
-                <Helmet htmlAttributes={{lang}}><meta http-equiv="Content-language" content={lang}/></Helmet>
+                <Helmet htmlAttributes={{ lang }}><meta http-equiv="Content-language" content={lang} /></Helmet>
                 <PopUpProvider ref={this.addPopUp.bind(this)} {...this.getProps()}>
                     {this.props.children}
                 </PopUpProvider>

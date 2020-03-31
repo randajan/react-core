@@ -9,26 +9,29 @@ import Session from "./Session";
 import { LangLib } from "./Lang";
 
 
-function useCore() {
-  const provider = useContext(Core.Context);
+function useCore(...modules) {
+  const C = useContext(Core.Context);
   const setState = useState()[1];
 
   useEffect(_ => {
       const onChange = _=>setState({});
-      provider.onChange.add(onChange);
-      return _ => provider.onChange.delete(onChange);
+      const mcl = modules.map(mod=>jet.obj.get(C, [mod, "onChange"])).filter(_=>_);
+      if (jet.isEmpty(mcl)) {mcl.push(C.onChange);}
+      mcl.map(cng=>cng.add(onChange));
+      return _ => mcl.map(cng=>cng.delete(onChange));
   });
 
-  return provider;
+  return C;
 }
 
 function useCrypt() {return useCore().Crypt;}
-function useView() {return useCore().View;}
+function useQuery() {return useCore("Query").Query;}
+function useView() {return useCore("View").View;}
 function useStorage() {return useCore().Storage;}
 function useSession() {return useCore().Session;}
-function useLang() {return useCore().Lang;}
+function useLang() {return useCore("Lang").Lang;}
 function useApi() {return useCore().Api;}
-function useAuth() {return useCore().Auth;}
+function useAuth() {return useCore("Auth").Auth;}
 function useUser() {return useAuth().User;}
 
 
@@ -49,6 +52,7 @@ export {
   useSession,
   useLang,
   useApi,
+  useQuery,
   useAuth,
   useUser
 }

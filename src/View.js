@@ -22,10 +22,12 @@ const SIZESET = [];
 
 class View {
 
-    constructor(Core, sizes) {
+    constructor(Core, sizes, onChange) {
+        let _size;
         jet.obj.addProperty(this, {
             Core,
-            id:SIZESET.push({})-1
+            id:SIZESET.push({})-1,
+            onChange:new Set([onChange])
         });
 
         jet.obj.addProperty(this, View.getDevice(), null, false, true);
@@ -33,19 +35,34 @@ class View {
         Object.defineProperties(this, {
             width:{get:_=>Math.max(document.documentElement.clientWidth, window.innerWidth)},
             height:{get:_=>Math.max(document.documentElement.clientHeight, window.innerHeight)},
-            size:{get:_=>jet.obj.join(this.fetch(), " "), enumerable:true}
+            size:{
+                enumerable:true,
+                set:_=>{
+                    const {width, height} = this;
+                    const sizes = [];
+                    jet.obj.map(SIZESET[this.id], (check, size)=>{if (check(width, height)) {sizes.push(size);}});
+                    const size = jet.obj.join(sizes, " ");
+                    if (_size === size) {return}
+                    _size = size;
+                    jet.run(this.onChange, this);
+                },
+                get:_=>_size
+            }
+
         })
 
         window.addEventListener("resize", this.actualize.bind(this));
-        this.add(sizes||DEFAULTSIZES);
-        this.actualize();
+
+        this.addSize(jet.obj.merge(DEFAULTSIZES, sizes));
     }
 
     async actualize() {
-        this.Core.setState(this);
+        const size = this.size;
+        this.size = null;
+        return size !== this.size;
     }
 
-    add(size, check) {
+    addSize(size, check) {
         const sizes = SIZESET[this.id];
         check = jet.get("function", check);
 
@@ -53,20 +70,11 @@ class View {
         else if (jet.is("string", size)) {sizes[size] = check}
         else {return false;}
 
-        this.actualize();
-        return true;
+        return this.actualize() || true;
     }
 
-    is(size) {
+    isSize(size) {
         return this.size.includes(size);
-    }
-
-    fetch() {
-        const sizes = SIZESET[this.id];
-        const {width, height} = this;
-        const result = [];
-        jet.obj.map(sizes, (check, size)=>{if (check(width, height)) {result.push(size);}});
-        return result;
     }
 
     static getDevice() {

@@ -3,7 +3,7 @@ import User from "./User";
 
 class Auth {
 
-    constructor(Core, path, providers, anonymName) {
+    constructor(Core, path, providers, anonymUser, onChange) {
         let _user;
         
         jet.obj.addProperty(this, {
@@ -11,22 +11,19 @@ class Auth {
             Storage:Core.Storage.open("auth"),
             path:jet.get("string", path),
             providers:jet.obj.toArray(providers),
+            onChange:new Set([onChange]),
         }, null, false, true);
 
         Object.defineProperty(this, "User", {
             enumerable:true,
             set:function(profile) {
                 _user = User.create(this, profile);
-                this.Core.setState({user:_user.id});
+                jet.run(this.onChange, this);
             },
             get:function() {return _user;}
         });
 
-        if (!this.getAnonymName()) {
-            this.setAnonymName(jet.is("function", anonymName) ? anonymName() : anonymName)
-        }
-
-        Core.onChange.add(changes=>changes.lang ? this.User.saveLang(changes.lang) : null);
+        this.setAnonymUser(anonymUser);
 
         this.logout();
     }
@@ -45,8 +42,7 @@ class Auth {
         return access_token ? withType ? [token_type, access_token].join(" ") : access_token : "";
     }
 
-    getAnonymName() {return this.Storage.get("users.0.profile.name");}
-    setAnonymName(name) {return this.Storage.set("users.0.profile.name", jet.get("string", name));}
+    setAnonymUser(profile, force) {return this.Storage.push("users.0.profile", jet.get("ojbect", profile), force);}
 
     getMenu() {
         const lang = this.Core.Lang;
@@ -75,7 +71,7 @@ class Auth {
     async start() {
         const Core = this.Core;
 
-        this.logout();
+        Core.Lang.onChange.add(Lang=>this.User.saveLang(Lang.now));
 
         jet.obj.addProperty(this, {
             Session:Core.Session.open("auth"),

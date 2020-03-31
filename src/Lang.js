@@ -22,7 +22,7 @@ class LangLib {
 
 class Lang {
 
-    constructor(Core, list, libs, fallback, def) {
+    constructor(Core, list, libs, fallback, def, onChange) {
         [fallback, def] = jet.get([["string", fallback, "en"], ["string", def]]);
 
         const Storage = Core.Storage.open("lang");
@@ -33,9 +33,18 @@ class Lang {
         def = Lang.validateLang([def, list[0]], list);
         fallback = Lang.validateLang([fallback, list[0]], list);
 
-        jet.obj.addProperty(this, { Core, Storage, list, libs, def, fallback, query}, null, false, true);
+        jet.obj.addProperty(this, {
+            Core,
+            Storage,
+            list,
+            libs,
+            def,
+            fallback,
+            query,
+            onChange:new Set([onChange])
+        }, null, false, true);
 
-        Core.onChange.add(changes => changes.user != null ? this.select(query, Core.Auth.User.loadLang()) : null);
+        Core.Auth.onChange.add(Auth=> this.select(query, Auth.User.loadLang()));
         
         this.select(query, Core.Auth.User.loadLang());
     }
@@ -62,14 +71,12 @@ class Lang {
 
     async select(...langs) {
         langs = this.validateLang([langs, this.now, this.def], true);
-        
         for (let lang of langs) {
             if (lang === this.now) {return false;}
             if (await this.loadLib(lang)) {this.now = lang; break;}
         }
-        
         moment.locale(this.now);
-        this.Core.setState({ lang: this.now });
+        jet.run(this.onChange, this);
         return true;
     }
 
