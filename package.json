@@ -1,6 +1,6 @@
 {
   "name": "@randajan/react-app-core",
-  "version": "2.0.5",
+  "version": "2.0.7",
   "description": "Pack of core systems for react application",
   "license": "MIT",
   "repository": "randajan/react-app-core",
@@ -55,7 +55,7 @@
     "rollup-plugin-url": "^1.4.0"
   },
   "dependencies": {
-    "@randajan/jetpack": "^3.2.1",
+    "@randajan/jetpack": "^3.3.3",
     "@randajan/react-popup": "^2.2.1",
     "babel-plugin-transform-runtime": "^6.23.0",
     "crypto-js": "^4.0.0",

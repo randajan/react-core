@@ -102,7 +102,9 @@ class Core extends Component {
     }
 
     getProps() {
-        const props = {};
+        const { id, className } = this.props;
+        const main = this.id===0;
+        const props = {id, className, main};
         jet.obj.map(this.state, (v, k) => {if (v && v != "none") {props["data-core-" + k.lower()] = v;}});
         return props;
     }
@@ -112,10 +114,11 @@ class Core extends Component {
     
     render() {
         const lang = this.Lang.now;
+
         return (
             <Core.Context.Provider value={this}>
                 <Helmet htmlAttributes={{lang}}><meta http-equiv="Content-language" content={lang}/></Helmet>
-                <PopUpProvider ref={this.addPopUp.bind(this)} main {...this.getProps()}>
+                <PopUpProvider ref={this.addPopUp.bind(this)} {...this.getProps()}>
                     {this.props.children}
                 </PopUpProvider>
             </Core.Context.Provider>
