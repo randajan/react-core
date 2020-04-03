@@ -1,6 +1,12 @@
-import { useContext, useState, useEffect } from 'react'
+
+import React, { Component, useContext, useState, useEffect } from 'react'
+import { Helmet } from "react-helmet";
+
+import jet from "@randajan/jetpack";
+import PopUpProvider, { usePopUp } from "@randajan/react-popup";
+
+import Provider, { Context } from "./Provider";
 import Core from "./Core";
-import { usePopUp } from "@randajan/react-popup";
 import Tray, { Task } from "./Tray";
 import Query from "./Query";
 import Crypt from "./Crypt";
@@ -10,18 +16,18 @@ import { LangLib } from "./Lang";
 
 
 function useCore(...modules) {
-  const C = useContext(Core.Context);
+  const Core = useContext(Context);
   const setState = useState()[1];
 
   useEffect(_ => {
       const onChange = _=>setState({});
-      const mcl = modules.map(mod=>jet.obj.get(C, [mod, "onChange"])).filter(_=>_);
-      if (jet.isEmpty(mcl)) {mcl.push(C.onChange);}
+      const mcl = modules.map(mod=>jet.obj.get(Core, [mod, "onChange"])).filter(_=>_);
+      if (jet.isEmpty(mcl)) {mcl.push(Core.onChange);}
       mcl.map(cng=>cng.add(onChange));
       return _ => mcl.map(cng=>cng.delete(onChange));
   });
 
-  return C;
+  return Core;
 }
 
 function useCrypt() {return useCore().Crypt;}
@@ -35,8 +41,10 @@ function useAuth() {return useCore("Auth").Auth;}
 function useUser() {return useAuth().User;}
 
 
-export default Core;
+export default Provider;
 export {
+  Context,
+  Core,
   Tray,
   Task,
   Query,
