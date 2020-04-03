@@ -38,7 +38,7 @@ class Core extends Component {
         if (debug) {
             window.jet = jet;
             window.Core = this;
-            this.onChange.add(this.debug.bind(this));
+            this.onChange.add((C, changes)=>this.debug(changes));
         }
 
         this.addModule("Tray", Tray.create(Task => this.setState(Task)));
@@ -88,7 +88,7 @@ class Core extends Component {
         if (jet.isEmpty(changes)) { return; }
         if (nState.mounted) { super.setState(nState); } else { this.state = nState; }
 
-        jet.run(Array.from(this.onChange), changes);
+        jet.run(Array.from(this.onChange), this, changes);
     }
 
     isLoading() { return !!this.state.loading; }

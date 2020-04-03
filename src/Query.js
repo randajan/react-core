@@ -17,7 +17,7 @@ class Query {
         if (val === undefined) {delete PARSE[key];} else {PARSE[key] = val;}
         if (from === val) { return }
         const str = this.toString();
-        HISTORY.replaceState({}, document.title, LOCATION.pathname+(str?"?":"")+str);
+        HISTORY.replaceState(HISTORY.state, document.title, LOCATION.pathname+(str?"?":"")+str);
         jet.run(this.onChange, this);
     }
 
