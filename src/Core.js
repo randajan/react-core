@@ -62,12 +62,17 @@ class Core {
         return module;
     }
 
-    regOnChange(onChange, ...modules) {
+    regOnChange(onChange, modules, run) {
         if (!jet.is("function", onChange)) {return;}
+        modules = jet.obj.toArray(modules);
         if (jet.isEmpty(modules)) {modules.push("Core");}
         const list = modules.map(mod=> mod === "Core" ? this : jet.obj.get(this, [mod, "onChange"]) ? this[mod] : null).filter(_=>_);
 
-        list.map(Mod=>Mod.onChange.add(onChange));
+        list.map(Mod=>{
+            if (Mod.onChange.has(onChange)) {return; }
+            Mod.onChange.add(onChange); 
+            if (run) {onChange(Mod, Mod.state);}
+        });
         return _ => list.map(Mod=>Mod.onChange.delete(onChange));
     }
 

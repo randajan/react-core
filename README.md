@@ -91,7 +91,7 @@ sessionUrl | String | - | Define path to session storage. If it's not present it
 apiUrl | String | - | Define rest api url
 authPath | String | - | Define oAuth path for resolve AuthCode
 authProviders | Array | - | oAuth providers
-addProps | Function | - | Should return object with custom props. Hooks can be used inside
+addProps | Function | - | First argument is function which calling Core.regOnChange(onChange, ...modules)
 
 _**default langLibs:_
 ```jsx

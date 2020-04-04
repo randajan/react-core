@@ -11,7 +11,7 @@ const coreConfig = {
   langLibs:[
     {priority:10, list:["cs"], path:"index", fetch:lang=>fetch("/index.html").then(data=>data.text())}, 
   ],
-  addProps:_=>({"data-size":useView().size})
+  addProps:add=>add(View=>({view:View.size}), "View")
 }
 
 function Example() {
