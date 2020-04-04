@@ -1,6 +1,8 @@
 
 import React, { useContext, useState, useEffect } from 'react'
 
+import { usePopUp } from "@randajan/react-popup";
+
 const Context = React.createContext();
 
 function useCore(...modules) {

@@ -22,7 +22,7 @@ function Example() {
     <div className="Example">
       <h1>Majestic APP</h1>
       <h2>{useView().size}</h2>
-      <a href="#" onClick={_=>Query.set("test", !Query.get("test") ? true : undefined)}>Add to query</a>
+      <a href="" onClick={_=>Query.set("test", !Query.get("test") ? true : undefined)}>Add to query</a>
     </div>
   )
   
