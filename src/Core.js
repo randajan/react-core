@@ -45,7 +45,7 @@ class Core {
             this.addModule("Session", sessionUrl ? Session.create(version, sessionUrl, this.Crypt) : this.Storage.open("session"));
             this.addModule("Auth", Auth.create(this, authPath, authProviders, anonymUser));
             this.addModule("Api", Api.create(this, apiUrl));
-            this.addModule("Lang", Lang.create(this, langList, langLibs, langFallback, langDefault, Lang=>this.setState({lang:Lang.now})));
+            this.addModule("Lang", Lang.create(this, langList, langLibs, langFallback, langDefault));
         });
 
         this.Tray.async("start", async _ => {
@@ -58,8 +58,17 @@ class Core {
 
     addModule(name, module) {
         this.modules.add(name);
-        jet.obj.addProperty(this, name, module, false, true);
+        jet.obj.addProperty(this, name, module, false, true, false);
         return module;
+    }
+
+    regOnChange(onChange, ...modules) {
+        if (!jet.is("function", onChange)) {return;}
+        if (jet.isEmpty(modules)) {modules.push("Core");}
+        const list = modules.map(mod=> mod === "Core" ? this : jet.obj.get(this, [mod, "onChange"]) ? this[mod] : null).filter(_=>_);
+
+        list.map(Mod=>Mod.onChange.add(onChange));
+        return _ => list.map(Mod=>Mod.onChange.delete(onChange));
     }
 
     setState(state) {

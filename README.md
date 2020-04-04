@@ -90,7 +90,8 @@ viewSizes | Object | */ | Define constants for measure inner window size
 sessionUrl | String | - | Define path to session storage. If it's not present it will use localStorage
 apiUrl | String | - | Define rest api url
 authPath | String | - | Define oAuth path for resolve AuthCode
-authProviders | String | - | oAuth providers
+authProviders | Array | - | oAuth providers
+addProps | Function | - | Should return object with custom props. Hooks can be used inside
 
 _**default langLibs:_
 ```jsx
