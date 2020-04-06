@@ -28,6 +28,7 @@ function Example() {
       <h2>{useView().size}</h2>
       <a onClick={_=>Query.set("test", !Query.get("test") ? true : undefined)}>Add to query</a>
       <Ico id="menu"/>
+      <Ico id="menu"/>
     </div>
   )
     

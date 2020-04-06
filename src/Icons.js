@@ -21,6 +21,7 @@ class Icons {
             prefix,
             size,
             list,
+            state:{}
         }, null, false, true);
 
         Object.defineProperty(this, "viewBox", {enumerable:true, get:_=>`0 0 ${size} ${size}`})
@@ -74,11 +75,12 @@ class Icons {
         )
     }
 
-    async load(id, force) {
-        if (!force && this.Storage.get(id)) { return true; }
+    async load(id) {
+        if (this.state[id] != null) {return false;}
+        this.state[id] = true;
         const svg = await this.fetch(id);
         const strap = Icons.svgStrap(svg);
-        if (!strap) { return false; }
+        this.state[id] = !!strap;
         this.Storage.set(id, strap);
         jet.run(this.onChange, this);
         return true;
@@ -86,10 +88,9 @@ class Icons {
 
     async fetch(id) {
         const path = this.list[id];
-        return path ? await fetch(path).then(resp=>resp.text()) : undefined;
+        if (!path) { return }
+        return fetch(path).then(resp=>resp.text());
     }
-
-
 
     static create(...args) {
         return new Icons(...args);
