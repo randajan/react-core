@@ -9,17 +9,24 @@ import Session from "./Session";
 import Lang from "./Lang";
 import Api from "./Api";
 import Auth from "./Auth";
+import Icons from "./Icons";
 
 const CORES = [];
 
 class Core {
 
-    constructor(props) {
-        const { debug, version, onChange, cryptKey, langList, langLibs, langFallback, langDefault, viewSizes, sessionUrl, apiUrl, authPath, authProviders, anonymUser } = props;
-        const id = CORES.push(this) - 1;
-        const sid = "_core" + id;
+    state = {}
 
-        this.state = {};
+    constructor(props) {
+        const { 
+            nocache, debug, version, onChange, cryptKey, viewSizes, sessionUrl, apiUrl, 
+            langList, langLibs, langFallback, langDefault, 
+            authPath, authProviders, anonymUser, 
+            iconsPrefix, iconsList, iconsSize
+        } = props;
+        
+
+        const id = CORES.push(this) - 1;
 
         jet.obj.addProperty(this, {
             id,
@@ -32,7 +39,7 @@ class Core {
         if (debug) {
             window.jet = jet;
             window.Core = this;
-            this.onChange.add((C, changes)=>this.log(changes));
+            this.onChange.add((Core, changes)=>this.log(changes));
         }
 
         this.addModule("Tray", Tray.create(Task => this.setState(Task)));
@@ -41,11 +48,13 @@ class Core {
             this.addModule("Query", Query.create());
             this.addModule("Crypt", Crypt.create(cryptKey));
             this.addModule("View", View.create(this, viewSizes));
-            this.addModule("Storage", Storage.create(localStorage.getItem(sid), async data => localStorage.setItem(sid, data), version, this.Crypt));
+            this.addModule("Cache", nocache ? Storage.create() : Storage.createLocal("_coreCache" + id, version));
+            this.addModule("Storage", nocache? Storage.create() : Storage.createLocal("_coreStorage" + id, version, this.Crypt));
             this.addModule("Session", sessionUrl ? Session.create(version, sessionUrl, this.Crypt) : this.Storage.open("session"));
             this.addModule("Auth", Auth.create(this, authPath, authProviders, anonymUser));
             this.addModule("Api", Api.create(this, apiUrl));
             this.addModule("Lang", Lang.create(this, langList, langLibs, langFallback, langDefault));
+            this.addModule("Icons", Icons.create(this, iconsPrefix, iconsList, iconsSize));
         });
 
         this.Tray.async("start", async _ => {

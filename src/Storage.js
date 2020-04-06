@@ -41,9 +41,9 @@ class Storage {
         return this.set(path, mapable ? jet.obj.merge(force?null:val, this.get(path), force?val:null) : val, force || mapable);
     }
 
-    open(path) {
+    open(path, Crypt) {
         if (!path) {return this;}
-        const child = Storage.create(this.get(path), this.save.bind(this));
+        const child = Storage.create(this.get(path), this.save.bind(this), undefined, Crypt);
         this.set(path, child);
         return child;
     }
@@ -58,6 +58,10 @@ class Storage {
 
     static create(content, saveMethod, version, Crypt) {
         return jet.is(Storage, content) ? content : new Storage(content, saveMethod, version, Crypt);
+    }
+
+    static createLocal(id, version, Crypt) {
+        return Storage.create(localStorage.getItem(id), async data => localStorage.setItem(id, data), version, Crypt);
     }
 
     static byteCount(obj) {

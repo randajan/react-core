@@ -42,6 +42,7 @@ class Provider extends Component {
       this.clean = [];
       this.addStateProps(Core=>Core.state);
       this.addStateProps(Lang=>({lang:Lang.now}), "Lang");
+      this.addStateProps(Icons=>({}), "Icons");
       jet.run(this.props.addProps, this.addStateProps.bind(this));
     }
 
@@ -58,8 +59,10 @@ class Provider extends Component {
       return (
           <Context.Provider value={this.Core}>
             <PopUpProvider ref={PopUp=>this.Core.addModule("PopUp", PopUp)} {...props}>
-                <Helmet htmlAttributes={{ lang }}><meta http-equiv="Content-language" content={lang} /></Helmet>
-                {this.props.children}
+              {this.Core.Icons.getDefs()}
+              <Helmet htmlAttributes={{ lang }}><meta http-equiv="Content-language" content={lang} /></Helmet>
+              {this.props.children}
+              
             </PopUpProvider>  
           </Context.Provider>
       )

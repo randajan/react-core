@@ -43,6 +43,7 @@ const viewSizes = {
 }
 
 const coreConfig = {
+  nocache:true,
   version:"1.0.0.0",
   debug:true,
   onChange:_=>alert(_),
@@ -56,7 +57,13 @@ const coreConfig = {
   apiUrl:"http://api.example.com",
   authPath:"/auth",
   authProviders:["google", "facebook"]
+  iconsPrefix:"ico",
+  iconsList:{user:require("user.svg")},
+  iconsSize:24
+  anonymUser:{name:"Ishtvan"}
 }
+
+import CoreProvider, { useLang, useUser, Ico } from "@randajan/react-app-core";
 
 export default class App extends Component {
   render () {
@@ -69,8 +76,16 @@ export default class App extends Component {
 }
 
 function Consumer() {
-  const Core = useCore(); //or shorthand useUser()
-  return <div className="UserName">{Core.Auth.User.get("name")}</div>
+  const Lang = useLang();
+  const User = useUser();
+
+  return (
+    <div className="User">
+      <Ico id="user" className="avatar" title="User"/>
+      <p className="label">{Lang.get("auth.anonym")}</p>
+      <p className="name">{User.get("name")}</p>
+    </div>
+  )
 }
 
 ```
@@ -79,6 +94,7 @@ function Consumer() {
 name | type | default | use
 --- | --- | --- | ---
 version | String | - | Version will be stored with other cached data. If there will be mismatch cached data will be forgotten
+nocache | Boolean | false | On true will not store any data in localStorage. Great for development purpose
 debug | Boolean | false | Will append jet and core to global scope and every onChange event output to console
 onChange | Function | - | After any change of core state will be called with list of changes
 cryptKey | String | - | Will be used for crypting and decrypting User data
@@ -86,11 +102,15 @@ langList | Array \|\| Object | \["en"\] | Define available languages. It will au
 langLibs | Array | * | Define lang ibrary for fetch lang when it's selected
 langFallback | String | "en" \|\| first in langList | Define fallback on lang when there is no text in selected lang
 langDefault | String | first in langList | Default language
-viewSizes | Object | */ | Define constants for measure inner window size
+viewSizes | Object | ** | Define constants for measure inner window size
 sessionUrl | String | - | Define path to session storage. If it's not present it will use localStorage
 apiUrl | String | - | Define rest api url
 authPath | String | - | Define oAuth path for resolve AuthCode
 authProviders | Array | - | oAuth providers
+anonymUser | Object | - | Anonym user profile
+iconsPrefix | String | ico | svg icons prefix is used as default classname of all icons
+iconsList | Object | - | path to all used icons
+iconsSize | Number | 24 | viewBox of all SVG icons. Every used icon must be same size!
 addProps | Function | - | First argument is function which calling Core.regOnChange(onChange, ...modules)
 
 _**default langLibs:_
@@ -140,20 +160,24 @@ Auth | Core | Manage Users and authorization via oauth | -
 User | Auth | Keep user profile | -
 Api | Core | Shorthand for fetching data from Rest Api | -
 Lang | Core | Responsible for select language, fetch external lang libraries and provide right text | __moment__
+Icons | Core | Fetch and cache svg icons
 PopUp | Core | Handling PopUp windows | __@randajan/react-popup__
 
 _*every script uses @randajan/jetpack_
 
 ## Exports
 ```jsx
-export default Core;
+export default Provider;
 export {
+  Context,
+  Core,
   Tray,
   Task,
   Query,
   Crypt,
   Storage,
   Session,
+  LangLib,
   useCore,
   usePopUp,
   useCrypt,
@@ -162,8 +186,11 @@ export {
   useSession,
   useLang,
   useApi,
+  useQuery,
   useAuth,
-  useUser
+  useUser,
+  useIcons,
+  Ico
 }
 ```
 

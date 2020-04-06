@@ -21,6 +21,11 @@ function useLang() {return useCore("Lang").Lang;}
 function useApi() {return useCore().Api;}
 function useAuth() {return useCore("Auth").Auth;}
 function useUser() {return useAuth().User;}
+function useIcons() {return useCore("Icons").Icons;}
+
+function Ico(props) {
+  return useIcons().get(props);
+}
 
 export default Context
 export {
@@ -34,5 +39,8 @@ export {
   useApi,
   useQuery,
   useAuth,
-  useUser
+  useUser,
+  useIcons,
+  useIco,
+  Ico,
 }

@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 
-import CoreProvider, { useCore, useView, useQuery } from '@randajan/react-app-core'
+import CoreProvider, { useCore, useView, useQuery, Ico } from '@randajan/react-app-core';
 
 const coreConfig = {
+  nocache:true,
   debug:true,
   version:"1.0.1",
   cryptKey:"XYZ",
@@ -10,6 +11,9 @@ const coreConfig = {
   langList:["en", "cs", "any"],
   langLibs:[
     {priority:10, list:["cs"], path:"index", fetch:lang=>fetch("/index.html").then(data=>data.text())}, 
+  ],
+  iconsList:[
+    require("./menu.svg")
   ],
   addProps:add=>add(View=>({view:View.size}), "View")
 }
@@ -22,10 +26,11 @@ function Example() {
     <div className="Example">
       <h1>Majestic APP</h1>
       <h2>{useView().size}</h2>
-      <a href="" onClick={_=>Query.set("test", !Query.get("test") ? true : undefined)}>Add to query</a>
+      <a onClick={_=>Query.set("test", !Query.get("test") ? true : undefined)}>Add to query</a>
+      <Ico id="menu"/>
     </div>
   )
-  
+    
 
 }
 

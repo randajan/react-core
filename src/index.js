@@ -18,7 +18,9 @@ import Context, {
   useApi,
   useQuery,
   useAuth,
-  useUser
+  useUser,
+  useIcons,
+  Ico,
 } from "./Hooks";
 
 
@@ -44,5 +46,7 @@ export {
   useApi,
   useQuery,
   useAuth,
-  useUser
+  useUser,
+  useIcons,
+  Ico
 }
