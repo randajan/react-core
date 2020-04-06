@@ -81,7 +81,7 @@ function Consumer() {
 
   return (
     <div className="User">
-      <Ico id="user" className="avatar" title="User"/>
+      <Ico src="user" className="avatar" title="User"/>
       <p className="label">{Lang.get("auth.anonym")}</p>
       <p className="name">{User.get("name")}</p>
     </div>

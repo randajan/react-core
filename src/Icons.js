@@ -28,13 +28,13 @@ class Icons {
 
     }
 
-    get(id, className, title) {
-        [id, className, title] = jet.untie({id, className, title});
+    get(props) {
         const { prefix, viewBox } = this;
-        const fullId = this.getFullId(id);
-        this.load(id);
+        const { src, className, title } = props;
+        const fullId = this.getFullId(src);
+        this.load(src);
         return (
-            <svg className={[prefix, id, className].join(" ")} viewBox={viewBox}>
+            <svg {...props} className={[prefix, src, className].join(" ")} viewBox={viewBox}>
                 {title ? <title>{title}</title> : null}
                 <use className="svgShadow" xlinkHref={"#"+fullId}/>
                 <use xlinkHref={"#"+fullId}/>

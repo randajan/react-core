@@ -27,8 +27,8 @@ function Example() {
       <h1>Majestic APP</h1>
       <h2>{useView().size}</h2>
       <a onClick={_=>Query.set("test", !Query.get("test") ? true : undefined)}>Add to query</a>
-      <Ico id="menu"/>
-      <Ico id="menu"/>
+      <Ico src="menu"/>
+      <Ico src="menu"/>
     </div>
   )
     
