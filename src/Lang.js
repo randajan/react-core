@@ -44,9 +44,9 @@ class Lang {
             onChange:new Set([onChange])
         }, null, false, true);
 
-        Core.Auth.onChange.add(Auth=> this.select(query, Auth.User.loadLang()));
-        
         this.select(query, Core.Auth.User.loadLang());
+
+        Core.Auth.onChange.add(Auth=>this.select(query, Auth.User.loadLang()));
     }
 
     get(path, ...langs) {

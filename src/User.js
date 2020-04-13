@@ -18,7 +18,6 @@ class User {
       Storage:Auth.Storage.open("users." + profile.id),
       id:profile.id,
     }, null, false, true);
-
   }
 
   get(path) {
@@ -35,7 +34,7 @@ class User {
 
   isReal() {return this.id > 0;}
 
-  saveLang(lang) {return this.Storage.set("lang", lang);}
+  saveLang(lang) {return this.Storage.set("lang", lang, true);}
   loadLang() {return this.Storage.get("lang");}
 
   getTooltip() {

@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 
-import CoreProvider, { useCore, useView, useQuery, Ico } from '@randajan/react-app-core';
+import CoreProvider, { useCore, useLang, useView, useQuery, Ico } from '@randajan/react-app-core';
 
 const coreConfig = {
-  nocache:true,
+  //nocache:true,
   debug:true,
   version:"1.0.1",
   cryptKey:"XYZ",
@@ -26,6 +26,7 @@ function Example() {
     <div className="Example">
       <h1>Majestic APP</h1>
       <h2>{useView().size}</h2>
+      <h2>{useLang().now}</h2>
       <a onClick={_=>Query.set("test", !Query.get("test") ? true : undefined)}>Add to query</a>
       <Ico src="menu"/>
       <Ico src="menu"/>

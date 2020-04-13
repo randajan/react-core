@@ -16,10 +16,10 @@ class Storage {
 
     set(path, val, force) {
         force = jet.get("boolean", force, true);
-        const from = this.get(path, val);
+        const from = this.get(path);
 
         if (from === val) {return true;} //no change
-
+        
         if (!force && from != null) { return false; }
         if (path && !jet.obj.set(this, path, val, true)) { return false; }
         else if (!path) {
