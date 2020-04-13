@@ -10,7 +10,7 @@ class Storage {
     }
 
     load(content) {
-        const data = jet.get("mapable", (this.Crypt && jet.is("string", content)) ? this.Crypt.deObj(content) : content);
+        const data = jet.get("mapable", jet.is("string", content) ? this.Crypt ? this.Crypt.deObj(content) : JSON.parse(content) : content);
         if (data.version === this.version) {jet.obj.map(data, (v, k)=>this[k] = v);}
     }
 
@@ -41,9 +41,9 @@ class Storage {
         return this.set(path, mapable ? jet.obj.merge(force?null:val, this.get(path), force?val:null) : val, force || mapable);
     }
 
-    open(path, Crypt) {
+    open(path) {
         if (!path) {return this;}
-        const child = Storage.create(this.get(path), this.save.bind(this), undefined, Crypt);
+        const child = Storage.create(this.get(path), this.save.bind(this));
         this.set(path, child);
         return child;
     }
@@ -61,7 +61,7 @@ class Storage {
     }
 
     static createLocal(id, version, Crypt) {
-        return Storage.create(localStorage.getItem(id), async data => localStorage.setItem(id, data), version, Crypt);
+        return Storage.create(localStorage.getItem(id), async data => localStorage.setItem(id, data) || true, version, Crypt);
     }
 
     static byteCount(obj) {
