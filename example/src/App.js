@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import CoreProvider, { useCore, useLang, useView, useQuery, Ico } from '@randajan/react-app-core';
+import CoreProvider, { useCore, useLang, useView, useQuery, Ico, Img } from '@randajan/react-app-core';
 
 const coreConfig = {
   //nocache:true,
@@ -13,6 +13,9 @@ const coreConfig = {
     {priority:10, list:["cs"], path:"index", fetch:lang=>fetch("/index.html").then(data=>data.text())}, 
   ],
   iconsList:[
+    require("./menu.svg")
+  ],
+  imagesList:[
     require("./menu.svg")
   ],
   addProps:add=>add(View=>({view:View.size}), "View")
@@ -30,6 +33,8 @@ function Example() {
       <a onClick={_=>Query.set("test", !Query.get("test") ? true : undefined)}>Add to query</a>
       <Ico src="menu"/>
       <Ico src="menu"/>
+      <Img src="menu"/>
+      <Img src="menu"/>
     </div>
   )
     

@@ -62,7 +62,6 @@ class Provider extends Component {
               {this.Core.Icons.getDefs()}
               <Helmet htmlAttributes={{ lang }}><meta http-equiv="Content-language" content={lang} /></Helmet>
               {this.props.children}
-              
             </PopUpProvider>  
           </Context.Provider>
       )

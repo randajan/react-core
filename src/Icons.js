@@ -9,7 +9,7 @@ class Icons {
     constructor(Core, prefix, list, size, onChange) {
         const id = ICONS.push({})-1;
 
-        prefix = jet.get("string", prefix, "ico");
+        prefix = jet.get("string", prefix, "Ico");
         size = jet.get("number", size)||24;
         list = Icons.fetchList(list);
 
@@ -34,7 +34,7 @@ class Icons {
         const fullId = this.getFullId(src);
         this.load(src);
         return (
-            <svg {...props} className={[prefix, src, className].join(" ")} viewBox={viewBox}>
+            <svg {...props} className={jet.obj.join([prefix, src, className]," ")} viewBox={viewBox}>
                 {title ? <title>{title}</title> : null}
                 <use className="svgShadow" xlinkHref={"#"+fullId}/>
                 <use xlinkHref={"#"+fullId}/>

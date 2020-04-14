@@ -22,9 +22,14 @@ function useApi() {return useCore().Api;}
 function useAuth() {return useCore("Auth").Auth;}
 function useUser() {return useAuth().User;}
 function useIcons() {return useCore("Icons").Icons;}
+function useImages() {return useCore("Images").Images;}
 
 function Ico(props) {
   return useIcons().get(props);
+}
+
+function Img(props) {
+  return useImages().get(props);
 }
 
 export default Context
@@ -43,4 +48,5 @@ export {
   useIcons,
   useIco,
   Ico,
+  Img
 }

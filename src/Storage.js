@@ -10,8 +10,15 @@ class Storage {
     }
 
     load(content) {
-        const data = jet.get("mapable", jet.is("string", content) ? this.Crypt ? this.Crypt.deObj(content) : JSON.parse(content) : content);
-        if (data.version === this.version) {jet.obj.map(data, (v, k)=>this[k] = v);}
+        if (jet.is("string", content)) {
+            content = this.Crypt ? this.Crypt.deObj(content) : jet.obj.fromJSON(content, false)
+        }
+        
+        content = jet.get("mapable", content);
+
+        if (content.version === this.version) {
+            jet.obj.map(content, (v, k)=>this[k] = v);
+        }
     }
 
     set(path, val, force) {
@@ -50,10 +57,6 @@ class Storage {
 
     toString() {
         return JSON.stringify(this);
-    }
-
-    toJson() {
-        return this;
     }
 
     static create(content, saveMethod, version, Crypt) {

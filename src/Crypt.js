@@ -18,15 +18,11 @@ class Crypt {
     }
 
     enObj(obj) {
-        return this.en(JSON.stringify(obj));
+        return this.en(jet.obj.toJSON(obj));
     }
     
     deObj(hash) {
-        try {
-            return JSON.parse(this.de(hash));
-        } catch(e) {
-            return {};
-        }
+        return jet.obj.fromJSON(this.de(hash), false);
     }
     
     static create(key) {return new Crypt(key);}

@@ -30,7 +30,7 @@ class Query {
     }
 
     toString(json) {
-        return json ? JSON.stringify(PARSE) : qs.stringify(PARSE);
+        return json ? jet.obj.toJSON(PARSE) : qs.stringify(PARSE);
     }
 
     static create(...args) {

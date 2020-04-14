@@ -10,6 +10,7 @@ import Lang from "./Lang";
 import Api from "./Api";
 import Auth from "./Auth";
 import Icons from "./Icons";
+import Images from "./Images";
 
 const CORES = [];
 
@@ -19,10 +20,11 @@ class Core {
 
     constructor(props) {
         const { 
-            nocache, debug, version, onChange, cryptKey, viewSizes, sessionUrl, apiUrl, 
+            nocache, debug, version, onChange, onBuild, cryptKey, viewSizes, sessionUrl, apiUrl, 
             langList, langLibs, langFallback, langDefault, 
             authPath, authProviders, anonymUser, 
-            iconsPrefix, iconsList, iconsSize
+            iconsPrefix, iconsList, iconsSize,
+            imagesPrefix, imagesList,
         } = props;
         
 
@@ -55,8 +57,10 @@ class Core {
             this.addModule("Api", Api.create(this, apiUrl));
             this.addModule("Lang", Lang.create(this, langList, langLibs, langFallback, langDefault));
             this.addModule("Icons", Icons.create(this, iconsPrefix, iconsList, iconsSize));
+            this.addModule("Images", Images.create(this, imagesPrefix, imagesList));
+            jet.run(onBuild, this);
         });
-
+        
         this.Tray.async("start", async _ => {
             for (name of this.modules) {
                 let module = this[name];
@@ -103,9 +107,8 @@ class Core {
 
     isLoading() { return !!this.state.loading; }
     isError() { return !!this.state.error; }
-    isReady() { return this.state.ready; }
-    isMounted() { return this.state.mounted; }
-    isDebug() { return this.debug; }
+    isReady() { return !!this.state.ready; }
+    isDebug() { return !!this.debug; }
 
     log(msg) {
         if (this.isDebug()) { console.log(msg); }

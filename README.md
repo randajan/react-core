@@ -97,6 +97,7 @@ version | String | - | Version will be stored with other cached data. If there w
 nocache | Boolean | false | On true will not store any data in localStorage. Great for development purpose
 debug | Boolean | false | Will append jet and core to global scope and every onChange event output to console
 onChange | Function | - | After any change of core state will be called with list of changes
+onBuild | Function | - | Run after initial build
 cryptKey | String | - | Will be used for crypting and decrypting User data
 langList | Array \|\| Object | \["en"\] | Define available languages. It will auto include langFallback and langDefault
 langLibs | Array | * | Define lang ibrary for fetch lang when it's selected
@@ -108,9 +109,11 @@ apiUrl | String | - | Define rest api url
 authPath | String | - | Define oAuth path for resolve AuthCode
 authProviders | Array | - | oAuth providers
 anonymUser | Object | - | Anonym user profile
-iconsPrefix | String | ico | svg icons prefix is used as default classname of all icons
-iconsList | Object | - | path to all used icons
+iconsPrefix | String | Ico | SVG icons prefix is used as default classname of all icons
+iconsList | Object \|\| Array | - | path to all used SVG icons {icon_className:icon_file}
 iconsSize | Number | 24 | viewBox of all SVG icons. Every used icon must be same size!
+imagesPrefix | String | Img | images prefix is used as default classname of all icons
+imagesList | Object \|\| Array | - | path to all used images {image_className:image_file}
 addProps | Function | - | First argument is function which calling Core.regOnChange(onChange, ...modules)
 
 _**default langLibs:_
