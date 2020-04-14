@@ -46,7 +46,7 @@ export {
   useAuth,
   useUser,
   useIcons,
-  useIco,
+  useImages,
   Ico,
   Img
 }

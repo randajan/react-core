@@ -193,7 +193,9 @@ export {
   useAuth,
   useUser,
   useIcons,
-  Ico
+  useImages,
+  Ico,
+  Img
 }
 ```
 

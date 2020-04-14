@@ -20,6 +20,7 @@ import Context, {
   useAuth,
   useUser,
   useIcons,
+  useImages,
   Ico,
   Img
 } from "./Hooks";
@@ -49,6 +50,7 @@ export {
   useAuth,
   useUser,
   useIcons,
+  useImages,
   Ico,
   Img
 }
