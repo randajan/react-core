@@ -3,7 +3,7 @@ import jet from "@randajan/jetpack";
 
 const LOCATION = window.location;
 const HISTORY = window.history;
-const PARSE = qs.parse(LOCATION.search);
+let PARSE = qs.parse(LOCATION.search);
 
 class Query {
     constructor(onChange) {
@@ -14,11 +14,9 @@ class Query {
 
     set(key, val) {
         const from = this.get(key);
-        if (val === undefined) {delete PARSE[key];} else {PARSE[key] = val;}
-        if (from === val) { return }
-        const str = this.toString();
-        HISTORY.replaceState(HISTORY.state, document.title, LOCATION.pathname+(str?"?":"")+str);
-        jet.run(this.onChange, this);
+        if (val == null) {delete PARSE[key];} else {PARSE[key] = val;}
+        this.actualize();
+        if (key != null && from !== val) { jet.run(this.onChange, this); }
     }
 
     rem(key) {return this.set(key);}
@@ -27,6 +25,11 @@ class Query {
         const from = this.get(key);
         this.rem(key);
         return from;
+    }
+
+    actualize() {
+        const str = this.toString();
+        HISTORY.replaceState(HISTORY.state, document.title, LOCATION.pathname+(str?"?":"")+str);
     }
 
     toString(json) {
