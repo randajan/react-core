@@ -57,7 +57,7 @@ class Lang {
     }
 
     async fetchLib(lang) {
-        const data = await Core.Tray.async("Lang.lib." + lang, Promise.all(this.libs.map(lib => lib.fetch(lang))));
+        const data = await this.Core.Tray.async("Lang.lib." + lang, Promise.all(this.libs.map(lib => lib.fetch(lang))));
         if (data) { return jet.obj.merge(...data); }
     }
 
