@@ -51,7 +51,7 @@ class Provider extends Component {
     }
 
     render() {
-      const lang = this.Core.Lang.now;
+      const lang = jet.obj.get(this, "Lang.now", "en");
       const main = this.Core.id === 0;
       const { id, className } = this.props;
       const props = { id, className, main, ...this.getStateProps()};
