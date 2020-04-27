@@ -28,7 +28,7 @@ class Provider extends Component {
 
     addStateProps(onChange, ...modules) {
       if (jet.is("function", onChange)) {
-        this.clean.push(this.Core.regOnChange(Mod=>this.setState(onChange(Mod)), modules, true));
+        this.clean.push(this.Core.addOnChange(Mod=>this.setState(onChange(Mod)), modules, true));
       }
     }
 
