@@ -1,7 +1,7 @@
 
 import React, { useContext, useState, useEffect } from 'react'
 
-import { usePopUp } from "@randajan/react-popup";
+import { usePopUp, PopUp } from "@randajan/react-popup";
 
 const Context = React.createContext();
 
@@ -47,6 +47,7 @@ export {
   useUser,
   useIcons,
   useImages,
+  PopUp,
   Ico,
   Img
 }

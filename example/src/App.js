@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import CoreProvider, { useCore, useImages, useLang, useView, useQuery, Ico, Img } from '@randajan/react-app-core';
+import CoreProvider, { useCore, useImages, useLang, useView, useQuery, Ico, Img,PopUp, } from '@randajan/react-app-core';
 
 const coreConfig = {
   //nocache:true,
@@ -26,6 +26,7 @@ function Example() {
   console.log("RENDER");
   return (
     <div className="Example">
+      <PopUp>Test</PopUp>
       <h1>Majestic APP</h1>
       <h2>{useView().size}</h2>
       <h2>{useLang().now}</h2>

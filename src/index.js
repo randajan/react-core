@@ -21,6 +21,7 @@ import Context, {
   useUser,
   useIcons,
   useImages,
+  PopUp,
   Ico,
   Img
 } from "./Hooks";
@@ -51,6 +52,7 @@ export {
   useUser,
   useIcons,
   useImages,
+  PopUp,
   Ico,
   Img
 }
