@@ -13,6 +13,7 @@ class Query extends Space {
     }
 
     toUri(path) {
+        const content = jet.obj.map({...this}, v=>jet.obj.toJSON(v)||v);
         return jet.obj.join([jet.obj.get(jet.get("string", path).match(/[^?]*/), "0"), qs.stringify(content)], "?");
     }
 
