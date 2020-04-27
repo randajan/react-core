@@ -5,7 +5,7 @@ import CoreProvider, { useCore, useImages, useLang, useView, useQuery, Ico, Img,
 const coreConfig = {
   //nocache:true,
   debug:true,
-  version:"1.0.1",
+  version:"1.0.2",
   cryptKey:"XYZ",
   langFallback:"en",
   langList:["en", "cs", "any"],

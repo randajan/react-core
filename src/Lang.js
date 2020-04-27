@@ -25,8 +25,8 @@ class Lang {
     constructor(Core, list, libs, fallback, def, onChange) {
         [fallback, def] = jet.get([["string", fallback, "en"], ["string", def]]);
 
-        const Storage = Core.Cache.open("lang");
-        const query = Core.Query.pull("lang");
+        const Storage = Core.Storage.open("lang");
+        const query = Core.Query.get("lang", true);
 
         list = Lang.validateList(list, fallback, def).map(lang => Storage.open(lang) ? lang : undefined);
         libs = Lang.validateLibs(libs);

@@ -1,11 +1,10 @@
 
 import jet from "@randajan/jetpack";
 import Storage from "./Storage";
-import Api from "./Api";
 
 class Session extends Storage {
-    constructor(version, url, Crypt) {
-        super(version, null, async content => fetch(url, { method: "POST", body: Api.dataToForm({content}) }), Crypt);
+    constructor(url, version, Crypt, onChange) {
+        super(null, async content => fetch(url, { method: "POST", body: Api.dataToForm({content}) }), version, Crypt);
         jet.obj.addProperty(this, "url", url);
     }
 
@@ -17,6 +16,5 @@ class Session extends Storage {
 
     static create(url, Crypt) {return new Session(url, Crypt);}
 }
-
 
 export default Session;

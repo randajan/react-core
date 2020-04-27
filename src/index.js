@@ -2,6 +2,7 @@ import Core from "./Core";
 import Tray, { Task } from "./Tray";
 import Query from "./Query";
 import Crypt from "./Crypt";
+import Space from "./Space";
 import Storage from "./Storage";
 import Session from "./Session";
 import { LangLib } from "./Lang";
@@ -12,6 +13,7 @@ import Context, {
   usePopUp,
   useCrypt,
   useView,
+  useVault,
   useStorage,
   useSession,
   useLang,
@@ -36,6 +38,7 @@ export {
   Task,
   Query,
   Crypt,
+  Space,
   Storage,
   Session,
   LangLib,
@@ -43,6 +46,7 @@ export {
   usePopUp,
   useCrypt,
   useView,
+  useVault,
   useStorage,
   useSession,
   useLang,

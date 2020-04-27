@@ -8,7 +8,7 @@ class Auth {
         
         jet.obj.addProperty(this, {
             Core,
-            Storage:Core.Storage.open("auth"),
+            Storage:Core.Vault.open("auth"),
             path:jet.get("string", path),
             providers:jet.obj.toArray(providers),
             onChange:new Set([onChange]),
@@ -80,7 +80,7 @@ class Auth {
         if (!this.path) { return false; }
 
         if (window.location.pathname === this.path && Core.Query.get("code")) {
-            this.setPassport(await this.fetchauthCode(Core.Query.pull("code")));
+            this.setPassport(await this.fetchauthCode(Core.Query.get("code", true)));
         }
 
         this.User = await this.fetchUser();

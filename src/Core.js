@@ -50,9 +50,9 @@ class Core {
             this.addModule("Query", Query.create());
             this.addModule("Crypt", Crypt.create(cryptKey));
             this.addModule("View", View.create(this, viewSizes));
-            this.addModule("Cache", nocache ? Storage.create() : Storage.createLocal("_coreCache" + id, version));
-            this.addModule("Storage", nocache ? Storage.create() : Storage.createLocal("_coreStorage" + id, version, this.Crypt));
-            this.addModule("Session", sessionUrl ? Session.create(version, sessionUrl, this.Crypt) : this.Storage.open("session"));
+            this.addModule("Storage", nocache ? Storage.create() : Storage.createLocal("_coreStorage" + id, version));
+            this.addModule("Vault", nocache ? Storage.create() : Storage.createLocal("_coreVault" + id, version, this.Crypt));
+            this.addModule("Session", sessionUrl ? Session.create(sessionUrl, version, this.Crypt) : this.Vault.open("session"));
             this.addModule("Auth", Auth.create(this, authPath, authProviders, anonymUser));
             this.addModule("Api", Api.create(this, apiUrl));
             this.addModule("Lang", Lang.create(this, langList, langLibs, langFallback, langDefault));

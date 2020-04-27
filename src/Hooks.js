@@ -15,8 +15,9 @@ function useCore(...modules) {
 function useCrypt() {return useCore().Crypt;}
 function useQuery() {return useCore("Query").Query;}
 function useView() {return useCore("View").View;}
-function useStorage() {return useCore().Storage;}
-function useSession() {return useCore().Session;}
+function useStorage() {return useCore("Storage").Storage;}
+function useVault() {return useCore("Vault").Vault;}
+function useSession() {return useCore("Session").Session;}
 function useLang() {return useCore("Lang").Lang;}
 function useApi() {return useCore().Api;}
 function useAuth() {return useCore("Auth").Auth;}
@@ -39,6 +40,7 @@ export {
   useCrypt,
   useView,
   useStorage,
+  useVault,
   useSession,
   useLang,
   useApi,

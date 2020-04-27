@@ -7,7 +7,7 @@ const ICONS = [];
 class Icons {
 
     constructor(Core, prefix, list, size, onChange) {
-        const id = ICONS.push({})-1;
+        const id = ICONS.push(this)-1;
 
         prefix = jet.get("string", prefix, "Ico");
         size = jet.get("number", size)||24;
@@ -15,7 +15,7 @@ class Icons {
 
         jet.obj.addProperty(this, {
             Core,
-            Storage:Core.Cache.open("ico"), 
+            Storage:Core.Storage.open("ico"), 
             onChange:new Set([onChange]),
             id,
             prefix,

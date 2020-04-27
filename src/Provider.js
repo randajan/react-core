@@ -51,6 +51,7 @@ class Provider extends Component {
     }
 
     render() {
+      const Icons = this.Core.Icons;
       const lang = jet.obj.get(this, "Lang.now", "en");
       const main = this.Core.id === 0;
       const { id, className } = this.props;
@@ -59,7 +60,7 @@ class Provider extends Component {
       return (
           <Context.Provider value={this.Core}>
             <PopUpProvider ref={PopUp=>this.Core.addModule("PopUp", PopUp)} {...props}>
-              {this.Core.Icons.getDefs()}
+              {Icons ? Icons.getDefs() : null}
               <Helmet htmlAttributes={{ lang }}><meta http-equiv="Content-language" content={lang} /></Helmet>
               {this.props.children}
             </PopUpProvider>  

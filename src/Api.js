@@ -9,7 +9,7 @@ class Api {
     constructor(Core, url) {
         jet.obj.addProperty(this, {
             Core,
-            Storage:Core.Storage.open("api"),
+            Storage:Core.Vault.open("api"),
             url:jet.get("string", url, "/"),
         }, null, false, true);
     }
