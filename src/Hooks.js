@@ -8,7 +8,7 @@ const Context = React.createContext();
 function useCore(...modules) {
   const Core = useContext(Context);
   const setState = useState()[1];
-  useEffect(_ => Core.addOnChange(_=>setState({}), modules));
+  useEffect(_ => Core.addOnChange(_=>setState({}), modules), []);
   return Core;
 }
 
