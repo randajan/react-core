@@ -10,11 +10,12 @@ class Crypt {
     }
 
     en(string) {
-        return CryptoJS.AES.encrypt(string, KEYS[this.id]).toString();
+        return CryptoJS.AES.encrypt(String(string), KEYS[this.id]).toString();
     }
 
     de(hash) {
-        return CryptoJS.AES.decrypt(hash, KEYS[this.id]).toString(CryptoJS.enc.Utf8);
+        try {return CryptoJS.AES.decrypt(String(hash), KEYS[this.id]).toString(CryptoJS.enc.Utf8);}
+        catch(e) {};
     }
 
     enObj(obj) {

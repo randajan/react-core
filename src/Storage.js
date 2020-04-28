@@ -39,7 +39,7 @@ class Storage extends Space {
     }
 
     static createLocal(id, version, crypt) {
-        return Storage.create(localStorage.getItem(id), version, crypt, async (Storage, data)=> localStorage.setItem(id, data) || true);
+        return Storage.create(localStorage.getItem(id), version, crypt, async (_, content)=> localStorage.setItem(id, content) || true);
     }
 
     static unpack(content, version, crypt) {
