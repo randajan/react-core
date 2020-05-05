@@ -54,7 +54,6 @@ class Api {
         let reply = this.fromCache(id, cache);
 
         if (reply != null) { return reply; }
-        console.log("real_fetch");
         const resp = await fetch(this.url + path, this.formatOptions(method, data, headers));
         this.Storage.set("csrf", resp.headers.get("x-csrf-token"));
         reply = await resp.json();
