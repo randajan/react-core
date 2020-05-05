@@ -33,9 +33,9 @@ class Tray {
     constructor(onChange) {
         jet.obj.addProperty(this, {onChange:new Set([onChange])});
         jet.obj.addProperty(this, {
-            pending:new jet.zoo.Pool(Task),
-            error:new jet.zoo.Pool(Task),
-            done:new jet.zoo.Pool(Task),
+            pending:new jet.Pool(Task),
+            error:new jet.Pool(Task),
+            done:new jet.Pool(Task),
         }, null, false, true);
 
     }

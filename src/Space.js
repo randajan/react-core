@@ -50,20 +50,6 @@ class Space {
     static create(...args) {
         return new Space(...args);
     }
-
-    static byteCount(obj) {
-        const list = [];
-        const Q = jet.zoo.Amount;
-        let s, sum = Q.create(0, "kB", 2);
-        jet.obj.map(obj, (v,k,p)=>{
-            if (v != null) {
-                sum.val += s = (k.length+v.length)*2/1024;
-                list.push([p.join("."), Q.create(s, "kB", 2).toString()]);
-            }
-            return v;
-        }, true);
-        return {sum:sum.toString(), list:list.sort((r1, r2)=>r2[1]-r1[1])};
-    }
 }
 
 export default Space;

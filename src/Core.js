@@ -113,6 +113,10 @@ class Core {
         if (this.isDebug()) { console.log(msg); }
     }
 
+    spaceCount() {
+        return jet.test.byteCount(localStorage, "10mB");
+    }
+
 }
 
 
