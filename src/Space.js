@@ -11,19 +11,21 @@ class Space {
         return jet.run(this.onChange);
     }
 
-    set(path, val, force) {
-        const to = (val == null && jet.is("mapable", path)) ? path : val;
+    set (path, val, force) {
+        if (val == null && jet.is("mapable", path)) {
+            val = path;
+            path = null;
+        }
         force = jet.get("boolean", force, true);
-        path = jet.get("string", path);
         const from = this.get(path);
 
-        if (from === to) {return true;} //no change
+        if (from === val) {return true;} //no change
         
         if (!force && from != null) { return false; }
-        if (path && !jet.obj.set(this, path, to, true)) { return false; }
+        if (path && !jet.obj.set(this, path, val, true)) { return false; }
         else if (!path) {
             for (var i in this) {delete this[i];}
-            jet.obj.map(to, (v, k)=>this[k] = v);
+            jet.obj.map(val, (v, k)=>this[k] = v);
         }
         this.actualize();
         return true;
@@ -51,7 +53,7 @@ class Space {
 
     static byteCount(obj) {
         const list = [];
-        const Q = jet.zoo.Quantity;
+        const Q = jet.zoo.Amount;
         let s, sum = Q.create(0, "kB", 2);
         jet.obj.map(obj, (v,k,p)=>{
             if (v != null) {
