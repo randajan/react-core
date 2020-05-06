@@ -11,6 +11,7 @@ class Api {
             Core,
             Storage:Core.Vault.open("api"),
             url:jet.get("string", url),
+            pending:{}
         }, null, false, true);
     }
 
@@ -54,10 +55,17 @@ class Api {
         let reply = this.fromCache(id, cache);
 
         if (reply != null) { return reply; }
-        const resp = await fetch(this.url + path, this.formatOptions(method, data, headers));
-        this.Storage.set("csrf", resp.headers.get("x-csrf-token"));
-        reply = await resp.json();
 
+        if (this.pending[id]) { return await this.pending[id]; }
+
+        const prom = this.pending[id] = fetch(this.url + path, this.formatOptions(method, data, headers))
+            .then(resp=>{
+                this.Storage.set("csrf", resp.headers.get("x-csrf-token"));
+                return resp.json();
+            })
+
+        reply = await prom;
+        delete this.pending[id];
         if (cache) { this.toCache(id, reply); }
         return reply;
     }

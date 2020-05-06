@@ -18,6 +18,7 @@ const coreConfig = {
   imagesList:[
     require("./menu.svg")
   ],
+  apiUrl:"https://reqres.in",
   addProps:add=>add(View=>({view:View.size}), "View")
 }
 
