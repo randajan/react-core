@@ -9,6 +9,7 @@ import { LangLib } from "./Lang";
 
 import Provider from "./Provider";
 import Context, {
+  usePromise,
   useCore,
   usePopUp,
   useCrypt,
@@ -42,6 +43,7 @@ export {
   Storage,
   Session,
   LangLib,
+  usePromise,
   useCore,
   usePopUp,
   useCrypt,

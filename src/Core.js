@@ -77,9 +77,16 @@ class Core {
 
     addOnChange(onChange, modules, run) {
         if (!jet.is("function", onChange)) {return;}
+
         modules = jet.obj.toArray(modules);
         if (jet.isEmpty(modules)) {modules.push("Core");}
-        const list = modules.map(mod=>mod === "Core" ? this : (this[mod] && this[mod].onChange) ? this[mod] : null).filter(_=>_);
+
+        const list = jet.obj.map(modules, mod=>{
+            if (mod === "Core") { return this; }
+            const Mod = jet.obj.get(this, mod);
+            if (Mod && Mod["onChange"]) { return Mod; }
+        });
+        
         list.map(Mod=>{
             if (Mod.onChange.has(onChange)) {return; }
             Mod.onChange.add(onChange); 

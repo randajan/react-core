@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import CoreProvider, { useCore, useImages, useLang, useView, useQuery, Ico, Img,PopUp, } from '@randajan/react-app-core';
+import CoreProvider, { useCore, useImages, usePromise, useLang, useView, useQuery, Ico, Img, PopUp } from '@randajan/react-app-core';
 
 const coreConfig = {
   //nocache:true,
@@ -24,7 +24,7 @@ const coreConfig = {
 
 function Example() {
   const Query = useQuery();
-  console.log("RENDER");
+  console.log(usePromise());
   return (
     <div className="Example">
       <PopUp>Test</PopUp>

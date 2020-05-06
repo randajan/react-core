@@ -5,6 +5,13 @@ import { usePopUp, PopUp } from "@randajan/react-popup";
 
 const Context = React.createContext();
 
+function usePromise(prom) {
+  const [error, setError] = useState();
+  const [data, setData] = useState();
+  useEffect(_=>{jet.get("promise", prom).then(setData, setError);});
+  return [data, error];
+}
+
 function useCore(...modules) {
   const Core = useContext(Context);
   const setState = useState()[1];
@@ -21,7 +28,7 @@ function useSession() {return useCore("Session").Session;}
 function useLang() {return useCore("Lang").Lang;}
 function useApi() {return useCore().Api;}
 function useAuth() {return useCore("Auth").Auth;}
-function useUser() {return useAuth().User;}
+function useUser() {return useCore("Auth").User;}
 function useIcons() {return useCore("Icons").Icons;}
 function useImages() {return useCore("Images").Images;}
 
@@ -35,6 +42,7 @@ function Img(props) {
 
 export default Context
 export {
+  usePromise,
   useCore,
   usePopUp,
   useCrypt,
