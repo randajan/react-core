@@ -5,10 +5,11 @@ import { usePopUp, PopUp } from "@randajan/react-popup";
 
 const Context = React.createContext();
 
-function usePromise(prom) {
+function usePromise(prom, deps) {
   const [error, setError] = useState();
   const [data, setData] = useState();
-  useEffect(_=>{jet.get("promise", prom).then(setData, setError);});
+
+  useEffect(_=>{jet.get("promise", jet.is("function") ? prom() : prom).then(setData, setError);}, deps);
   return [data, error];
 }
 
