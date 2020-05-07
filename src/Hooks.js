@@ -28,7 +28,7 @@ function useSession() {return useCore("Session").Session;}
 function useLang() {return useCore("Lang").Lang;}
 function useApi() {return useCore().Api;}
 function useAuth() {return useCore("Auth").Auth;}
-function useUser() {return useCore("Auth").User;}
+function useUser() {return useAuth().User;}
 function useIcons() {return useCore("Icons").Icons;}
 function useImages() {return useCore("Images").Images;}
 
