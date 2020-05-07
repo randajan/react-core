@@ -2,6 +2,8 @@ import React from 'react';
 
 import jet from "@randajan/jetpack";
 
+import Core from "./Core";
+
 const IMAGES = [];
 
 class Images {
@@ -36,6 +38,14 @@ class Images {
             list.map(path=>nlist[path.match(/[^\/\s\n\r\.]+(?=\.)/)[0]] = path);
         }
         return nlist;
+    }
+
+    static use(...mods) {
+        return Core.use("Images", ...mods).Images;
+    }
+
+    static useStorage(...mods) {
+        return Images.use("Images.Storage", ...mods).Storage;
     }
 
 }

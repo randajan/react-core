@@ -2,6 +2,8 @@ import React from 'react';
 
 import jet from "@randajan/jetpack";
 
+import Core from "./Core";
+
 const ICONS = [];
 
 class Icons {
@@ -106,6 +108,14 @@ class Icons {
 
     static svgStrap(svg) {
         return jet.get("string", svg).replace(/^[\S\s]*<svg [^>]*>/, "").replace(/<\/svg>[\S\s]*/, "");
+    }
+
+    static use(...mods) {
+        return Core.use("Icons", ...mods).Icons;
+    }
+
+    static useStorage(...mods) {
+        return Icons.use("Icons.Storage", ...mods).Storage;
     }
 
 }

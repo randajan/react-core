@@ -1,5 +1,7 @@
 import jet from "@randajan/jetpack";
 
+import Auth from "./Auth";
+
 const PROFILES = [];
 
 //MAIN CLASS
@@ -45,6 +47,14 @@ class User {
   validateProfile(user) { return !!jet.obj.get(user, "id"); }
 
   static create(...args) {return new User(...args);}
+
+  static use(...mods) {
+    return Auth.use("Auth.User", ...mods).User;
+  }
+
+  static useStorage(...mods) {
+    return User.use("Auth.User.Storage", ...mods).Storage;
+  }
 
 };
 

@@ -1,5 +1,7 @@
 import jet from "@randajan/jetpack";
 
+import Core from "./Core";
+
 class Api {
     Core;
     Storage;
@@ -75,13 +77,21 @@ class Api {
     put(path, data, headers, cache) {return this.fetch("PUT", ...jet.untie({path, data, headers, cache}));}
     delete(path, data, headers, cache) {return this.fetch("DELETE", ...jet.untie({path, data, headers, cache}));}
 
+    static create(...args) {return new Api(...args);}
+
     static dataToForm(data) {
         const form = new FormData();
         for (let i in data) {form.append(i, data[i]);}
         return form;
     }
 
-    static create(...args) {return new Api(...args);}
+    static use(...mods) {
+        return Core.use("Api", ...mods).Api;
+    }
+
+    static useStorage(...mods) {
+        return Api.use("Api.Storage", ...mods).Storage;
+    }
 
 }
 

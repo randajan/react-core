@@ -1,6 +1,8 @@
 import qs from "query-string";
+
 import jet from "@randajan/jetpack";
-import Space from "./Space";
+import Space from "../Helpers/Space";
+import Core from "./Core";
 
 const { location, history } = window;
 const PRIVATE = [];
@@ -23,6 +25,10 @@ class Query extends Space {
 
     static create(...args) {
         return new Query(...args);
+    }
+
+    static use(...mods) {
+        return Core.use("Query", ...mods).Query;
     }
 }
 

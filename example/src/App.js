@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import CoreProvider, { useCore, useImages, usePromise, useLang, useView, useQuery, Ico, Img, PopUp } from '@randajan/react-app-core';
+import CoreProvider, { Core, Images, usePromise, Lang, View, Query, Ico, Img, PopUp } from '@randajan/react-app-core';
 
 const coreConfig = {
   //nocache:true,
@@ -23,15 +23,18 @@ const coreConfig = {
 }
 
 function Example() {
-  const Query = useQuery();
+  const query = Query.use();
+  const lang = Lang.use();
+  const view = View.use();
   console.log(usePromise(_=>{console.log("test")}, []));
+
   return (
     <div className="Example">
       <PopUp>Test</PopUp>
       <h1>Majestic APP</h1>
-      <h2>{useView().size}</h2>
-      <h2>{useLang().now}</h2>
-      <a onClick={_=>Query.set("test", !Query.get("test") ? true : undefined)}>Add to query</a>
+      <h2>{view.size}</h2>
+      <h2>{lang.now}</h2>
+      <a onClick={_=>query.set("test", !query.get("test") ? true : undefined)}>Add to query</a>
       <Ico src="menu"/>
       <Ico src="menu"/>
       <Img src="menu"/>

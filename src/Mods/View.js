@@ -1,6 +1,7 @@
-import jet from "@randajan/jetpack";
-
 import { deviceType, browserName, browserVersion, fullBrowserVersion, mobileVendor, mobileModel, engineName, engineVersion } from 'react-device-detect';
+
+import jet from "@randajan/jetpack";
+import Core from "./Core";
 
 const DEFAULTSIZES = {
     xs: w=>w<=600,
@@ -77,12 +78,16 @@ class View {
         return this.size.includes(size);
     }
 
+    static create(...args) {
+        return new View(...args);
+    }
+
     static getDevice() {
         return jet.obj.map({ deviceType, browserName, browserVersion, fullBrowserVersion, mobileVendor, mobileModel, engineName, engineVersion }, _ => _ === "none" ? undefined : _);
     }
 
-    static create(...args) {
-        return new View(...args);
+    static use(...mods) {
+        return Core.use("View", ...mods).View;
     }
 
 }

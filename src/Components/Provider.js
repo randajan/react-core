@@ -1,15 +1,12 @@
 
-import React, { Component, useContext} from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { Helmet } from "react-helmet";
 
 import jet from "@randajan/jetpack";
 import PopUpProvider from "@randajan/react-popup";
 
-import Core from "./Core";
-
-import Context from "./Hooks";
-
+import Core from "../Mods/Core";
 
 class Provider extends Component {
     static propTypes = {
@@ -58,13 +55,13 @@ class Provider extends Component {
       const props = { id, className, main, ...this.getStateProps()};
 
       return (
-          <Context.Provider value={this.Core}>
+          <Core.Context.Provider value={this.Core}>
             <PopUpProvider ref={PopUp=>this.Core.addModule("PopUp", PopUp)} {...props}>
               {Icons ? Icons.getDefs() : null}
               <Helmet htmlAttributes={{ lang }}><meta http-equiv="Content-language" content={lang} /></Helmet>
               {this.props.children}
             </PopUpProvider>  
-          </Context.Provider>
+          </Core.Context.Provider>
       )
     }
 }

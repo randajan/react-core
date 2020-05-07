@@ -2,23 +2,8 @@ import moment from 'moment';
 
 import jet from "@randajan/jetpack";
 
-class LangLib {
-    constructor(priority, path, list, fetch) {
-        [priority, path, fetch] = jet.get([["number", priority], ["string", path], ["function", fetch]]);
-        list = Lang.validateList(list);
-        jet.obj.addProperty(this, { priority, path, list }, null, false, true)
-        jet.obj.addProperty(this, "fetch", async lang => {
-            if (!list.includes(lang)) {return}
-            const data = await fetch(lang);
-            return path ? jet.obj.set({}, path, data, true) : jet.filter("object", data);
-        })
-    }
-
-    static create(priority, path, list, fetch) {
-        if (jet.is(LangLib, priority)) { return priority; }
-        return new LangLib(...jet.untie({ priority, path, list, fetch }));
-    }
-}
+import Core from "./Core";
+import LangLib from "../Helpers/LangLib";
 
 class Lang {
 
@@ -114,17 +99,16 @@ class Lang {
         return jet.obj.map(libs, lib => LangLib.create(lib)).sort((a, b) => a.priority - b.priority);
     }
 
-    
-
     static validateLang(langs, list, all) {
         langs = Lang.validateList(langs);
         if (jet.is("array", list)) { langs = langs.filter(lang => list.includes(lang)); }
         return all ? langs : langs[0];
     }
 
+    static use(...mods) {
+        return Core.use("Lang", ...mods).Lang;
+    }
+
 }
 
 export default Lang;
-export {
-    LangLib
-}

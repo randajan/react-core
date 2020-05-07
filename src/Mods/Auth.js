@@ -1,4 +1,6 @@
 import jet from "@randajan/jetpack";
+
+import Core from "./Core";
 import User from "./User";
 
 class Auth {
@@ -87,6 +89,14 @@ class Auth {
     }
 
     static create(...args) {return new Auth(...args);}
+
+    static use(...mods) {
+        return Core.use("Auth", ...mods).Auth;
+    }
+
+    static useStorage(...mods) {
+        return Auth.use("Auth.Storage", ...mods).Storage;
+    }
 
 }
 

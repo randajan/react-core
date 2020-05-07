@@ -1,6 +1,6 @@
 
 import jet from "@randajan/jetpack";
-import Api from "./Api";
+import Api from "../Mods/Api";
 import Storage from "./Storage";
 
 class Session extends Storage {

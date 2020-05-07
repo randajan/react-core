@@ -1,11 +1,16 @@
+
+import React, { useContext, useState, useEffect } from 'react';
+
 import jet from "@randajan/jetpack";
 
-import Tray, { Task } from "./Tray";
+import Tray from "../Helpers/Tray";
+import Task from "../Helpers/Task";
+import Crypt from "../Helpers/Crypt";
+import Storage from "../Helpers/Storage";
+import Session from "../Helpers/Session";
+
 import Query from "./Query";
-import Crypt from "./Crypt";
 import View from "./View";
-import Storage from "./Storage";
-import Session from "./Session";
 import Lang from "./Lang";
 import Api from "./Api";
 import Auth from "./Auth";
@@ -122,6 +127,27 @@ class Core {
 
     spaceCount() {
         return jet.test.byteCount(localStorage, "10mB");
+    }
+
+    static Context = React.createContext();
+
+    static use(...mods) {
+        const core = useContext(Core.Context);
+        const setState = useState()[1];
+        useEffect(_ => core.addOnChange(_=>setState({}), mods), []);
+        return core;
+    }
+
+    static useStorage(...mods) {
+        return Core.use("Storage", ...mods).Storage;
+    }
+
+    static useVault(...mods) {
+        return Core.use("Vault", ...mods).Vault;
+    }
+
+    static useSession(...mods) {
+        return Core.use("Session", ...mods).Session;
     }
 
 }
