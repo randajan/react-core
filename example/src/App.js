@@ -24,7 +24,7 @@ const coreConfig = {
 
 function Example() {
   const Query = useQuery();
-  console.log(usePromise());
+  console.log(usePromise(_=>{console.log("test")}, []));
   return (
     <div className="Example">
       <PopUp>Test</PopUp>
