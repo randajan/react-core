@@ -12,7 +12,7 @@ class Space {
     }
 
     set (path, val, force) {
-        if (val == null && jet.is("mapable", path)) {
+        if (val === undefined && jet.is("mapable", path)) {
             val = path;
             path = null;
         }
