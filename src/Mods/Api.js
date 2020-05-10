@@ -85,12 +85,12 @@ class Api {
         return form;
     }
 
-    static use(...mods) {
-        return Core.use("Api", ...mods).Api;
+    static use(...path) {
+        return Core.use("Api", ...path);
     }
 
-    static useStorage(...mods) {
-        return Api.use("Api.Storage", ...mods).Storage;
+    static useStorage(...path) {
+        return Api.use("Storage", ...path);
     }
 
 }

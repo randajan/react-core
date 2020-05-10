@@ -4,11 +4,12 @@ class Space {
 
     constructor(content, onChange) {
         this.set(content);
-        jet.obj.addProperty(this, "onChange", new Set([onChange]));
+        jet.obj.addProperty(this, "onChange", new jet.RunPool(this));
+        this.onChange.add(onChange);
     }
 
     actualize() {
-        return jet.run(this.onChange);
+        return this.onChange ? this.onChange.run() : [];
     }
 
     set (path, val, force) {

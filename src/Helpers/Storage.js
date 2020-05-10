@@ -24,7 +24,7 @@ import Crypt from "./Crypt";
 class Storage extends Space {
     constructor(content, version, crypt, onChange) {
         super(Storage.unpack(content, version, crypt), onChange);
-        jet.obj.addProperty(this, "actualize", _=>jet.run(this.onChange, this, Storage.pack(this, version, crypt)));
+        jet.obj.addProperty(this, "actualize", _=>this.onChange.run(Storage.pack(this, version, crypt)));
     }
 
     open(path) {

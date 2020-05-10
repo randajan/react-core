@@ -9,9 +9,8 @@ const PRIVATE = [];
 
 class Query extends Space {
     constructor(onChange) {
-        super(qs.parse(location.search), jet.isEmpty(PRIVATE) ? _=>this.toLocation() : undefined);
+        super(qs.parse(location.search), [jet.isEmpty(PRIVATE) ? _=>this.toLocation() : undefined, onChange]);
         PRIVATE.push(this)-1;
-        this.onChange.add(onChange);
     }
 
     toUri(path) {
@@ -27,8 +26,8 @@ class Query extends Space {
         return new Query(...args);
     }
 
-    static use(...mods) {
-        return Core.use("Query", ...mods).Query;
+    static use(...path) {
+        return Core.use("Query", ...path);
     }
 }
 

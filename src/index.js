@@ -3,6 +3,7 @@ import { usePopUp, PopUp } from "@randajan/react-popup";
 import Api from "./Mods/Api";
 import Auth from "./Mods/Auth";
 import Core from "./Mods/Core";
+import Case from "./Mods/Case";
 import Icons from "./Mods/Icons";
 import Images from "./Mods/Images";
 import Lang from "./Mods/Lang";
@@ -23,6 +24,7 @@ import Img from "./Components/Img";
 import Provider from "./Components/Provider";
 
 import usePromise from "./Hooks/usePromise";
+import useForceRender from "./Hooks/useForceRender";
 
 export default Provider;
 export {
@@ -38,6 +40,7 @@ export {
 
   Crypt,
   LangLib,
+  Case,
   Session,
   Space,
   Storage,
@@ -50,6 +53,7 @@ export {
   PopUp,
   
   usePromise,
+  useForceRender,
   usePopUp,
 }
 

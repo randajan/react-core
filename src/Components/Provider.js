@@ -1,6 +1,5 @@
 
 import React, { Component } from 'react'
-import PropTypes from 'prop-types';
 import { Helmet } from "react-helmet";
 
 import jet from "@randajan/jetpack";
@@ -9,24 +8,20 @@ import PopUpProvider from "@randajan/react-popup";
 import Core from "../Mods/Core";
 
 class Provider extends Component {
-    static propTypes = {
-      addProps:PropTypes.func
-    }
-
-    static defaultProps = {
-      addProps:()=>{}
-    }
-
+    mounted = false;
     constructor(props) {
         super(props);
-        this.clean = [];
-        this.Core = new Core(props);
+        
+        const core = this.Core = new Core(this, props);
+
+        core.addAndRunOnChange(core=>this.setState(core.state));
+        core.addAndRunOnChange(lang=>this.setState({lang:lang.now}), "Lang");
+        core.addAndRunOnChange(icons=>this.setState(), "Icons");
     }
 
-    addStateProps(onChange, ...modules) {
-      if (jet.is("function", onChange)) {
-        this.clean.push(this.Core.addOnChange(Mod=>this.setState(onChange(Mod)), modules, true));
-      }
+    setState(state) {
+      if (this.mounted) {super.setState(state);}
+      else {this.state = {...this.state, ...state};}
     }
 
     getStateProps() {
@@ -36,20 +31,16 @@ class Provider extends Component {
     }
 
     componentDidMount() {
-      this.clean = [];
-      this.addStateProps(Core=>Core.state);
-      this.addStateProps(Lang=>({lang:Lang.now}), "Lang");
-      this.addStateProps(Icons=>({}), "Icons");
-      jet.run(this.props.addProps, this.addStateProps.bind(this));
+      this.mounted = true;
     }
 
     componentWillUnmount() {
-      jet.run(this.clean);
+      this.mounted = false;
     }
 
     render() {
       const Icons = this.Core.Icons;
-      const lang = jet.obj.get(this, "Lang.now", "en");
+      const lang = this.state.lang;
       const main = this.Core.id === 0;
       const { id, className } = this.props;
       const props = { id, className, main, ...this.getStateProps()};

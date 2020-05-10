@@ -48,12 +48,12 @@ class User {
 
   static create(...args) {return new User(...args);}
 
-  static use(...mods) {
-    return Auth.use("Auth.User", ...mods).User;
+  static use(...path) {
+    return Auth.use("User", ...path);
   }
 
-  static useStorage(...mods) {
-    return User.use("Auth.User.Storage", ...mods).Storage;
+  static useStorage(...path) {
+    return User.use("Storage", ...path);
   }
 
 };

@@ -28,8 +28,10 @@ class View {
         jet.obj.addProperty(this, {
             Core,
             id:SIZESET.push({})-1,
-            onChange:new Set([onChange])
+            onChange:new jet.RunPool(this)
         });
+
+        this.onChange.add(onChange);
 
         jet.obj.addProperty(this, View.getDevice(), null, false, true);
 
@@ -45,7 +47,7 @@ class View {
                     const size = jet.obj.join(sizes, " ");
                     if (_size === size) {return}
                     _size = size;
-                    jet.run(this.onChange, this);
+                    this.onChange.run();
                 },
                 get:_=>_size
             }
@@ -86,8 +88,8 @@ class View {
         return jet.obj.map({ deviceType, browserName, browserVersion, fullBrowserVersion, mobileVendor, mobileModel, engineName, engineVersion }, _ => _ === "none" ? undefined : _);
     }
 
-    static use(...mods) {
-        return Core.use("View", ...mods).View;
+    static use(...path) {
+        return Core.use("View", ...path);
     }
 
 }

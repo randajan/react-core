@@ -3,12 +3,15 @@ import React, { useContext, useState, useEffect } from 'react';
 
 import jet from "@randajan/jetpack";
 
+import useForceRender from "../Hooks/useForceRender";
+
 import Tray from "../Helpers/Tray";
 import Task from "../Helpers/Task";
 import Crypt from "../Helpers/Crypt";
 import Storage from "../Helpers/Storage";
 import Session from "../Helpers/Session";
 
+import Case from "./Case";
 import Query from "./Query";
 import View from "./View";
 import Lang from "./Lang";
@@ -23,7 +26,7 @@ class Core {
 
     state = {}
 
-    constructor(props) {
+    constructor(Provider, props) {
         const { 
             nocache, debug, version, onChange, onBuild, cryptKey, viewSizes, sessionUrl, apiUrl, 
             langList, langLibs, langFallback, langDefault, 
@@ -32,16 +35,17 @@ class Core {
             imagesPrefix, imagesList,
         } = props;
         
-
         const id = CORES.push(this) - 1;
 
         jet.obj.addProperty(this, {
             id,
             version,
             debug,
-            modules: new Set(),
-            onChange: new Set(jet.obj.toArray(onChange)),
+            modules: new jet.Pool("string", true),
+            onChange: new jet.RunPool(this),
         });
+
+        this.onChange.add(onChange);
 
         if (debug) {
             window.jet = jet;
@@ -52,9 +56,11 @@ class Core {
         this.addModule("Tray", Tray.create(Task => this.setState(Task)));
 
         this.Tray.sync("build", _ => {
+            this.addModule("Provider", Provider);
             this.addModule("Query", Query.create());
             this.addModule("Crypt", Crypt.create(cryptKey));
             this.addModule("View", View.create(this, viewSizes));
+            this.addModule("Case", Case.create());
             this.addModule("Storage", nocache ? Storage.create() : Storage.createLocal("_coreStorage" + id, version));
             this.addModule("Vault", nocache ? Storage.create() : Storage.createLocal("_coreVault" + id, version, this.Crypt));
             this.addModule("Session", sessionUrl ? Session.create(sessionUrl, version, this.Crypt) : this.Vault.open("session"));
@@ -75,29 +81,36 @@ class Core {
     }
 
     addModule(name, module) {
-        this.modules.add(name);
-        jet.obj.addProperty(this, name, module, false, true, false);
+        if (!this.modules.has(name)) {
+            this.modules.add(name);
+            jet.obj.addProperty(this, name, module, false, true, false);
+        }
         return module;
     }
 
-    addOnChange(onChange, modules, run) {
-        if (!jet.is("function", onChange)) {return;}
+    getModule(...path) {
+        path = path.join(".");
+        return path ? jet.obj.get(this, path) : this;
+    }
 
-        modules = jet.obj.toArray(modules);
-        if (jet.isEmpty(modules)) {modules.push("Core");}
+    modOnChange(run, onChange, ...path) {
+        if (!jet.is("function", onChange)) { return; }
 
-        const list = jet.obj.map(modules, mod=>{
-            if (mod === "Core") { return this; }
-            const Mod = jet.obj.get(this, mod);
-            if (Mod && Mod["onChange"]) { return Mod; }
-        });
-        
-        list.map(Mod=>{
-            if (Mod.onChange.has(onChange)) {return; }
-            Mod.onChange.add(onChange); 
-            if (run) {onChange(Mod, Mod.state);}
-        });
-        return _ => list.map(Mod=>Mod.onChange.delete(onChange));
+        const modonc = this.getModule(...path, "onChange");
+        if (!jet.is(jet.RunPool, modonc)) { return; }
+
+        if (run) { modonc.addAndRun(onChange); }
+        else { modonc.add(onChange); }
+
+        return _=>modonc.rem(onChange);
+    }
+
+    addOnChange(onChange, ...path) {
+        return this.modOnChange(false, onChange, ...path);
+    }
+
+    addAndRunOnChange(onChange, ...path) {
+        return this.modOnChange(true, onChange, ...path);
     }
 
     setState(state) {
@@ -113,7 +126,7 @@ class Core {
         if (jet.isEmpty(changes)) { return; }
         this.state = nState;
 
-        jet.run(Array.from(this.onChange), this, changes);
+        this.onChange.run(changes);
     }
 
     isLoading() { return !!this.state.loading; }
@@ -131,23 +144,27 @@ class Core {
 
     static Context = React.createContext();
 
-    static use(...mods) {
-        const core = useContext(Core.Context);
-        const setState = useState()[1];
-        useEffect(_ => core.addOnChange(_=>setState({}), mods), []);
-        return core;
+    static useContext(...path) {
+        return useContext(Core.Context).getModule(...path);
     }
 
-    static useStorage(...mods) {
-        return Core.use("Storage", ...mods).Storage;
+    static use(...path) {
+        const core = Core.useContext();
+        const rerender = useForceRender();
+        useEffect(_=>core.addOnChange(rerender, ...path), []);
+        return core.getModule(...path);
     }
 
-    static useVault(...mods) {
-        return Core.use("Vault", ...mods).Vault;
+    static useStorage() {
+        return Core.use("Storage");
     }
 
-    static useSession(...mods) {
-        return Core.use("Session", ...mods).Session;
+    static useVault() {
+        return Core.use("Vault");
+    }
+
+    static useSession() {
+        return Core.use("Session");
     }
 
 }

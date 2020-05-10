@@ -26,8 +26,10 @@ class Lang {
             def,
             fallback,
             query,
-            onChange:new Set([onChange])
+            onChange:new jet.RunPool(this)
         }, null, false, true);
+
+        this.onChange.add(onChange);
 
         this.select(query, Core.Auth.User.loadLang());
 
@@ -61,7 +63,7 @@ class Lang {
             if (await this.loadLib(lang)) {this.now = lang; break;}
         }
         moment.locale(this.now);
-        jet.run(this.onChange, this);
+        this.onChange.run();
         return true;
     }
 
@@ -105,8 +107,8 @@ class Lang {
         return all ? langs : langs[0];
     }
 
-    static use(...mods) {
-        return Core.use("Lang", ...mods).Lang;
+    static use(...path) {
+        return Core.use("Lang", ...path);
     }
 
 }

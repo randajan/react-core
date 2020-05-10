@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
+import React, { Component, useEffect } from 'react'
 
-import CoreProvider, { Core, Images, usePromise, Lang, View, Query, Ico, Img, PopUp } from '@randajan/react-app-core';
+import CoreProvider, { Core, Images, usePromise, Lang, View, Query, Ico, Img, PopUp, useForceRender, Case} from '@randajan/react-app-core';
 
 const coreConfig = {
   //nocache:true,
@@ -19,7 +19,9 @@ const coreConfig = {
     require("./menu.svg")
   ],
   apiUrl:"https://reqres.in",
-  addProps:add=>add(View=>({view:View.size}), "View")
+  onBuild:Core=>{
+    Core.addAndRunOnChange(View=>Core.Provider.setState({view:View.size}), "View");
+  }
 }
 
 function Example() {
@@ -28,6 +30,12 @@ function Example() {
   const view = View.use();
   console.log(usePromise(_=>{console.log("test")}, []));
 
+  const [foo, setFoo] = Case.useKey("foo", "bar");
+  console.log(foo);
+
+  useEffect(_=>{setTimeout(_=>setFoo("XDFG"), 5000)});
+  
+  console.log("RERENDER");
   return (
     <div className="Example">
       <PopUp>Test</PopUp>

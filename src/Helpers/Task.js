@@ -3,7 +3,8 @@ import jet from "@randajan/jetpack";
 class Task {
     constructor(name, onChange) {
         jet.obj.addProperty(this, "name", name, false, true);
-        jet.obj.addProperty(this, {onChange:new Set([onChange])});
+        jet.obj.addProperty(this, "onChange", new jet.RunPool()); // not passing this to runpool
+        this.onChange.add(onChange);
         
         Object.defineProperty(this, "ms", {
             enumerable:true,
@@ -14,7 +15,7 @@ class Task {
     start() {
         if (this.startPoint) {return this;}
         jet.obj.addProperty(this, "startPoint", performance.now());
-        jet.run(this.onChange, true);
+        this.onChange.run(true);
         return this;
     }
 
@@ -22,7 +23,7 @@ class Task {
         if (!this.startPoint || this.endPoint) {return this;}
         jet.obj.addProperty(this, "endPoint", performance.now());
         jet.obj.addProperty(this, {error, done:!error}, null, false, true);
-        jet.run(this.onChange, false, error);
+        this.onChange.run(false, error);
         return this;
     }
 

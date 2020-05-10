@@ -4,13 +4,14 @@ import Task from "./Task";
 
 class Tray {
     constructor(onChange) {
-        jet.obj.addProperty(this, {onChange:new Set([onChange])});
+        jet.obj.addProperty(this, "onChange", new jet.RunPool()); //not passing this to runpool
         jet.obj.addProperty(this, {
             pending:new jet.Pool(Task),
             error:new jet.Pool(Task),
             done:new jet.Pool(Task),
         }, null, false, true);
-
+        
+        this.onChange.add(onChange);
     }
 
     isPending() {return jet.isFull(this.pending);}
@@ -21,7 +22,7 @@ class Tray {
         const task = new Task(name, (pending, error)=>{
             if (pending) {this.pending.add(task);}
             else {this.pending.pass(error ? this.error : this.done, task);}
-            jet.run(this.onChange, task);
+            this.onChange.run(task);
         });
         return start ? task.start() : task;
     }

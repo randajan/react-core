@@ -13,14 +13,16 @@ class Auth {
             Storage:Core.Vault.open("auth"),
             path:jet.get("string", path),
             providers:jet.obj.toArray(providers),
-            onChange:new Set([onChange]),
+            onChange:new jet.RunPool(this),
         }, null, false, true);
+
+        this.onChange.add(onChange);
 
         Object.defineProperty(this, "User", {
             enumerable:true,
             set:function(profile) {
                 _user = User.create(this, profile);
-                jet.run(this.onChange, this);
+                this.onChange.run();
             },
             get:function() {return _user;}
         });
@@ -90,12 +92,12 @@ class Auth {
 
     static create(...args) {return new Auth(...args);}
 
-    static use(...mods) {
-        return Core.use("Auth", ...mods).Auth;
+    static use(...path) {
+        return Core.use("Auth", ...path);
     }
 
-    static useStorage(...mods) {
-        return Auth.use("Auth.Storage", ...mods).Storage;
+    static useStorage(...path) {
+        return Auth.use("Storage", ...path);
     }
 
 }

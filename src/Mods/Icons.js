@@ -18,13 +18,15 @@ class Icons {
         jet.obj.addProperty(this, {
             Core,
             Storage:Core.Storage.open("ico"), 
-            onChange:new Set([onChange]),
+            onChange: new jet.RunPool(this),
             id,
             prefix,
             size,
             list,
             state:{}
         }, null, false, true);
+
+        this.onChange.add(onChange);
 
         Object.defineProperty(this, "viewBox", {enumerable:true, get:_=>`0 0 ${size} ${size}`})
 
@@ -84,7 +86,7 @@ class Icons {
         const strap = Icons.svgStrap(svg);
         this.state[id] = !!strap;
         this.Storage.set(id, strap);
-        jet.run(this.onChange, this);
+        this.onChange.run();
         return true;
     }
 
@@ -110,12 +112,12 @@ class Icons {
         return jet.get("string", svg).replace(/^[\S\s]*<svg [^>]*>/, "").replace(/<\/svg>[\S\s]*/, "");
     }
 
-    static use(...mods) {
-        return Core.use("Icons", ...mods).Icons;
+    static use(...path) {
+        return Core.use("Icons", ...path);
     }
 
-    static useStorage(...mods) {
-        return Icons.use("Icons.Storage", ...mods).Storage;
+    static useStorage(...path) {
+        return Icons.use("Storage", ...path);
     }
 
 }

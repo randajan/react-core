@@ -40,12 +40,12 @@ class Images {
         return nlist;
     }
 
-    static use(...mods) {
-        return Core.use("Images", ...mods).Images;
+    static use(...path) {
+        return Core.use("Images", ...path);
     }
 
-    static useStorage(...mods) {
-        return Images.use("Images.Storage", ...mods).Storage;
+    static useStorage(...path) {
+        return Images.use("Storage", ...path);
     }
 
 }
