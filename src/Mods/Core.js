@@ -41,7 +41,7 @@ class Core {
             id,
             version,
             debug,
-            modules: new jet.Pool("string", true),
+            modules: new Set(),
             onChange: new jet.RunPool(this),
         });
 
