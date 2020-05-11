@@ -16,7 +16,7 @@ class Provider extends Component {
 
         core.addAndRunOnChange(core=>this.setState(core.state));
         core.addAndRunOnChange(lang=>this.setState({lang:lang.now}), "Lang");
-        core.addAndRunOnChange(icons=>this.setState(), "Icons");
+        core.addAndRunOnChange(icons=>this.setState({}), "Icons");
     }
 
     setState(state) {
