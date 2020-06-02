@@ -5,12 +5,10 @@ import Space from "../Helpers/Space";
 import Core from "./Core";
 
 const { location, history } = window;
-const PRIVATE = [];
 
 class Query extends Space {
     constructor(onChange) {
-        super(qs.parse(location.search), [jet.isEmpty(PRIVATE) ? _=>this.toLocation() : undefined, onChange]);
-        PRIVATE.push(this)-1;
+        super(qs.parse(location.search), [_=>this.toLocation(), onChange]);
     }
 
     toUri(path) {
