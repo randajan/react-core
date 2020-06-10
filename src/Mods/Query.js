@@ -8,16 +8,22 @@ const { location, history } = window;
 
 class Query extends Space {
     constructor(onChange) {
-        super(qs.parse(location.search), [_=>this.toLocation(), onChange]);
+        let silent;
+        super(qs.parse(location.search), [_=>this.toLocation(silent), onChange]);
+        window.onpopstate = ev=>{silent = true; this.fromLocation(); silent = false;}
     }
 
     toUri(path) {
         const content = jet.obj.map({...this}, v=>jet.obj.toJSON(v)||v);
-        return jet.obj.join([jet.obj.get(jet.get("string", path).match(/[^?]*/), "0"), qs.stringify(content)], "?");
+        return [jet.obj.get(jet.get("string", path).match(/[^?]*/), "0"), qs.stringify(content)].joins("?");
     }
 
-    toLocation() {
-        history.replaceState(history.state, document.title, this.toUri(location.pathname));
+    fromLocation() {
+        this.set(qs.parse(location.search));
+    }
+
+    toLocation(silent) {
+        history[(silent?"replace":"push")+"State"](history.state, document.title, this.toUri(location.pathname));
     }
 
     static create(...args) {
