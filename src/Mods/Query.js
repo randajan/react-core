@@ -19,7 +19,7 @@ class Query extends Space {
     }
 
     fromLocation() {
-        this.set(qs.parse(location.search));
+        this.set("", qs.parse(location.search), true);
     }
 
     toLocation(silent) {
