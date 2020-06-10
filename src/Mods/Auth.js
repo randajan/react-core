@@ -12,7 +12,7 @@ class Auth {
             Core,
             Storage:Core.Vault.open("auth"),
             path:jet.get("string", path),
-            providers:jet.obj.toArray(providers),
+            providers:jet.arr.wrap(providers),
             onChange:new jet.RunPool(this),
         }, null, false, true);
 

@@ -38,7 +38,6 @@ function Example() {
   console.log("RERENDER");
   return (
     <div className="Example">
-      <PopUp>Test</PopUp>
       <h1>Majestic APP</h1>
       <h2>{view.size}</h2>
       <h2>{lang.now}</h2>
