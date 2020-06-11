@@ -8,9 +8,8 @@ const { location, history } = window;
 
 class Query extends Space {
     constructor(onChange) {
-        let silent;
-        super(qs.parse(location.search), [_=>this.toLocation(silent), onChange]);
-        window.onpopstate = ev=>{silent = true; this.fromLocation(); silent = false;}
+        super(Query.parse(), [_=>this.toLocation(), onChange]);
+        window.onpopstate = this.fromLocation.bind(this);
     }
 
     toUri(path) {
@@ -19,11 +18,17 @@ class Query extends Space {
     }
 
     fromLocation() {
-        this.set("", qs.parse(location.search), true);
+        this.set("", Query.parse(), true);
     }
 
-    toLocation(silent) {
-        history[(silent?"replace":"push")+"State"](history.state, document.title, this.toUri(location.pathname));
+    toLocation() {
+        if (jet.isEmpty(jet.obj.compare(Query.parse(), this))) { return false; }
+        history.pushState(history.state, document.title, this.toUri(location.pathname));
+        return true;
+    }
+
+    static parse(path) {
+        return qs.parse(jet.get("string", path, location.search), {parseNumbers: true, parseBooleans: true});
     }
 
     static create(...args) {
