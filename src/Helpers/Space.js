@@ -12,8 +12,8 @@ class Space {
         return this.onChange ? this.onChange.run() : [];
     }
 
-    set (path, val, force) {
-        if (val === undefined && jet.is("mapable", path)) {
+    set(path, val, force) {
+        if (val === undefined && jet.isMapable(path)) {
             val = path;
             path = null;
         }
@@ -21,6 +21,9 @@ class Space {
         const from = this.get(path);
 
         if (from === val) {return true;} //no change
+        if (jet.isMapable(val) && jet.isMapable(from) && jet.isEmpty(jet.obj.compare(from, val)) && jet.isEmpty(jet.obj.compare(val, from))) { //no change
+            return true;
+        }
         
         if (!force && from != null) { return false; }
         if (path && !jet.obj.set(this, path, val, true)) { return false; }

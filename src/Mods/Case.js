@@ -24,6 +24,7 @@ class Case extends Storage {
         if (!cs[key]) {
             cs.open(key).set("value", value);
         }
+        console.log(cs);
 
         useEffect(_=>core.addOnChange(rerender, "Case", key), []);
 
