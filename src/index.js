@@ -25,6 +25,8 @@ import Ico from "./Components/Ico";
 import Img from "./Components/Img";
 import Provider from "./Components/Provider";
 
+//alert(jet === jetModal);
+
 export default Provider;
 export {
   jet,

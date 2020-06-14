@@ -40,7 +40,6 @@ class Core {
         const id = CORES.push(this) - 1;
 
         jet.obj.addProperty(this, {
-            jet,
             id,
             version,
             debug,
@@ -51,6 +50,7 @@ class Core {
         this.onChange.add(onChange);
 
         if (debug) {
+            window.jet = jet;
             window.Core = this;
             this.onChange.add((Core, changes)=>this.log(changes));
         }
