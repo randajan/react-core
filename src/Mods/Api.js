@@ -3,15 +3,12 @@ import jet from "@randajan/jetpack";
 import Core from "./Core";
 
 class Api {
-    Core;
-    Storage;
-    origin = window.location.protocol+"//"+window.location.host;
-    url;
 
-    constructor(Core, url) {
+    origin = window.location.protocol+"//"+window.location.host;
+
+    constructor(Storage, url) {
         jet.obj.addProperty(this, {
-            Core,
-            Storage:Core.Vault.open("api"),
+            Storage,
             url:jet.get("string", url),
             pending:{}
         }, null, false, true);

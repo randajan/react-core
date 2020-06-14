@@ -1,9 +1,11 @@
 
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import jet from "@randajan/jetpack";
 
-import useForceRender from "../Hooks/useForceRender";
+import { useForceRender, Modal } from "@randajan/react-popup";
+
+import Provider from "../Components/Provider";
 
 import Tray from "../Helpers/Tray";
 import Task from "../Helpers/Task";
@@ -38,6 +40,7 @@ class Core {
         const id = CORES.push(this) - 1;
 
         jet.obj.addProperty(this, {
+            jet,
             id,
             version,
             debug,
@@ -48,7 +51,6 @@ class Core {
         this.onChange.add(onChange);
 
         if (debug) {
-            window.jet = jet;
             window.Core = this;
             this.onChange.add((Core, changes)=>this.log(changes));
         }
@@ -59,16 +61,23 @@ class Core {
             this.addModule("Provider", Provider);
             this.addModule("Query", Query.create());
             this.addModule("Crypt", Crypt.create(cryptKey));
-            this.addModule("View", View.create(this, viewSizes));
+            this.addModule("View", View.create(viewSizes));
             this.addModule("Case", Case.create());
             this.addModule("Storage", nocache ? Storage.create() : Storage.createLocal("_coreStorage" + id, version));
             this.addModule("Vault", nocache ? Storage.create() : Storage.createLocal("_coreVault" + id, version, this.Crypt));
             this.addModule("Session", sessionUrl ? Session.create(sessionUrl, version, this.Crypt) : this.Vault.open("session"));
-            this.addModule("Auth", Auth.create(this, authPath, authProviders, anonymUser));
-            this.addModule("Api", Api.create(this, apiUrl));
-            this.addModule("Lang", Lang.create(this, langList, langLibs, langFallback, langDefault));
-            this.addModule("Icons", Icons.create(this, iconsPrefix, iconsList, iconsSize));
-            this.addModule("Images", Images.create(this, imagesPrefix, imagesList));
+            this.addModule("Auth", Auth.create(this.Vault.open("auth"), authPath, authProviders, anonymUser));
+            this.addModule("Api", Api.create(this.Vault.open("api"), apiUrl));
+            this.addModule("Lang", Lang.create(this.Storage.open("lang"), langList, langLibs, langFallback, langDefault));
+
+            const query = this.Query.get("lang", true);
+            this.Lang.select(query, this.Auth.User.loadLang());
+            this.Auth.onChange.add(_=>this.Lang.select(query, this.Auth.User.loadLang()));
+            this.Lang.onChange.add(_=>this.Auth.User.saveLang(this.Lang.now));
+
+            this.addModule("Icons", Icons.create(this.Storage.open("ico"), iconsPrefix, iconsList, iconsSize));
+            this.addModule("Images", Images.create(imagesPrefix, imagesList));
+
             jet.run(onBuild, this);
         });
         
@@ -84,6 +93,7 @@ class Core {
         if (!this.modules.has(name)) {
             this.modules.add(name);
             jet.obj.addProperty(this, name, module, false, true, false);
+            jet.obj.addProperty(module, "Core", this, false, false, false);
         }
         return module;
     }
@@ -142,14 +152,8 @@ class Core {
         return jet.test.byteCount(localStorage, "10mB");
     }
 
-    static Context = React.createContext();
-
-    static useContext(...path) {
-        return useContext(Core.Context).getModule(...path);
-    }
-
     static use(...path) {
-        const core = Core.useContext();
+        const core = Provider.use().Core;
         const rerender = useForceRender();
         useEffect(_=>core.addOnChange(rerender, ...path), []);
         return core.getModule(...path);

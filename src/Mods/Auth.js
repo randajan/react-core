@@ -5,12 +5,11 @@ import User from "./User";
 
 class Auth {
 
-    constructor(Core, path, providers, anonymUser, onChange) {
+    constructor(Storage, path, providers, anonymUser, onChange) {
         let _user;
         
         jet.obj.addProperty(this, {
-            Core,
-            Storage:Core.Vault.open("auth"),
+            Storage,
             path:jet.get("string", path),
             providers:jet.arr.wrap(providers),
             onChange:new jet.RunPool(this),
@@ -74,8 +73,6 @@ class Auth {
 
     async start() {
         const Core = this.Core;
-
-        Core.Lang.onChange.add(Lang=>this.User.saveLang(Lang.now));
 
         jet.obj.addProperty(this, {
             Session:Core.Session.open("auth"),

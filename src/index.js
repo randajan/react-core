@@ -1,4 +1,6 @@
-import { usePopUp, PopUp } from "@randajan/react-popup";
+import ModalProvider, {jet as jetModal,  Modal, PopUp, ClassNames, Pop, usePromise, useForceRender } from "@randajan/react-popup";
+
+import jet from "@randajan/jetpack";
 
 import Api from "./Mods/Api";
 import Auth from "./Mods/Auth";
@@ -23,11 +25,9 @@ import Ico from "./Components/Ico";
 import Img from "./Components/Img";
 import Provider from "./Components/Provider";
 
-import usePromise from "./Hooks/usePromise";
-import useForceRender from "./Hooks/useForceRender";
-
 export default Provider;
 export {
+  jet,
   Api,
   Auth,
   Core,
@@ -50,10 +50,14 @@ export {
   Ico,
   Img,
   Provider,
+
+  ModalProvider,
+  Modal,
   PopUp,
-  
+  ClassNames,
+  Pop,
+
   usePromise,
-  useForceRender,
-  usePopUp,
+  useForceRender
 }
 

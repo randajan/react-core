@@ -8,7 +8,7 @@ const ICONS = [];
 
 class Icons {
 
-    constructor(Core, prefix, list, size, onChange) {
+    constructor(Storage, prefix, list, size, onChange) {
         const id = ICONS.push(this)-1;
 
         prefix = jet.get("string", prefix, "Ico");
@@ -16,8 +16,7 @@ class Icons {
         list = Icons.fetchList(list);
 
         jet.obj.addProperty(this, {
-            Core,
-            Storage:Core.Storage.open("ico"), 
+            Storage, 
             onChange: new jet.RunPool(this),
             id,
             prefix,

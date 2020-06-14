@@ -1,60 +1,72 @@
 
-import React, { Component } from 'react'
+import React, { Component, useContext } from 'react'
 import { Helmet } from "react-helmet";
 
 import jet from "@randajan/jetpack";
-import PopUpProvider from "@randajan/react-popup";
+import ModalProvider from "@randajan/react-popup";
 
 import Core from "../Mods/Core";
 
 class Provider extends Component {
-    mounted = false;
-    constructor(props) {
-        super(props);
-        
-        const core = this.Core = new Core(this, props);
 
-        core.addAndRunOnChange(core=>this.setState(core.state));
-        core.addAndRunOnChange(lang=>this.setState({lang:lang.now}), "Lang");
-        core.addAndRunOnChange(icons=>this.setState({}), "Icons");
+  static Context = React.createContext();
+
+  static use() { return useContext(Provider.Context); }
+
+  cleanUp = new jet.RunPool();
+
+  constructor(props) {
+    super(props);
+
+    jet.obj.addProperty(this, {
+      Core: new Core(this, props)
+    });
+
+    this.state = {};
+
+  }
+
+  actualize(direction) {
+    if (jet.is(jet.RunPool, this.cleanUp)) { this.cleanUp.run(); }
+    if (direction !== false) {
+      this.cleanUp = new jet.RunPool();
+      this.cleanUp.add(
+        this.Core.addAndRunOnChange(core => this.setState(core.state)),
+        this.Core.addAndRunOnChange(lang => this.setState({ lang: lang.now }), "Lang"),
+        this.Core.addAndRunOnChange(icons => this.forceUpdate(), "Icons"),
+      );
     }
+  }
 
-    setState(state) {
-      if (this.mounted) {super.setState(state);}
-      else {this.state = {...this.state, ...state};}
-    }
+  componentDidMount() { this.actualize(true); }
 
-    getStateProps() {
-      const props = {};
-      jet.obj.map(this.state, (v, k) => { if (v && v != "none") { props["data-core-" + k.lower()] = v; } });
-      return props;
-    }
+  fetchSelfProps() {
+    const { id, className, onLoad } = this.props;
 
-    componentDidMount() {
-      this.mounted = true;
-    }
+    const props = {
+      id, className, onLoad:_=>jet.run(onLoad, this.Core),
+      ref:prov => prov ? this.Core.addModule("Modal", prov.Modal) : null
+    };
 
-    componentWillUnmount() {
-      this.mounted = false;
-    }
+    jet.obj.map(this.state, (v, k) => { if (v && v != "none") { props["data-core-" + k.lower()] = v; } });
 
-    render() {
-      const Icons = this.Core.Icons;
-      const lang = this.state.lang;
-      const main = this.Core.id === 0;
-      const { id, className } = this.props;
-      const props = { id, className, main, ...this.getStateProps()};
+    return props;
+  }
 
-      return (
-          <Core.Context.Provider value={this.Core}>
-            <PopUpProvider ref={PopUp=>this.Core.addModule("PopUp", PopUp)} {...props}>
-              {Icons ? Icons.getDefs() : null}
-              <Helmet htmlAttributes={{ lang }}><meta http-equiv="Content-language" content={lang} /></Helmet>
-              {this.props.children}
-            </PopUpProvider>  
-          </Core.Context.Provider>
-      )
-    }
+  render() {
+    const Icons = this.Core.Icons;
+    const lang = this.state.lang;
+
+    return (
+      <Provider.Context.Provider value={this}>
+        <ModalProvider {...this.fetchSelfProps()}>
+          {Icons ? Icons.getDefs() : null}
+          <Helmet htmlAttributes={{ lang }}><meta http-equiv="Content-language" content={lang} /></Helmet>
+          {this.props.children}
+        </ModalProvider>
+      </Provider.Context.Provider>
+    )
+  }
 }
 
 export default Provider;

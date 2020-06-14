@@ -7,11 +7,8 @@ import LangLib from "../Helpers/LangLib";
 
 class Lang {
 
-    constructor(Core, list, libs, fallback, def, onChange) {
+    constructor(Storage, list, libs, fallback, def, onChange) {
         [fallback, def] = jet.get([["string", fallback, "en"], ["string", def]]);
-
-        const Storage = Core.Storage.open("lang");
-        const query = Core.Query.get("lang", true);
 
         list = Lang.validateList(list, fallback, def).map(lang => Storage.open(lang) ? lang : undefined);
         libs = Lang.validateLibs(libs);
@@ -19,21 +16,16 @@ class Lang {
         fallback = Lang.validateLang([fallback, list[0]], list);
 
         jet.obj.addProperty(this, {
-            Core,
             Storage,
             list,
             libs,
             def,
             fallback,
-            query,
             onChange:new jet.RunPool(this)
         }, null, false, true);
 
         this.onChange.add(onChange);
 
-        this.select(query, Core.Auth.User.loadLang());
-
-        Core.Auth.onChange.add(Auth=>this.select(query, Auth.User.loadLang()));
     }
 
     get(path, ...langs) {

@@ -21,10 +21,9 @@ const SIZESET = [];
 
 class View {
 
-    constructor(Core, sizes, onChange) {
+    constructor(sizes, onChange) {
         let _size;
         jet.obj.addProperty(this, {
-            Core,
             id:SIZESET.push({})-1,
             onChange:new jet.RunPool(this)
         });

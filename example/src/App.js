@@ -20,6 +20,9 @@ const coreConfig = {
   ],
   apiUrl:"https://reqres.in",
   onBuild:Core=>{
+    
+  },
+  onLoad:Core=>{
     Core.addAndRunOnChange(View=>Core.Provider.setState({view:View.size}), "View");
   }
 }

@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 
+import Provider from "../Components/Provider";
+
 import Storage from "../Helpers/Storage";
 import Core from "./Core";
 
-import useForceRender from "../Hooks/useForceRender";
+import { useForceRender } from "@randajan/react-popup";
 
 
 class Case extends Storage {
@@ -18,7 +20,7 @@ class Case extends Storage {
 
     static useKey(key, value) {
         const rerender = useForceRender();
-        const core = Core.useContext();
+        const core = Provider.use().Core;
         const cs = core.Case;
 
         if (!cs[key]) {

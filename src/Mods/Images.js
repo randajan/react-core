@@ -8,13 +8,12 @@ const IMAGES = [];
 
 class Images {
 
-    constructor(Core, prefix, list) {
+    constructor(prefix, list) {
         const id = IMAGES.push({})-1;
         prefix = jet.get("string", prefix, "Img");
         list = Images.fetchList(list);
 
         jet.obj.addProperty(this, {
-            Core,
             id,
             prefix,
             list,
