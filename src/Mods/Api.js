@@ -14,24 +14,19 @@ class Api {
         }, null, false, true);
     }
 
-    formatOptions(method, data, headers) {
-        const options = {
-            method: method,
-            dataType: "JSON",
-            //credentials: 'include',
+    fetchOptions(method, body, headers) {
+        return {
+            method,
+            body,
             headers: {
+                "content-type": Api.getContentType(body),
                 ...headers,
-                //Accept: 'application/json',
-                //Origin: this.origin,
-                //Authorization: this.Core.Auth.getAccessToken(true),
+                Accept: 'application/json',
+                Origin: this.origin,
+                Authorization: this.Core.Auth.getAccessToken(true),
                 //"X-CSRF-Token": this.Storage.get("csrf")
             }
         };
-    
-        if (method === "GET") {}
-        else if (method === "POST") {options.body = Api.dataToForm(data);}
-
-        return options;
     }
 
     toCache(id, data) {
@@ -47,9 +42,9 @@ class Api {
         }
     }
 
-    async fetch(method, path, data, headers, cache) {
-        [method, path, data, headers, cache] = jet.untie({method, path, data, headers, cache});
-        const id = jet.obj.toJSON([method, path, data, headers]);
+    async fetch(method, path, body, headers, cache) {
+        [method, path, body, headers, cache] = jet.untie({method, path, body, headers, cache});
+        const id = jet.obj.toJSON([method, path, body, headers]);
 
         let reply = this.fromCache(id, cache);
 
@@ -57,7 +52,7 @@ class Api {
 
         if (this.pending[id]) { return await this.pending[id]; }
 
-        const prom = this.pending[id] = fetch(this.url + path, this.formatOptions(method, data, headers))
+        const prom = this.pending[id] = fetch(this.url + path, this.fetchOptions(method, body, headers))
             .then(resp=>{
                 this.Storage.set("csrf", resp.headers.get("x-csrf-token"));
                 return resp.json();
@@ -69,17 +64,28 @@ class Api {
         return reply;
     }
 
-    get(path, data, headers, cache) {return this.fetch("GET", ...jet.untie({path, data, headers, cache}));}
-    post(path, data, headers, cache) {return this.fetch("POST", ...jet.untie({path, data, headers, cache}));}
-    put(path, data, headers, cache) {return this.fetch("PUT", ...jet.untie({path, data, headers, cache}));}
-    delete(path, data, headers, cache) {return this.fetch("DELETE", ...jet.untie({path, data, headers, cache}));}
+    get(path, body, headers, cache) {return this.fetch("GET", ...jet.untie({path, body, headers, cache}));}
+    post(path, body, headers, cache) {return this.fetch("POST", ...jet.untie({path, body, headers, cache}));}
+    put(path, body, headers, cache) {return this.fetch("PUT", ...jet.untie({path, body, headers, cache}));}
+    delete(path, body, headers, cache) {return this.fetch("DELETE", ...jet.untie({path, body, headers, cache}));}
 
     static create(...args) {return new Api(...args);}
 
-    static dataToForm(data) {
+    static toForm(obj) {
         const form = new FormData();
-        for (let i in data) {form.append(i, data[i]);}
+        jet.obj.map(obj, (v,k)=>form.append(k, v));
         return form;
+    }
+
+    static isForm(body) {
+        return jet.is(FormData, body) || (jet.is("element", body) && body.tagName === "FORM");
+    }
+
+    static getContentType(body) {
+        const type = jet.type(body);
+        if (type === "string" || type === "number") { return "text/plain"; }
+        if (Api.isForm(body)) { return "multipart/form-data"; }
+        if (type === "object") { return "application/json"; }
     }
 
     static use(...path) {

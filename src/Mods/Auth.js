@@ -2,6 +2,7 @@ import jet from "@randajan/jetpack";
 
 import Core from "./Core";
 import User from "./User";
+import Api from "./Api";
 
 class Auth {
 
@@ -68,7 +69,7 @@ class Auth {
 
     logout() {this.setPassport(); this.User = null; }
 
-    async fetchauthCode(code) {return this.Core.Tray.async("User.code", this.Core.Api.post(this.path+"/token", { code }));}
+    async fetchauthCode(code) {return this.Core.Tray.async("User.code", this.Core.Api.post(this.path+"/token", Api.toForm({ code })));}
     async fetchUser() {return this.Core.Tray.async("User.profile", this.Core.Api.get("/user"));};
 
     async start() {
