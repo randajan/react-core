@@ -22,7 +22,7 @@
   },
   "peerDependencies": {
     "@randajan/jetpack": "^4.0.2",
-    "@randajan/react-popup": "^3.0.10",
+    "@randajan/react-popup": "^3.0.11",
     "crypto-js": "^4.0.0",
     "moment": "^2.24.0",
     "prop-types": "^15.5.4",
@@ -64,7 +64,7 @@
   },
   "dependencies": {
     "@randajan/jetpack": "^4.0.2",
-    "@randajan/react-popup": "^3.0.10",
+    "@randajan/react-popup": "^3.0.11",
     "crypto-js": "^4.0.0",
     "moment": "^2.24.0",
     "prop-types": "^15.5.4",
