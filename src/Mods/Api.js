@@ -15,13 +15,16 @@ class Api {
     }
 
     fetchOptions(method, body, headers) {
+        const type = Api.getContentType(body);
+        if (type === "application/json") { body = jet.obj.toJSON(body); }
+
         return {
             method,
             body,
             headers: {
                 "content-type": Api.getContentType(body),
                 ...headers,
-                Accept: 'application/json',
+                Accept: "application/json",
                 Origin: this.origin,
                 Authorization: this.Core.Auth.getAccessToken(true),
                 //"X-CSRF-Token": this.Storage.get("csrf")
