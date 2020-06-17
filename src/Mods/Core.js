@@ -29,6 +29,8 @@ class Core {
     state = {}
 
     constructor(Provider, props) {
+        
+        const id = CORES.push(this) - 1;
         const { 
             nocache, debug, version, onChange, onBuild, cryptKey, viewSizes, sessionUrl, apiUrl, 
             langList, langLibs, langFallback, langDefault, 
@@ -37,8 +39,6 @@ class Core {
             imagesPrefix, imagesList,
         } = props;
         
-        const id = CORES.push(this) - 1;
-
         jet.obj.addProperty(this, {
             id,
             version,
@@ -52,12 +52,13 @@ class Core {
         if (debug) {
             window.jet = jet;
             window.Core = this;
-            this.onChange.add((Core, changes)=>this.log(changes));
+            this.onChange.add((Core, changes)=>this.log(Core.build, Core.start));
         }
 
-        this.addModule("Tray", Tray.create(Task => this.setState(Task)));
+        this.addModule("Tray", Tray.create((tray, task) => this.setState(task)));
 
-        this.Tray.sync("build", _ => {
+        this.Tray.runAsync("build", task => {
+
             this.addModule("Provider", Provider);
             this.addModule("Query", Query.create());
             this.addModule("Crypt", Crypt.create(cryptKey));
@@ -69,24 +70,27 @@ class Core {
             this.addModule("Auth", Auth.create(this.Vault.open("auth"), authPath, authProviders, anonymUser));
             this.addModule("Api", Api.create(this.Vault.open("api"), apiUrl));
             this.addModule("Lang", Lang.create(this.Storage.open("lang"), langList, langLibs, langFallback, langDefault));
+            this.addModule("Icons", Icons.create(this.Storage.open("ico"), iconsPrefix, iconsList, iconsSize));
+            this.addModule("Images", Images.create(imagesPrefix, imagesList));
 
             const query = this.Query.get("lang", true);
             this.Lang.select(query, this.Auth.User.loadLang());
             this.Auth.onChange.add(_=>this.Lang.select(query, this.Auth.User.loadLang()));
             this.Lang.onChange.add(_=>this.Auth.User.saveLang(this.Lang.now));
 
-            this.addModule("Icons", Icons.create(this.Storage.open("ico"), iconsPrefix, iconsList, iconsSize));
-            this.addModule("Images", Images.create(imagesPrefix, imagesList));
-
             jet.run(onBuild, this);
-        });
-        
-        this.Tray.async("start", async _ => {
+
+        }, task=>this.build=task);
+
+        this.Tray.runAsync("start", async task => {
             for (name of this.modules) {
                 let module = this[name];
                 if (jet.is("function", module.start)) { await this.Tray.async(name, module.start.bind(module)); }
             }
-        });
+        }, task=>this.start=task);
+        
+
+        
     }
 
     addModule(name, module) {
@@ -144,8 +148,12 @@ class Core {
     isReady() { return !!this.state.ready; }
     isDebug() { return !!this.debug; }
 
-    log(msg) {
-        if (this.isDebug()) { console.log(msg); }
+    async watch(prom) {
+
+    }
+
+    log(...msgs) {
+        if (this.isDebug()) { console.log(...msgs); }
     }
 
     spaceCount() {

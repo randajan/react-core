@@ -2,28 +2,40 @@ import jet from "@randajan/jetpack";
 
 class Task {
     constructor(name, onChange) {
-        jet.obj.addProperty(this, "name", name, false, true);
-        jet.obj.addProperty(this, "onChange", new jet.RunPool()); // not passing this to runpool
-        this.onChange.add(onChange);
+        jet.obj.addProperty(this, {
+            name,
+            onChange:new jet.RunPool(this)
+        }, null, false, true);
         
-        Object.defineProperty(this, "ms", {
-            enumerable:true,
-            get:_=>this.startPoint ? (this.endPoint||performance.now())-this.startPoint : 0
+        Object.defineProperties(this, {
+            started: { enumerable:true, get:_=>!!this.startPoint },
+            ended: { enumerable:true, get:_=>!!this.endPoint },
+            pending:{ enumerable:true, get:_=>this.started && !this.ended },
+            done:{ enumerable:true, get:_=>this.ended && !this.error },
+            ms:{ enumerable:true, get:_=>this.started ? (this.endPoint||performance.now())-this.startPoint : 0}
         });
+
+        this.onChange.add(onChange);
     }
 
     start() {
-        if (this.startPoint) {return this;}
-        jet.obj.addProperty(this, "startPoint", performance.now());
+        if (this.started) {return this;}
+        jet.obj.addProperty(this, { startPoint:performance.now() }, null, false, true);
         this.onChange.run(true);
         return this;
     }
 
-    end(error) {
-        if (!this.startPoint || this.endPoint) {return this;}
-        jet.obj.addProperty(this, "endPoint", performance.now());
-        jet.obj.addProperty(this, {error, done:!error}, null, false, true);
-        this.onChange.run(false, error);
+    stop(error) {
+        if (!this.pending) {return this;}
+        jet.obj.addProperty(this, { endPoint:performance.now(), error }, null, false, true);
+        this.onChange.run(false);
+        return this;
+    }
+
+    end(result) {
+        if (!this.pending) {return this;}
+        jet.obj.addProperty(this, { endPoint:performance.now(), result }, null, false, true);
+        this.onChange.run(false);
         return this;
     }
 

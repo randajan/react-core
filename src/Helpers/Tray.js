@@ -4,7 +4,7 @@ import Task from "./Task";
 
 class Tray {
     constructor(onChange) {
-        jet.obj.addProperty(this, "onChange", new jet.RunPool()); //not passing this to runpool
+        jet.obj.addProperty(this, "onChange", new jet.RunPool(this)); //not passing this to runpool
         jet.obj.addProperty(this, {
             pending:new jet.Pool(Task),
             error:new jet.Pool(Task),
@@ -18,40 +18,27 @@ class Tray {
     isError() {return jet.isFull(this.error);}
     isReady() {return !this.isPending() && !this.isError();}
 
-    add(name, start) {
-        const task = new Task(name, (pending, error)=>{
-            if (pending) {this.pending.add(task);}
-            else {this.pending.pass(error ? this.error : this.done, task);}
-            this.onChange.run(task);
-        });
-        return start ? task.start() : task;
+    addTask(name, onChange) {
+        return new Task(name, [task=>{
+            if (task.pending) { this.pending.add(task); }
+            else { this.pending.pass(task.error ? this.error : this.done, task); }
+        }, this.onChange.run.bind(this.onChange), onChange]);
     }
 
-    sync(name, fce) {
-        if (!jet.is("function", fce)) { return; }
-        const task = this.add(name, true);
-        try {
-            const result = fce(task);
-            task.end();
-            return result;
-        } catch(e) { task.end(e); }
+    runSync(name, fce, onChange) {
+        const task = this.addTask(name, onChange);
+        if (jet.is("function", fce)) {
+            try { task.start().end(fce(task)); } catch(e) { task.stop(e); }
+        };
+        return task;
     }
 
-    async async(name, prom) {
-        let task;
-        if (jet.is("function", prom)) {
-            task = this.add(name, true);
-            try {prom = prom(task);} catch(e) {task.end(e);}
-        }
-        if (jet.is(Promise, prom)) {
-            task = task || this.add(name, true);
-            const end = task.end.bind(task); 
-            return prom.then(prom=>{end(); return prom;}, end).catch(end);
-        }
-        if (task) {
-            task.end();
-            return prom;
-        }
+    async runAsync(name, fce, onChange) {
+        const task = this.addTask(name, onChange);
+        if (jet.is("function", fce) || jet.is(Promise, prom)) {
+            try { task.start().end(await fce(task)); } catch(e) { task.stop(e); }
+        };
+        return task;
     }
 
     fetchTasks(kind) {

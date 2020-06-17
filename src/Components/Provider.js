@@ -3,7 +3,7 @@ import React, { Component, useContext } from 'react'
 import { Helmet } from "react-helmet";
 
 import jet from "@randajan/jetpack";
-import ModalProvider from "@randajan/react-popup";
+import ModalProvider, { ClassNames } from "@randajan/react-popup";
 
 import Core from "../Mods/Core";
 
@@ -12,6 +12,10 @@ class Provider extends Component {
   static Context = React.createContext();
 
   static use() { return useContext(Provider.Context); }
+
+  static defaultFlags = {
+    build:p=>p.Core.build
+  }
 
   cleanUp = new jet.RunPool();
 
@@ -44,8 +48,10 @@ class Provider extends Component {
     const { id, className, onLoad } = this.props;
 
     const props = {
-      id, className, onLoad:_=>jet.run(onLoad, this.Core),
-      ref:prov => prov ? this.Core.addModule("Modal", prov.Modal) : null
+      id, className, 
+      ref:prov => prov ? this.Core.addModule("Modal", prov.Modal) : null,
+      onLoad:_=>jet.run(onLoad, this.Core),
+      flags:ClassNames.fetchFlags([ Provider.defaultFlags ], this)
     };
 
     jet.obj.map(this.state, (v, k) => { if (v && v != "none") { props["data-core-" + k.lower()] = v; } });
