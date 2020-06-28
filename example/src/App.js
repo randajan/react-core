@@ -1,6 +1,10 @@
 import React, { Component, useEffect } from 'react'
 
-import CoreProvider, { Core, Images, usePromise, Lang, View, Query, Ico, Img, PopUp, useForceRender, Case} from '@randajan/react-app-core';
+import { Link } from "react-router-dom";
+
+import jet from "@randajan/jetpack";
+
+import CoreProvider, { Core, Images, Lang, View, Query, Ico, Img, PopUp, Base} from '@randajan/react-app-core';
 
 const coreConfig = {
   //nocache:true,
@@ -18,33 +22,38 @@ const coreConfig = {
   imagesList:[
     require("./menu.svg")
   ],
-  apiUrl:"https://reqres.in",
+  apiUrl:"http://api.itcan.dev.itcan.cz",
+  authPath:"sauth",
+  authProviders:["google"],
   onBuild:Core=>{
     
   },
-  onLoad:Core=>{
-    Core.addAndRunOnChange(View=>Core.Provider.setState({view:View.size}), "View");
+  onLoad:Provider=>{
+    //Provider.Core.addAndRunOnChange(View=>Provider.setState({view:View.size}), "View");
   }
 }
 
 function Example() {
-  const query = Query.use();
-  const lang = Lang.use();
-  const view = View.use();
-  console.log(usePromise(_=>{console.log("test")}, []));
+  const core = Core.use();
+  const query = Core.use("Query");
+  const lang = Core.use("Lang");
+  const view = Core.use("View");
+  
+  console.log(Core.useKey("Auth.passport.authorization"));
 
-  const [foo, setFoo] = Case.useKey("foo", "bar");
-  console.log(foo);
+  //const [foo, setFoo] = Case.useKey("foo", "bar");
+  //console.log(foo);
 
-  useEffect(_=>{setTimeout(_=>setFoo("XDFG"), 5000)});
+  //useEffect(_=>{setTimeout(_=>setFoo("XDFG"), 5000)});
   
   console.log("RERENDER");
   return (
     <div className="Example">
       <h1>Majestic APP</h1>
-      <h2>{view.size}</h2>
-      <h2>{lang.now}</h2>
-      <a onClick={_=>query.set("test", !query.get("test") ? true : undefined)}>Add to query</a>
+      <p>{core.isLoading() ? "Loading" : core.isError() ? "Error" : "Ready"}</p>
+      <h2>{jet.react.fetchFlags(view.get("size")).joins(" ")}</h2>
+      <h2>{lang.get("now")}</h2>
+      <Link to={query.toUri({a:!query.get("a")})}>Add to query</Link>
       <Ico src="menu"/>
       <Ico src="menu"/>
       <Img src="menu"/>

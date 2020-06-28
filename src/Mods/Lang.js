@@ -2,81 +2,80 @@ import moment from 'moment';
 
 import jet from "@randajan/jetpack";
 
-import Core from "./Core";
 import LangLib from "../Helpers/LangLib";
 
-class Lang {
+import Serf from "../Helpers/Task";
 
-    constructor(Storage, list, libs, fallback, def, onChange) {
-        [fallback, def] = jet.get([["string", fallback, "en"], ["string", def]]);
+class Lang extends Serf {
 
-        list = Lang.validateList(list, fallback, def).map(lang => Storage.open(lang) ? lang : undefined);
-        libs = Lang.validateLibs(libs);
-        def = Lang.validateLang([def, list[0]], list);
-        fallback = Lang.validateLang([fallback, list[0]], list);
+    constructor(core, path, list, libs, now, fallback, def) {
+        super(core, path);
 
         jet.obj.addProperty(this, {
-            Storage,
-            list,
-            libs,
-            def,
-            fallback,
-            onChange:new jet.RunPool(this)
+            Tray:core.open("Tray"),
+            libs:Lang.validateLibs(libs),
+            books:{},
+            task:{}
         }, null, false, true);
 
-        this.onChange.add(onChange);
+        this.fitType("book", "object");
+        this.fit("list", Lang.validateList);
+
+        this.fit((v,f)=>{
+            v = jet.get("object", v);
+            v.def = Lang.validateLang([v.def, v.list[0]], v.list);
+            v.fallback = Lang.validateLang([v.fallback, v.list[0]], v.list); 
+            const now = v.now = Lang.validateLang([v.now, f.now, v.def], v.list);
+            if (!this.openBook(now).get("ready")) { v.now = f.now; }
+            return v;
+        });
+
+        this.eye("now", now=>moment.locale(now));
+
+        this.set({
+            now,
+            def,
+            fallback,
+            list:[list, fallback, def],
+            book:this.open("book").linkLocal()
+        });
 
     }
 
-    get(path, ...langs) {
-        for (let lang of this.validateLang([langs, this.now, this.fallback], true)) {
-            const val = this.Storage[lang].get(path);
+    spell(path, ...langs) {
+        const { now, list, fallback } = this.get();
+        for (let lang of Lang.validateLang([langs, now, fallback], list, true)) {
+            let val = this.get(["book", lang, "data", path]);
             if (val) { return val; }
         }
     }
 
-    async fetchLib(lang) {
-        const data = await this.Core.Tray.async("Lang.lib." + lang, Promise.all(this.libs.map(lib => lib.fetch(lang))));
+    openBook(lang) {
+        if (this.books[lang]) { return this.books[lang]; }
+        const book = this.books[lang] = this.addTask(["book", lang], _=>this.fetchBook(lang), "24h");
+        book.eye("data", _=>this.set("now", lang));
+        setTimeout(_=>book.fetch(lang));
+        return book;
+    }
+
+    async fetchBook(lang) {
+        const data = await Promise.all(this.libs.map(lib => lib.fetch(lang)));
         if (data) { return jet.obj.merge(...data); }
     }
 
-    async loadLib(lang, force) {
-        if (!force && jet.isFull(this.Storage[lang])) { return true; }
-        const data = await this.fetchLib(lang);
-        if (!data) { return false; }
-        this.Storage[lang].set("", data);
-        return true;
-    }
-
-    async select(...langs) {
-        langs = this.validateLang([langs, this.now, this.def], true);
-        for (let lang of langs) {
-            if (lang === this.now) {return false;}
-            if (await this.loadLib(lang)) {this.now = lang; break;}
-        }
-        moment.locale(this.now);
-        this.onChange.run();
-        return true;
-    }
-
-    validateLang(langs, all) { return Lang.validateLang(langs, this.list, all) }
-
     getMenu() {
-        if (!this.Core.isReady()) {return []; }
         return this.list.map(lang => {
             const path = "lang." + lang;
-            const now = this.get(path);
-            const native = this.get(path, lang);
+            const now = this.spell(path);
+            const native = this.spell(path, lang);
             const label = (now && now !== native) ? now + " (" + native + ")" : native;
-            if (lang !== this.now) { return [label, _ => this.select(lang)]; }
+            if (lang !== this.now) { return [label, _ => this.set("now", lang)]; }
         }).filter(_ => _);
     }
 
-    toString() { return this.now }
+    toString() { return this.get("now"); }
 
-    static create(...args) { return new Lang(...args); }
-
-    static fromString(lang) { return jet.get("string", lang).substr(0, 2).toLowerCase(); }
+    static fromString(lang) { return jet.get("string", lang).substr(0, 2).lower(); }
 
     static validateList(...langs) {
         const list = new Set();
@@ -84,6 +83,7 @@ class Lang {
             const lang = Lang.fromString(v);
             if (lang) { list.add(lang); }
         }, true);
+        if (jet.isEmpty(list)) { list.add("en"); }
         return Array.from(list);
     }
 
@@ -97,10 +97,6 @@ class Lang {
         langs = Lang.validateList(langs);
         if (jet.is("array", list)) { langs = langs.filter(lang => list.includes(lang)); }
         return all ? langs : langs[0];
-    }
-
-    static use(...path) {
-        return Core.use("Lang", ...path);
     }
 
 }

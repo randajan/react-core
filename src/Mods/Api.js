@@ -1,43 +1,73 @@
 import jet from "@randajan/jetpack";
 
-import Core from "./Core";
+import Serf from "../Helpers/Task";
 
-class Api {
 
-    origin = window.location.protocol+"//"+window.location.host;
+class Api extends Serf {
 
-    constructor(Storage, url) {
-        jet.obj.addProperty(this, {
-            Storage,
-            url:jet.get("string", url),
-            pending:{}
-        }, null, false, true);
+    static toForm(obj) {
+        const form = new FormData();
+        jet.obj.map(obj, (v,k)=>form.append(k,v));
+        return form;
     }
 
-    fetchOptions(method, body, headers) {
-        const type = Api.getContentType(body);
-        if (type === "application/json") { body = jet.obj.toJSON(body); }
+    static isForm(body) {
+        return jet.is(FormData, body) || (jet.is("element", body) && body.tagName === "FORM");
+    }
 
+    static getContentType(body) {
+        const type = jet.type(body);
+        if (Api.isForm(body)) { return "multipart/form-data"; }
+        if (type === "object") { return "application/json"; }
+        return "text/plain";
+    }
+
+    constructor(Core, path, url, token) {
+        super(Core, path);
+        const origin = window.origin;
+        
+        jet.obj.addProperty(this, {
+            pending:{},
+            cache:{},
+        }, null, false, true);
+
+        this.lock("origin", origin);
+
+        this.set({
+            origin,
+            url,
+            token
+        });
+    }
+
+    toForm(obj) { return Api.toForm(obj); }
+    isForm(obj) { return Api.isForm(obj); }
+    getContentType(body) { return Api.getContentType(body); }
+
+    fetchOptions(method, body, headers) {
+        const { origin, token } = this.get();
+
+        const type = Api.getContentType(body);
+        if (type === "application/json") { body = jet.str.to(body); }
         return {
-            method,
-            body,
+            method, body,
+            credentials: "include",
             headers: {
-                "content-type": Api.getContentType(body),
                 ...headers,
-                Accept: "application/json",
-                Origin: this.origin,
-                Authorization: this.Core.Auth.getAccessToken(true),
+                origin,
+                accept: "application/json",
+                authorization: jet.str.to(token),
                 //"X-CSRF-Token": this.Storage.get("csrf")
             }
         };
     }
 
     toCache(id, data) {
-        return this.Storage.set(["cache", id], {timestamp:new Date(), data}, true);
+        return this.cache[id] = { timestamp:new Date(), data };
     }
 
     fromCache(id, timeout) {
-        const cache = this.Storage.get(["cache", id]);
+        const cache = this.cache[id];
         if (!cache) { return }
         const msleft = new jet.Amount(timeout, "s").valueOf("ms");
         if (new Date().getTime() < new Date(cache.timestamp).getTime()+msleft) {
@@ -49,17 +79,13 @@ class Api {
         [method, path, body, headers, cache] = jet.untie({method, path, body, headers, cache});
         const id = jet.obj.toJSON([method, path, body, headers]);
 
-        let reply = this.fromCache(id, cache);
 
+        let reply = this.fromCache(id, cache);
         if (reply != null) { return reply; }
 
         if (this.pending[id]) { return await this.pending[id]; }
 
-        const prom = this.pending[id] = fetch(this.url + path, this.fetchOptions(method, body, headers))
-            .then(resp=>{
-                this.Storage.set("csrf", resp.headers.get("x-csrf-token"));
-                return resp.json();
-            })
+        const prom = this.pending[id] = fetch(this.get("url")+"/"+path, this.fetchOptions(method, body, headers)).then(resp=>resp.json())
 
         reply = await prom;
         delete this.pending[id];
@@ -67,37 +93,10 @@ class Api {
         return reply;
     }
 
-    get(path, body, headers, cache) {return this.fetch("GET", ...jet.untie({path, body, headers, cache}));}
-    post(path, body, headers, cache) {return this.fetch("POST", ...jet.untie({path, body, headers, cache}));}
-    put(path, body, headers, cache) {return this.fetch("PUT", ...jet.untie({path, body, headers, cache}));}
-    delete(path, body, headers, cache) {return this.fetch("DELETE", ...jet.untie({path, body, headers, cache}));}
-
-    static create(...args) {return new Api(...args);}
-
-    static toForm(obj) {
-        const form = new FormData();
-        jet.obj.map(obj, (v,k)=>form.append(k, v));
-        return form;
-    }
-
-    static isForm(body) {
-        return jet.is(FormData, body) || (jet.is("element", body) && body.tagName === "FORM");
-    }
-
-    static getContentType(body) {
-        const type = jet.type(body);
-        if (type === "string" || type === "number") { return "text/plain"; }
-        if (Api.isForm(body)) { return "multipart/form-data"; }
-        if (type === "object") { return "application/json"; }
-    }
-
-    static use(...path) {
-        return Core.use("Api", ...path);
-    }
-
-    static useStorage(...path) {
-        return Api.use("Storage", ...path);
-    }
+    GET(path, body, headers, cache) {return this.fetch("GET", ...jet.untie({path, body, headers, cache}));}
+    POST(path, body, headers, cache) {return this.fetch("POST", ...jet.untie({path, body, headers, cache}));}
+    PUT(path, body, headers, cache) {return this.fetch("PUT", ...jet.untie({path, body, headers, cache}));}
+    DELETE(path, body, headers, cache) {return this.fetch("DELETE", ...jet.untie({path, body, headers, cache}));}
 
 }
 

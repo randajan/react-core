@@ -1,51 +1,20 @@
-import React from 'react';
 
-import jet from "@randajan/jetpack";
+
+import Serf from "../Helpers/Task";
 
 import Core from "./Core";
 
-const IMAGES = [];
+class Images extends Serf {
 
-class Images {
+    constructor(core, path, files) {
+        super(core, path);
 
-    constructor(prefix, list) {
-        const id = IMAGES.push({})-1;
-        prefix = jet.get("string", prefix, "Img");
-        list = Images.fetchList(list);
+        this.fit("files", Core.fetchFiles);
 
-        jet.obj.addProperty(this, {
-            id,
-            prefix,
-            list,
-        }, null, false, true);
-
+        this.set({ files });
     }
 
-    get(props) {
-        const { prefix } = this;
-        const { src, className } = props;
-        return <img {...props} className={jet.obj.join([prefix, src, className]," ")} src={this.list[src]}/> 
-    }
 
-    static create(...args) {
-        return new Images(...args);
-    }
-
-    static fetchList(list) {
-        const nlist = jet.get("object", list);
-        if (jet.is("array", list)) {
-            list.map(path=>nlist[path.match(/[^\/\s\n\r\.]+(?=\.)/)[0]] = path);
-        }
-        return nlist;
-    }
-
-    static use(...path) {
-        return Core.use("Images", ...path);
-    }
-
-    static useStorage(...path) {
-        return Images.use("Storage", ...path);
-    }
 
 }
 

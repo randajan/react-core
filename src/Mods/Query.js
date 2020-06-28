@@ -1,36 +1,37 @@
 import qs from "query-string";
 
 import jet from "@randajan/jetpack";
-import Space from "../Helpers/Space";
-import Core from "./Core";
+import Serf from "../Helpers/Task";
 
 const location = window.location;
 
-class Query extends Space {
-    constructor(onChange) {
-        super(Query.parse(), onChange);
+class Query extends Serf {
+
+    static toUri(obj) {
+        const str = qs.stringify(jet.get("object", obj));
+        return str ? "?"+str : "";
     }
 
-    toUri(path) {
-        const content = jet.obj.map({...this}, v=>jet.obj.toJSON(v)||v);
-        return [jet.obj.get(jet.get("string", path, location.pathname).match(/[^?]*/), 0), qs.stringify(content)].joins("?");
+    static fromUri(str) {
+        return qs.parse(jet.get("string", str, location.search), {parseNumbers: true, parseBooleans: true});
     }
 
-    fromUri(path) {
-        this.set("", Query.parse(path), true);
+    constructor(Core, path) {
+        super(Core, path, Query.fromUri());
+
+        this.fit(v=>{
+            if (jet.is("string", v)) { return Query.fromUri(v); }
+            return jet.get("object", v);
+        });
+
     }
 
-    static parse(path) {
-        return qs.parse(jet.get("string", path, location.search), {parseNumbers: true, parseBooleans: true});
-    }
+    toUri(obj) { return Query.toUri(obj || this.get()); }
 
-    static create(...args) {
-        return new Query(...args);
-    }
+    fromUri(str) { return Query.fromUri(str); }
 
-    static use(...path) {
-        return Core.use("Query", ...path);
-    }
+    setFromUri(str) { return this.set(this.fromUri(str)); }
+
 }
 
 

@@ -1,101 +1,54 @@
 import jet from "@randajan/jetpack";
 
-import Core from "./Core";
+import Serf from "../Helpers/Task";
+
 import User from "./User";
-import Api from "./Api";
 
-class Auth {
+class Auth extends Serf {
 
-    constructor(Storage, path, providers, anonymUser, onChange) {
-        let _user;
-        
+    constructor(core, path, authPath, providers) {
+        super(core, path);
+
         jet.obj.addProperty(this, {
-            Storage,
-            path:jet.get("string", path),
-            providers:jet.arr.wrap(providers),
-            onChange:new jet.RunPool(this),
-        }, null, false, true);
+            Tray:core.open("Tray"),
+            Api:core.open("Api"),
+            passport:this.addTask("passport", code=>this.Api.POST(authPath+"/token", this.Api.toForm({ code }))),
+            login:this.addTask("login", provider=>this.Api.GET(authPath+"/"+provider)),
+            user:this.addTask("user", _=>this.Api.GET("/user"), "1h")
+        }, null, false, true)
 
-        this.onChange.add(onChange);
+        this.fit("providers", v=>jet.arr.wrap(v));
+        this.fitTo("authPath", "string");
+        this.fitType("login", "object");
 
-        Object.defineProperty(this, "User", {
-            enumerable:true,
-            set:function(profile) {
-                _user = User.create(this, profile);
-                this.onChange.run();
-            },
-            get:function() {return _user;}
+        this.fitType("passport.data", "object");
+        this.fitType("login.data", "object");
+        this.fitType("user.data", "object");
+
+        this.fit("passport.data", v=>{
+             if (!v.access_token) { return {}; }
+             v.authorization = [v.token_type, v.access_token].joins(" ");
+             return v;
         });
 
-        this.setAnonymUser(anonymUser);
+        this.eye("login.data.redirect_uri", r=>window.location=r);
 
-        this.logout();
+        this.set({
+            authPath,
+            providers,
+            passport:this.passport.linkLocal(),
+            user:this.user.linkLocal()
+        });
+
     }
 
-    isReady() {return this.Core.isReady();}
-    isLoading() {return this.Core.isLoading();}
-
-    validateProvider(provider) {return this.providers.includes(provider);}
-    validatePassport(authorization) {return !!jet.obj.get(authorization, "access_token");}
-
-    getPassport() { return this.Session ? jet.get("object", this.Session.get("passport")) : {}; }
-    setPassport(pass) {return this.Session ? this.Session.set("passport", this.validatePassport(pass) ? pass : {}) : false }
-
-    getAccessToken(withType) {
-        const {token_type, access_token} = this.getPassport();
-        return access_token ? withType ? [token_type, access_token].join(" ") : access_token : "";
-    }
-
-    setAnonymUser(profile, force) {return this.Storage.push("users.0.profile", jet.get("ojbect", profile), force);}
+    logout() { this.push({passport:null, user:null}) }
 
     getMenu() {
         const lang = this.Core.Lang;
-        if (!this.isReady()) {return []; }
+        if (!this.Tray.isDone()) {return []; }
         if (this.User.isReal()) { return [[lang.get("auth.logout"), this.logout.bind(this)]]; }
         return this.providers.map(provider=>[lang.get("auth.providers."+provider), _=>this.login(provider)]);
-    }
-
-    async login(provider) {
-        if (!this.validateProvider(provider)) {return false;}
-
-        return this.Core.Tray.async("User.login", this.Core.Api.post(this.path+"/"+provider)).then(
-            data => {
-                const redirect = jet.obj.get(data, "redirect_uri");
-                if (redirect) { return window.location = redirect; }
-                this.Core.debug(this.Core.Lang.get("auth.error"));
-            }
-        );
-    }
-
-    logout() {this.setPassport(); this.User = null; }
-
-    async fetchauthCode(code) {return this.Core.Tray.async("User.code", this.Core.Api.post(this.path+"/token", Api.toForm({ code })));}
-    async fetchUser() {return this.Core.Tray.async("User.profile", this.Core.Api.get("/user"));};
-
-    async start() {
-        const Core = this.Core;
-
-        jet.obj.addProperty(this, {
-            Session:Core.Session.open("auth"),
-        }, null, false, true);
-
-        if (!this.path) { return false; }
-
-        if (window.location.pathname === this.path && Core.Query.get("code")) {
-            this.setPassport(await this.fetchauthCode(Core.Query.get("code", true)));
-        }
-
-        this.User = await this.fetchUser();
-    }
-
-    static create(...args) {return new Auth(...args);}
-
-    static use(...path) {
-        return Core.use("Auth", ...path);
-    }
-
-    static useStorage(...path) {
-        return Auth.use("Storage", ...path);
     }
 
 }

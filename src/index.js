@@ -1,11 +1,10 @@
-import ModalProvider, {jet as jetModal,  Modal, PopUp, ClassNames, Pop, usePromise, useForceRender } from "@randajan/react-popup";
+import ModalProvider, {jet as jet_pu, Modal, PopUp, Pop, css } from "@randajan/react-popup";
 
 import jet from "@randajan/jetpack";
 
 import Api from "./Mods/Api";
 import Auth from "./Mods/Auth";
 import Core from "./Mods/Core";
-import Case from "./Mods/Case";
 import Icons from "./Mods/Icons";
 import Images from "./Mods/Images";
 import Lang from "./Mods/Lang";
@@ -13,23 +12,22 @@ import Query from "./Mods/Query";
 import User from "./Mods/User";
 import View from "./Mods/View";
 
+import Base from "./Helpers/Base";
 import Crypt from "./Helpers/Crypt";
 import LangLib from "./Helpers/LangLib";
-import Session from "./Helpers/Session";
-import Space from "./Helpers/Space";
-import Storage from "./Helpers/Storage";
 import Task from "./Helpers/Task";
-import Tray from "./Helpers/Tray";
 
 import Ico from "./Components/Ico";
 import Img from "./Components/Img";
 import Provider from "./Components/Provider";
 
-//alert(jet === jetModal);
+if (jet !== jet_pu) { throw new Error("Multiple jet instance present :("); }
 
 export default Provider;
 export {
   jet,
+  css,
+  Base,
   Api,
   Auth,
   Core,
@@ -42,12 +40,7 @@ export {
 
   Crypt,
   LangLib,
-  Case,
-  Session,
-  Space,
-  Storage,
   Task,
-  Tray,
 
   Ico,
   Img,
@@ -56,10 +49,7 @@ export {
   ModalProvider,
   Modal,
   PopUp,
-  ClassNames,
-  Pop,
+  Pop
 
-  usePromise,
-  useForceRender
 }
 

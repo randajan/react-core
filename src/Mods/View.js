@@ -1,11 +1,13 @@
 import { deviceType, browserName, browserVersion, fullBrowserVersion, mobileVendor, mobileModel, engineName, engineVersion } from 'react-device-detect';
 
 import jet from "@randajan/jetpack";
+import Serf from "../Helpers/Task";
 import Core from "./Core";
 
 const DEFAULTSIZES = {
     "xs": w=>w<=600,
     ">xs": w=>w>600,
+    "<s": w=>w<=600,
     "s": w=>w>600&&w<=960,
     ">s": w=>w>960,
     "<m": w=>w<=960,
@@ -13,77 +15,58 @@ const DEFAULTSIZES = {
     ">m": w=>w>1280,
     "<l": w=>w<=1280,
     "l": w=>w>1280&&w<=1920,
+    ">l": w=>w>1920,
     "<xl": w=>w<=1920,
     "xl": w=>w>1920
 }
 
-const SIZESET = [];
+class View extends Serf {
 
-class View {
+    constructor(Core, sizes) {
+        super(Core, "View");
 
-    constructor(sizes, onChange) {
-        let _size;
-        jet.obj.addProperty(this, {
-            id:SIZESET.push({})-1,
-            onChange:new jet.RunPool(this)
-        });
-
-        this.onChange.add(onChange);
-
-        jet.obj.addProperty(this, View.getDevice(), null, false, true);
+        jet.obj.addProperty(this, { sizes:{} }, null, false, true);
 
         Object.defineProperties(this, {
             width:{get:_=>Math.max(document.documentElement.clientWidth, window.innerWidth)},
-            height:{get:_=>Math.max(document.documentElement.clientHeight, window.innerHeight)},
-            size:{
-                enumerable:true,
-                set:_=>{
-                    const {width, height} = this;
-                    const sizes = [];
-                    jet.obj.map(SIZESET[this.id], (check, size)=>{if (check(width, height)) {sizes.push(size);}});
-                    const size = jet.obj.join(sizes, " ");
-                    if (_size === size) {return}
-                    _size = size;
-                    this.onChange.run();
-                },
-                get:_=>_size
-            }
-
-        })
-
-        window.addEventListener("resize", this.actualize.bind(this));
+            height:{get:_=>Math.max(document.documentElement.clientHeight, window.innerHeight)}
+        }, null, false, true)
 
         this.addSize(jet.obj.merge(DEFAULTSIZES, sizes));
+        
+        this.fit(_=>{
+            return {
+                deviceType,
+                browserName,
+                browserVersion,
+                fullBrowserVersion,
+                mobileVendor,
+                mobileModel,
+                engineName,
+                engineVersion,
+                size: this.fetchSize()
+            }
+        })
+
+        window.addEventListener("resize", _=>this.set());
+
+        this.set();
     }
 
-    async actualize() {
-        const size = this.size;
-        this.size = null;
-        return size !== this.size;
-    }
+    fetchSize() { return jet.obj.map(this.sizes, check=>jet.to("boolean", check, this.width, this.height)); }
 
     addSize(size, check) {
-        const sizes = SIZESET[this.id];
+        const sizes = this.sizes;
         check = jet.get("function", check);
 
         if (jet.is("mapable", size)) {jet.obj.map(size, (v,k)=>sizes[k] = v || check);}
         else if (jet.is("string", size)) {sizes[size] = check}
         else {return false;}
 
-        return this.actualize() || true;
+        return this.set();
     }
 
-    isSize(size) {
-        return this.size.includes(size);
-    }
-
-    static create(...args) {
-        return new View(...args);
-    }
-
-    static getDevice() {
-        return jet.obj.map({ deviceType, browserName, browserVersion, fullBrowserVersion, mobileVendor, mobileModel, engineName, engineVersion }, _ => _ === "none" ? undefined : _);
-    }
+    isSize(size) { return this.get(size); }
 
     static use(...path) {
         return Core.use("View", ...path);

@@ -1,74 +1,59 @@
 
 import React, { Component, useContext } from 'react'
+import { BrowserRouter } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
-import jet from "@randajan/jetpack";
-import ModalProvider, { ClassNames } from "@randajan/react-popup";
+import jet from "@randajan/react-jetpack";
+import ModalProvider from "@randajan/react-popup";
 
 import Core from "../Mods/Core";
+
+import IcoDefs from "./IcoDefs";
+import Query from "./Query";
 
 class Provider extends Component {
 
   static Context = React.createContext();
-
   static use() { return useContext(Provider.Context); }
 
   static defaultFlags = {
-    build:p=>p.Core.build
+    loading: p => p.Core.isLoading(),
+    error: p => p.Core.isError(),
   }
-
-  cleanUp = new jet.RunPool();
 
   constructor(props) {
     super(props);
-
     jet.obj.addProperty(this, {
-      Core: new Core(this, props)
+      Core: Core.create(props),
     });
-
-    this.state = {};
-
   }
 
-  actualize(direction) {
-    if (jet.is(jet.RunPool, this.cleanUp)) { this.cleanUp.run(); }
-    if (direction !== false) {
-      this.cleanUp = new jet.RunPool();
-      this.cleanUp.add(
-        this.Core.addAndRunOnChange(core => this.setState(core.state)),
-        this.Core.addAndRunOnChange(lang => this.setState({ lang: lang.now }), "Lang"),
-        this.Core.addAndRunOnChange(icons => this.forceUpdate(), "Icons"),
-      );
-    }
-  }
-
-  componentDidMount() { this.actualize(true); }
+  componentDidMount() { this.cleanUp = this.Core.eye(provider => this.forceUpdate()); }
+  componentWillUnmount() { this.cleanUp(); }
 
   fetchSelfProps() {
-    const { id, className, onLoad } = this.props;
+    const { id, className, onLoad, flags } = this.props;
 
-    const props = {
-      id, className, 
-      ref:prov => prov ? this.Core.addModule("Modal", prov.Modal) : null,
-      onLoad:_=>jet.run(onLoad, this.Core),
-      flags:ClassNames.fetchFlags([ Provider.defaultFlags ], this)
+    return {
+      id, className,
+      onLoad: _ => jet.run(onLoad, this),
+      flags: jet.react.fetchFlags({ ...Provider.defaultFlags, ...flags }, this)
     };
 
-    jet.obj.map(this.state, (v, k) => { if (v && v != "none") { props["data-core-" + k.lower()] = v; } });
-
-    return props;
   }
 
   render() {
-    const Icons = this.Core.Icons;
-    const lang = this.state.lang;
+    const lang = this.Core.get("Lang.select");
 
     return (
       <Provider.Context.Provider value={this}>
         <ModalProvider {...this.fetchSelfProps()}>
-          {Icons ? Icons.getDefs() : null}
+          <IcoDefs />
           <Helmet htmlAttributes={{ lang }}><meta http-equiv="Content-language" content={lang} /></Helmet>
-          {this.props.children}
+          <BrowserRouter>
+            <Query/>
+            {this.props.children}
+          </BrowserRouter>
         </ModalProvider>
       </Provider.Context.Provider>
     )
