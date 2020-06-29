@@ -85,7 +85,7 @@ class Task extends Serf {
         return this;
     }
 
-    catch(...args) {
+    catch(err) {
         const promise = this.get("promise");
         if (promise) { promise.catch(err); }
         return this;

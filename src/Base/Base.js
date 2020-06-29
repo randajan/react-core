@@ -1,17 +1,12 @@
 
 import jet from "@randajan/jetpack";
 
+import { BaseErr, filterChanges, untieArgs } from "./Helpers";
+
 import Crypt from "./Crypt";
 
-import Serf from "./Task";
+import Serf from "./Serf";
 import Task from "./Task";
-
-class BaseErr extends Error {
-    constructor(message) {
-        super(message)
-        this.name = "BaseError"; // (different names for different built-in error classes)
-    }
-}
 
 class Base {
     static $$symbol = Symbol("Base");
@@ -20,26 +15,6 @@ class Base {
         fit:"function",
         eye:"function",
         spy:"function"
-    }
-    
-
-    static concatPaths(...paths) {
-        return paths.map(p=>jet.to("string", p, ".")).joins(".");
-    }
-
-    static filterChanges(path, changes) {
-        const result = [];
-        path = jet.to("string", path, ".");
-        jet.obj.map(changes, v=>{ if (v !== path && v.startsWith(path)) { result.push(v.splice(0, path.length+1)); } } );
-        return result;
-    }
-
-    static untieArgs(path, a1, a2, t1, t2, d2) {
-        const args = [ path, a1, a2];
-        if ( a2 === undefined && jet.is(t1, path) && (a1 === undefined || jet.is(t2, a1))) { args.unshift(""); }
-        args[0] = jet.str.to(args[0], ".");
-        args[2] = jet.filter(t2, args[2], d2);
-        return args;
     }
 
     static fit(duty, data, path, to) {
@@ -66,7 +41,7 @@ class Base {
             if (!eye[path] && !spy[path]) { return; }
             const to = jet.obj.get(data, path);
             if (eye[path]) { eye[path].run(to); }
-            if (spy[path]) { spy[path].run(to, Base.filterChanges(path, changes)); }
+            if (spy[path]) { spy[path].run(to, filterChanges(path, changes)); }
         });
         if (eye[""]) { eye[""].run(data); }
         if (spy[""]) { spy[""].run(data, changes); }
@@ -100,7 +75,7 @@ class Base {
     }
 
     mount(Prototype, path, ...args) {
-        if (Prototype.$$symbol !== Serf.$$symbol) { throw BaseErr("Passed invalid first argument (prototype) to Base.mount. Must be Serf or extend Serf"); }
+        if (Prototype.$$symbol !== Serf.$$symbol) { throw new BaseErr("Passed invalid first argument (prototype) to Base.mount. Must be Serf or extend Serf"); }
         return this.serf[path] = this.serf[path] || new Prototype(this, path, ...args);
     }
 
@@ -119,7 +94,7 @@ class Base {
     getType(path, all) { return jet.type(this.get(path), all); }
     getDuty(type, path) {
         const duty = this._duty[type];
-        if (!duty) { throw new BaseError("There is no duty like '"+type+"'"); }
+        if (!duty) { throw new BaseErr("There is no duty like '"+type+"'"); }
         path = jet.str.to(path, ".");
         return jet.obj.map(duty, (v,k)=>{
             if (k.startsWith(path) && (jet.is(Task, v) || jet.isFull(v))) { return v; }
@@ -154,7 +129,7 @@ class Base {
         const duty = this._duty[type];
         const dutype = Base.dutyTypes[type];
         if (!duty || !dutype) { throw new BaseErr("There is no duty like '"+type+"'"); }
-        [ path, add ] = Base.untieArgs(path, add, after, dutype, "function");
+        [ path, add ] = untieArgs(path, add, after, dutype, "function");
         let pool = duty[path];
         if (!pool) {
             pool = duty[path] = dutype === "function" ? new jet.RunPool() : new jet.Pool(dutype, true);

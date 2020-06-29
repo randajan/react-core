@@ -1,7 +1,7 @@
 
 import jet from "@randajan/jetpack";
 
-import Base, { BaseErr } from "./Base";
+import { BaseErr, concatPaths, untieArgs } from "./Helpers";
 
 class Serf {
     static $$symbol = Symbol("Serf");
@@ -30,9 +30,9 @@ class Serf {
         if (data !== undefined) { this.push(data); }
     }
 
-    fetchPath(path) { return Base.concatPaths(this.path, path); }
+    fetchPath(path) { return concatPaths(this.path, path); }
     untieArgs(...args) {
-        const arg = Base.untieArgs(...args);
+        const arg = untieArgs(...args);
         arg[0] = this.fetchPath(arg[0]);
         return arg;
     }
@@ -43,7 +43,7 @@ class Serf {
 
     linkLocal(cryptKey) {
         this.mark = "local";
-        const label = Base.concatPaths("Base", this.path);
+        const label = concatPaths("Base", this.path);
         this.eye(data=>localStorage.setItem(label, this.parent.storeData(data, cryptKey)));
         return this.parent.restoreData(localStorage.getItem(label), cryptKey);
     }

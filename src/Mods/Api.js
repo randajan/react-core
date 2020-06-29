@@ -1,7 +1,6 @@
 import jet from "@randajan/jetpack";
 
-import Serf from "../Helpers/Task";
-
+import Serf from "../Base/Serf";
 
 class Api extends Serf {
 

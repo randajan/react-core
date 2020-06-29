@@ -1,7 +1,7 @@
 import { deviceType, browserName, browserVersion, fullBrowserVersion, mobileVendor, mobileModel, engineName, engineVersion } from 'react-device-detect';
 
 import jet from "@randajan/jetpack";
-import Serf from "../Helpers/Task";
+import Serf from "../Base/Serf";
 import Core from "./Core";
 
 const DEFAULTSIZES = {

@@ -5,7 +5,7 @@ import jet, { useForceRender } from "@randajan/react-jetpack";
 
 import Provider from "../Components/Provider";
 
-import Base from "../Helpers/Base";
+import Base from "../Base/Base";
 
 import Query from "./Query";
 import View from "./View";

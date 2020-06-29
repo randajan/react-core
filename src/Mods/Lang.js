@@ -4,7 +4,7 @@ import jet from "@randajan/jetpack";
 
 import LangLib from "../Helpers/LangLib";
 
-import Serf from "../Helpers/Task";
+import Serf from "../Base/Serf";
 
 class Lang extends Serf {
 
