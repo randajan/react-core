@@ -8,7 +8,7 @@ class BaseErr extends Error {
 }
 
 function concatPaths(...paths) {
-    return paths.map(p=>jet.to("string", p, ".")).joins(".");
+    return jet.obj.map(paths, v=>jet.str.to(v, "."), v=>jet.str.to(v, ".")).joins(".");
 }
 
 function filterChanges(path, changes) {
