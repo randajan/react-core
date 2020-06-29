@@ -34,7 +34,8 @@ class Core extends Base {
     }
 
     static useKey(path) {
-        return Core.useEye(path).get(path);
+        const core = Core.useEye(path);
+        return [core.get(path), value=>core.set(path, value)];
     }
 
     static use(path, ...args) {
