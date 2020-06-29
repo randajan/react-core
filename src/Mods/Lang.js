@@ -26,7 +26,8 @@ class Lang extends Serf {
             v.def = Lang.validateLang([v.def, v.list[0]], v.list);
             v.fallback = Lang.validateLang([v.fallback, v.list[0]], v.list); 
             const now = v.now = Lang.validateLang([v.now, f.now, v.def], v.list);
-            if (!this.openBook(now).get("ready")) { v.now = f.now; }
+            const book = this.openBook(now);
+            if (!book.get("ready")) { v.now = f.now; }
             return v;
         });
 
@@ -52,7 +53,7 @@ class Lang extends Serf {
 
     openBook(lang) {
         if (this.books[lang]) { return this.books[lang]; }
-        const book = this.books[lang] = this.addTask(["book", lang], _=>this.fetchBook(lang), "24h");
+        const book = this.books[lang] = this.addTask(["book", lang], this.fetchBook.bind(this), "1y");
         book.eye("data", _=>this.set("now", lang));
         setTimeout(_=>book.fetch(lang));
         return book;

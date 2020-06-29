@@ -1,6 +1,6 @@
 import React, { Component, useEffect } from 'react'
 
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import jet from "@randajan/jetpack";
 
@@ -8,7 +8,7 @@ import CoreProvider, { Core, Images, Lang, View, Query, Ico, Img, PopUp, Base} f
 
 const coreConfig = {
   //nocache:true,
-  debug:true,
+  debug:false,
   version:"1.0.2",
   cryptKey:"XYZ",
   langFallback:"en",
@@ -35,14 +35,10 @@ const coreConfig = {
 
 function Example() {
   const core = Core.use();
-  const query = Core.use("Query");
-  const lang = Core.use("Lang");
+  const [lang, setLang] = Core.useKey("Lang.now");
   const view = Core.use("View");
   
-  console.log(Core.useKey("Auth.passport.authorization"));
-
-  //const [foo, setFoo] = Case.useKey("foo", "bar");
-  //console.log(foo);
+  console.log(Core.useKey("Auth.passport.authorization")[0]);
 
   //useEffect(_=>{setTimeout(_=>setFoo("XDFG"), 5000)});
   
@@ -52,8 +48,8 @@ function Example() {
       <h1>Majestic APP</h1>
       <p>{core.isLoading() ? "Loading" : core.isError() ? "Error" : "Ready"}</p>
       <h2>{jet.react.fetchFlags(view.get("size")).joins(" ")}</h2>
-      <h2>{lang.get("now")}</h2>
-      <Link to={Query.toUri({a:!query.get("a")})}>Add to query</Link>
+      <h2>{lang}</h2>
+      <NavLink to={"/test?foo=bar"}>Add to query</NavLink>
       <Ico src="menu"/>
       <Ico src="menu"/>
       <Img src="menu"/>

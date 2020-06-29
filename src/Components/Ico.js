@@ -7,7 +7,7 @@ import Core from "../Mods/Core";
 const cn = css.open();
 
 function Ico(props) {
-  const icons = Core.use("Icons");
+  const icons = Core.useSerf("Icons");
   const { src, className, title } = props;
 
   useEffect(_=>{icons.load(src)}, [src]); //use promise? 

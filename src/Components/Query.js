@@ -5,7 +5,7 @@ import Core from "../Mods/Core";
 
 
 function Query(props) {
-  const state = useState({hard:false})[0];
+  const state = useState({way:"push"})[0];
   const { location, history } = props;
   const { search } = location;
   const query = Core.useSerf("Query");
@@ -16,7 +16,7 @@ function Query(props) {
     state.way = "push";
   }, [search]);
 
-  useEffect(_ => query.eye(_=>history[state.way](query.toUri())), []);
+  useEffect(_ => query.eye(_=> history[state.way](query.toUri())), []);
   
   return null;
 

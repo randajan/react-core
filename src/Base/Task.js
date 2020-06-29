@@ -28,17 +28,13 @@ class Task extends Serf {
 
             if (t.error) { jet.to("error", t.error); }
 
-            if (init) { 
-                t.start = jet.to("date", t.start);
-                t.end = jet.to("date", t.end);
-                t.length = new jet.Amount(t.length, "ms");
-                return t; 
-            }
+            t.start = jet.to("date", init ? t.start : f.start);
+            t.end = jet.to("date", init ? t.end : f.end);
+            t.length = jet.to("amount", (init ? t.length : f.length) || 0, "ms");
+
+            if (init) { return t; }
             
             t.loading = f.loading;
-            t.start = f.start;
-            t.end = f.end;
-            t.length = f.length;
 
             if ((t.fetch && !f.start) || Task.isOld(t.end, cache) || jet.isFull(jet.obj.compare(t.fetch, f.fetch))) { //new request
                 t.fetch = jet.arr.wrap(t.fetch);

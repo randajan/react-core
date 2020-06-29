@@ -115,6 +115,8 @@ class Base {
         const from = Base.fit(this._duty, this._data, path, to);
         const changes = jet.obj.compare(this._data, from);
 
+        if (this.debug) { console.log("Base.changes", changes); }
+
         return jet.isFull(changes) ? Base.run(this._duty, this._data, changes) : changes;
     }
 
