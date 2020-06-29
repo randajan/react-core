@@ -8,7 +8,7 @@ import CoreProvider, { Core, Images, Lang, View, Query, Ico, Img, PopUp, Base} f
 
 const coreConfig = {
   //nocache:true,
-  debug:false,
+  debug:true,
   version:"1.0.2",
   cryptKey:"XYZ",
   langFallback:"en",
@@ -49,7 +49,9 @@ function Example() {
       <p>{core.isLoading() ? "Loading" : core.isError() ? "Error" : "Ready"}</p>
       <h2>{jet.react.fetchFlags(view.get("size")).joins(" ")}</h2>
       <h2>{lang}</h2>
-      <NavLink to={"/test?foo=bar"}>Add to query</NavLink>
+      <NavLink to={"/foo"}>Goto Foo</NavLink>
+      <br/>
+      <NavLink to={"/bar"}>Gotot Bar</NavLink>
       <Ico src="menu"/>
       <Ico src="menu"/>
       <Img src="menu"/>
