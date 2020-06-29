@@ -11,15 +11,12 @@ function Query(props) {
   const query = Core.useSerf("Query");
 
   useEffect(_ => {
-    state.hard = true; 
+    state.way = "replace";
     query.setFromUri(search); 
-    state.hard = false;
+    state.way = "push";
   }, [search]);
 
-  useEffect(_ => query.eye(to => {
-    to = query.toUri(to);
-    if (state.hard) { history.replace(to); } else { history.push(to); }
-  }), []);
+  useEffect(_ => query.eye(_=>history[state.way](query.toUri())), []);
   
   return null;
 

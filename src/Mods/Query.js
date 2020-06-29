@@ -7,9 +7,14 @@ const location = window.location;
 
 class Query extends Serf {
 
-    static toUri(obj) {
-        const str = qs.stringify(jet.get("object", obj));
-        return str ? "?"+str : "";
+    static parsePathname(pathname) {
+        return jet.obj.get(jet.str.to(pathname).match(/[^?]*/), "0");
+    }
+
+    static toUri(obj, pathname) {
+        pathname = Query.parsePathname(pathname) || location.pathname;
+        const query = qs.stringify(jet.get("object", obj));
+        return [pathname, query].joins("?")
     }
 
     static fromUri(str) {
@@ -26,7 +31,7 @@ class Query extends Serf {
 
     }
 
-    toUri(obj) { return Query.toUri(obj || this.get()); }
+    toUri(pathname) { return Query.toUri(this.get(), pathname); }
 
     fromUri(str) { return Query.fromUri(str); }
 

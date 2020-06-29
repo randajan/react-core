@@ -53,7 +53,7 @@ function Example() {
       <p>{core.isLoading() ? "Loading" : core.isError() ? "Error" : "Ready"}</p>
       <h2>{jet.react.fetchFlags(view.get("size")).joins(" ")}</h2>
       <h2>{lang.get("now")}</h2>
-      <Link to={query.toUri({a:!query.get("a")})}>Add to query</Link>
+      <Link to={Query.toUri({a:!query.get("a")})}>Add to query</Link>
       <Ico src="menu"/>
       <Ico src="menu"/>
       <Img src="menu"/>
