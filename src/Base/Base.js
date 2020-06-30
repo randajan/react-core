@@ -151,15 +151,8 @@ class Base {
     fitType(path, type, ...args) { return this.fit(path, v=>jet.get(type, v, ...args)); }
     fitDefault(path, def) { return this.fit(path, v=>jet.isFull(v) ? v : def); }
 
-    addTask(path, fetchMethod, cache) {
-        const duty = this._duty;
-        const task = this.mount(Task, path, fetchMethod, cache);
-        
-        task.eye(data=>{
-            if (data.loading) { duty.loading[path] = task; } else { delete duty.loading[path]; }
-            if (data.error) { duty.error[path] = task; } else { delete duty.error[path]; }
-        })
-        return task;
+    addTask(path, fetchMethod, cache, critical) {
+        return this.mount(Task, path, fetchMethod, cache, critical);
     }
 
     getMarkPath(path) {

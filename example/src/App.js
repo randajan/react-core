@@ -41,7 +41,7 @@ const coreConfig = {
 
 function Example() {
   console.log("Render", "Example");
-  const query = Core.useSerf("query");
+  const core = Core.use();
 
   return (
     <div className="Example">
@@ -59,6 +59,8 @@ function Example() {
           </tr>
         </thead>
         <tbody>
+          <tr><td>Loading</td><td>{jet.obj.toJSON(core.getLoading())}</td></tr>
+          <tr><td>Errors</td><td>{jet.obj.toJSON(core.getError())}</td></tr>         
           <ShowKey path="lang.now" />
           <ShowKey path="view" format={k=>jet.react.fetchFlags(k).joins(" ")} />
           <ShowKey path="query" format={jet.obj.toJSON} />

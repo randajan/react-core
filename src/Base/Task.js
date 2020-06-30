@@ -16,7 +16,7 @@ class Task extends Serf {
         return (t && f && jet.isFull(jet.obj.compare(t, f)))
     }
 
-    constructor(parent, path, fetchMethod, cache) {
+    constructor(parent, path, fetchMethod, cache, critical) {
         super(parent, path);
 
         cache = jet.to("amount", cache||0, "ms");
@@ -65,6 +65,12 @@ class Task extends Serf {
             data=>this.is("promise", promise) && this.get("loading") && this.done(data),
             error=> this.is("promise", promise) && this.get("loading") && this.error(jet.to("error", error)),
         ));
+
+        const duty = this.parent._duty; //ugly but working
+        this.eye(task=>{
+            if (task.loading) { duty.loading[this.path] = this; } else { delete duty.loading[this.path]; }
+            if (task.error) { duty.error[this.path] = this; } else { delete duty.error[this.path]; }
+        })
 
     }
 

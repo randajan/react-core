@@ -10,11 +10,10 @@ class Auth extends Serf {
         super(core, path);
 
         jet.obj.addProperty(this, {
-            Tray:core.open("Tray"),
-            Api:core.open("Api"),
-            passport:this.addTask("passport", code=>this.Api.POST(authPath+"/token", this.Api.toForm({ code }))),
-            login:this.addTask("login", provider=>this.Api.GET(authPath+"/"+provider)),
-            user:this.addTask("user", _=>this.Api.GET("/user"), "1h")
+            api:core.open("api"),
+            passport:this.addTask("passport", code=>this.api.POST(authPath+"/token", this.api.toForm({ code })), "30d", true),
+            login:this.addTask("login", provider=>this.api.GET(authPath+"/"+provider), "300s", true),
+            user:this.addTask("user", _=>this.api.GET("/user"), "30m", true)
         }, null, false, true)
 
         this.fit("providers", v=>jet.arr.wrap(v));
@@ -31,7 +30,7 @@ class Auth extends Serf {
              return v;
         });
 
-        //this.eye("login.data.redirect_uri", r=>window.location=r);
+        this.eye("login.data.redirect_uri", r=>window.location=r);
 
         this.set({
             authPath,
@@ -44,12 +43,12 @@ class Auth extends Serf {
 
     logout() { this.push({passport:null, user:null}) }
 
-    getMenu() {
-        const lang = this.Core.Lang;
-        if (!this.Tray.isDone()) {return []; }
-        if (this.User.isReal()) { return [[lang.get("auth.logout"), this.logout.bind(this)]]; }
-        return this.providers.map(provider=>[lang.get("auth.providers."+provider), _=>this.login(provider)]);
-    }
+    // getMenu() {
+    //     const lang = this.Core.Lang;
+    //     //if (!this.Tray.isDone()) {return []; }
+    //     if (this.User.isReal()) { return [[lang.get("auth.logout"), this.logout.bind(this)]]; }
+    //     return this.providers.map(provider=>[lang.get("auth.providers."+provider), _=>this.login(provider)]);
+    // }
 
 }
 

@@ -12,7 +12,6 @@ class Lang extends Serf {
         super(core, path);
 
         jet.obj.addProperty(this, {
-            Tray:core.open("Tray"),
             libs:Lang.validateLibs(libs),
             books:{}
         }, null, false, true);
@@ -52,7 +51,7 @@ class Lang extends Serf {
 
     openBook(lang) {
         if (this.books[lang]) { return this.books[lang]; }
-        const book = this.books[lang] = this.addTask(["book", lang], this.fetchBook.bind(this), "1y");
+        const book = this.books[lang] = this.addTask(["book", lang], this.fetchBook.bind(this), "1y", true);
         book.eye("data", _=>this.set("now", lang));
         setTimeout(_=>book.fetch(lang));
         return book;
