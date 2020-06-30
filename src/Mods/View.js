@@ -1,8 +1,6 @@
-import { deviceType, browserName, browserVersion, fullBrowserVersion, mobileVendor, mobileModel, engineName, engineVersion } from 'react-device-detect';
-
 import jet from "@randajan/jetpack";
 import Serf from "../Base/Serf";
-import Core from "./Core";
+
 
 const DEFAULTSIZES = {
     "xs": w=>w<=600,
@@ -22,8 +20,8 @@ const DEFAULTSIZES = {
 
 class View extends Serf {
 
-    constructor(Core, sizes) {
-        super(Core, "View");
+    constructor(Core, path, sizes) {
+        super(Core, path);
 
         jet.obj.addProperty(this, { sizes:{} }, null, false, true);
 
@@ -32,25 +30,11 @@ class View extends Serf {
             height:{get:_=>Math.max(document.documentElement.clientHeight, window.innerHeight)}
         }, null, false, true)
 
-        this.addSize(jet.obj.merge(DEFAULTSIZES, sizes));
-        
-        this.fit(_=>{
-            return {
-                deviceType,
-                browserName,
-                browserVersion,
-                fullBrowserVersion,
-                mobileVendor,
-                mobileModel,
-                engineName,
-                engineVersion,
-                size: this.fetchSize()
-            }
-        })
+        this.fit(this.fetchSize.bind(this))
 
         window.addEventListener("resize", _=>this.set());
 
-        this.set();
+        this.addSize(jet.obj.merge(DEFAULTSIZES, sizes));
     }
 
     fetchSize() { return jet.obj.map(this.sizes, check=>jet.to("boolean", check, this.width, this.height)); }
@@ -67,10 +51,6 @@ class View extends Serf {
     }
 
     isSize(size) { return this.get(size); }
-
-    static use(...path) {
-        return Core.use("View", ...path);
-    }
 
 }
 

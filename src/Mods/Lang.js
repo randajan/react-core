@@ -14,8 +14,7 @@ class Lang extends Serf {
         jet.obj.addProperty(this, {
             Tray:core.open("Tray"),
             libs:Lang.validateLibs(libs),
-            books:{},
-            task:{}
+            books:{}
         }, null, false, true);
 
         this.fitType("book", "object");

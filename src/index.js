@@ -22,11 +22,11 @@ import LangLib from "./Helpers/LangLib";
 
 import Ico from "./Components/Ico";
 import Img from "./Components/Img";
-import Provider from "./Components/Provider";
+import CoreProvider from "./Components/CoreProvider";
 
 if (jet !== jet_pu) { throw new Error("Multiple jet instance present :("); }
 
-export default Provider;
+export default Core;
 export {
   jet,
   css,
@@ -50,7 +50,7 @@ export {
 
   Ico,
   Img,
-  Provider,
+  CoreProvider,
 
   ModalProvider,
   Modal,

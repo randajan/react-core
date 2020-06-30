@@ -1,13 +1,13 @@
 
 import jet from "@randajan/jetpack";
 
-import { BaseErr, concatPaths, untieArgs } from "./Helpers";
+import { BaseErr, concatPath, untieArgs } from "./Helpers";
 
 class Serf {
     static $$symbol = Symbol("Serf");
     
     constructor(parent, path, data) {
-        path = jet.str.to(path, ".");
+        path = concatPath(path);
 
         if (jet.isEmpty(path)) { throw new BaseErr("Serf path is required"); }
 
@@ -16,7 +16,7 @@ class Serf {
         Object.defineProperties(this, {mark:{ set:mark=>parent.setMark(this.path, mark), get:_=>parent.getMark(this.path)}});
 
         (["get", "is", "getType", "isType", "isFull", "isEmpty", "isLoading", "isError", "isReady", "pull", "rem", "lock", "addTask", "open", "fitTo", "fitType", "fitDefault"]).map(k=>{
-            jet.obj.addProperty(this, k, (path, ...args)=>parent[k](this.fetchPath(path), ...args));
+            jet.obj.addProperty(this, k, (path, ...args)=>parent[k]([this.path, path], ...args));
         });
 
         (["set", "push"]).map(k=>{
@@ -30,20 +30,19 @@ class Serf {
         if (data !== undefined) { this.push(data); }
     }
 
-    fetchPath(path) { return concatPaths(this.path, path); }
     untieArgs(...args) {
         const arg = untieArgs(...args);
-        arg[0] = this.fetchPath(arg[0]);
+        arg[0] = [this.path, arg[0]];
         return arg;
     }
 
     mount(prototype, path, ...args) {
-        return this.parent.mount(prototype, this.fetchPath(path), ...args);
+        return this.parent.mount(prototype, [this.path, path], ...args);
     }
 
     linkLocal(cryptKey) {
         this.mark = "local";
-        const label = concatPaths("Base", this.path);
+        const label = this.path;
         this.eye(data=>localStorage.setItem(label, this.parent.storeData(data, cryptKey)));
         return this.parent.restoreData(localStorage.getItem(label), cryptKey);
     }

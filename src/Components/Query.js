@@ -2,29 +2,38 @@ import { useState, useEffect } from 'react'
 import { withRouter } from "react-router-dom";
 
 import Core from "../Mods/Core";
+import Query from "../Mods/Query";
+import jet from '@randajan/jetpack';
 
 
-function Query(props) {
-  const change = useState({})[0];
+function QueryProvider(props) {
   const { location, history } = props;
-  const { search } = location;
-  const query = Core.useSerf("Query");
+  const query = Core.useSerf("query");
 
-  //route change
-  useEffect(_ => {
-    change.route = true;
-    query.setFromUri(search);
-    history.replace(query.toUri());
-    change.route = false;
-  }, [search]);
+  useEffect(_=>{
+    const search = {from:""};
 
-  //core change
-  useEffect(_ => query.eye(_=>{
-    if (!change.route) { history.push(query.toUri()); }
-  }), []);
+    const updateQuery = loc=>{
+      search.to = loc.search;
+      if (search.from !== search.to) {
+        query.setFromUri(search.to);
+        search.from = search.to;
+        history.replace(query.toUri());
+      }  
+    }
+
+    const cleanUp = [
+      history.listen(updateQuery),
+      query.eye(data=>{ if (search.from === search.to) { history.push(Query.toUri(data));} })
+    ];
+
+    updateQuery(location);
+    return _=>jet.run(cleanUp);
+  }, []);
+
   
   return null;
 
 };
 
-export default withRouter(Query);
+export default withRouter(QueryProvider);

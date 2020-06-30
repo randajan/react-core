@@ -12,32 +12,38 @@ class Task extends Serf {
         return Task.getAge(date) > jet.to("amount", amnt, "ms");
     }
 
+    static isNewFetch(t, f) {
+        return (t && f && jet.isFull(jet.obj.compare(t, f)))
+    }
+
     constructor(parent, path, fetchMethod, cache) {
         super(parent, path);
 
         cache = jet.to("amount", cache||0, "ms");
 
         this.lock("promise");
+        this.fit("fetch", jet.arr.wrap);
+        this.fitTo("loading", "boolean");
         this.fitTo("cancel", "boolean");
         this.fitTo("ready", "boolean");
         this.fitTo("done", "boolean");
 
         this.fit((t,f)=>{
             [t, f] = jet.get([["object", t], ["object", f]]);
-            const init = !f.start && t.ready;
+            const blank = !f.start;
+            const init = (blank && t.ready);
+            
+            if (!blank) { t.loading = f.loading; t.start = f.start; t.end = f.end; t.length = f.length;}
+            else if (!init) { t = { fetch:t.fetch }; }
 
-            if (t.error) { jet.to("error", t.error); }
-
-            t.start = jet.to("date", init ? t.start : f.start);
-            t.end = jet.to("date", init ? t.end : f.end);
-            t.length = jet.to("amount", (init ? t.length : f.length) || 0, "ms");
+            if (t.error) { t.error = jet.to("error", t.error); }
+            if (t.start) { t.start = jet.to("date", t.start); }
+            if (t.end) { t.end = jet.to("date", t.end); }
+            if (t.length) { t.length = jet.to("amount", t.length||0, "ms"); }
 
             if (init) { return t; }
             
-            t.loading = f.loading;
-
-            if ((t.fetch && !f.start) || Task.isOld(t.end, cache) || jet.isFull(jet.obj.compare(t.fetch, f.fetch))) { //new request
-                t.fetch = jet.arr.wrap(t.fetch);
+            if (t.fetch && (!f.start || Task.isOld(t.end, cache) || Task.isNewFetch(t.fetch, f.fetch))) { //new request
                 t.loading = true;
                 t.start = new Date();
                 t.promise = jet.to("promise", fetchMethod, ...t.fetch)
@@ -46,13 +52,12 @@ class Task extends Serf {
                 delete t.error;
                 delete t.end;
                 delete t.length;
-            } else if (f.loading && (t.done || t.cancel || t.error)) {
+            } else if (t.loading && (t.done || t.cancel || t.error)) {
                 t.loading = false;
                 t.ready = t.done = !t.cancel && t.done;
                 t.end = new Date();
                 t.length = new jet.Amount(t.end - t.start, "ms");
             }
-
             return t;
         });
 

@@ -1,7 +1,7 @@
 
 import jet from "@randajan/jetpack";
 
-import { BaseErr, filterChanges, untieArgs } from "./Helpers";
+import { BaseErr, concatPath, filterChanges, untieArgs } from "./Helpers";
 
 import Crypt from "./Crypt";
 
@@ -75,6 +75,7 @@ class Base {
     }
 
     mount(Prototype, path, ...args) {
+        path = concatPath(path);
         if (Prototype.$$symbol !== Serf.$$symbol) { throw new BaseErr("Passed invalid first argument (prototype) to Base.mount. Must be Serf or extend Serf"); }
         return this.serf[path] = this.serf[path] || new Prototype(this, path, ...args);
     }
@@ -90,12 +91,12 @@ class Base {
     isLoading(path) { return jet.isFull(this.getLoading(path)); }
     isReady(path) { return !this.isLoading(path) && !this.isError(path); }
 
-    get(path, def) { return jet.obj.get(this._data, path, def); }
+    get(path, def) { return jet.obj.get(this._data, concatPath(path), def); }
     getType(path, all) { return jet.type(this.get(path), all); }
     getDuty(type, path) {
         const duty = this._duty[type];
         if (!duty) { throw new BaseErr("There is no duty like '"+type+"'"); }
-        path = jet.str.to(path, ".");
+        path = concatPath(path);
         return jet.obj.map(duty, (v,k)=>{
             if (k.startsWith(path) && (jet.is(Task, v) || jet.isFull(v))) { return v; }
         });
@@ -104,8 +105,8 @@ class Base {
     getLoading(path) { return this.getDuty("loading", path); }
 
     set(path, value, force) {
+        path = concatPath(path);
         force = jet.get("boolean", force, true);
-        path = jet.str.to(path);
         if (!path) { throw new BaseErr("The first argument of set (path) can't be empty"); }
 
         const oldval = this.get(path);
@@ -115,16 +116,17 @@ class Base {
         const from = Base.fit(this._duty, this._data, path, to);
         const changes = jet.obj.compare(this._data, from);
 
-        if (this.debug) { console.log("Base.changes", changes); }
+        this.debugLog("changes", changes);
 
         return jet.isFull(changes) ? Base.run(this._duty, this._data, changes) : changes;
     }
 
     push(path, value, force) {
+        path = concatPath(path);
         return this.set(path, jet.obj.merge(force?null:value, this.get(path), force?value:null), true);
     }
 
-    rem(path) { return this.set(path, null); }
+    rem(path) { return this.set(path); }
     pull(path) { const value = this.get(path); this.rem(path); return value; }
 
     addDuty(type, path, add, after) {
@@ -162,7 +164,7 @@ class Base {
 
     getMarkPath(path) {
         const pool = this._duty.mark;
-        path = jet.arr.to(path, ".");
+        path = concatPath(path).split(".");
         for (let k in path) {
             const p = path.slice(0, Number(k)+1).join(".");
             if (pool[p]) { return p; }
@@ -200,6 +202,8 @@ class Base {
         delete data[_versionKey];
         return data;
     }
+
+    debugLog(...msg) { if (this.debug) { console.log("BASE-DEBUG", ...msg); } }
 
     spaceCount(path, limit) {
         return jet.test.byteCount(this.get(path), limit);

@@ -10,10 +10,10 @@ class Icons extends Serf {
         super(core, path);
 
         jet.obj.addProperty(this, {
-            pending:{}
+            pending:{},
+            straps:this.addTask("straps", _=>this.fetchAll(), "1y"),
         }, null, false, true);
 
-        this.fitType("svg", "object");
         this.fitType("size", "number", 24);
         this.fit("files", Core.fetchFiles);
         this.fit(v=>{
@@ -22,32 +22,34 @@ class Icons extends Serf {
             return v;
         });
 
-        const svg = this.open("svg").linkLocal();
-
         this.set({
-            svg,
+            straps:this.straps.linkLocal(),
             size,
             files,
-        })
+        });
+
+        this.straps.fetch();
     }
 
     getId(src) { return [...this.path.split("."), src].joins("-"); }
 
-    async load(src) {
-        if (this.pending[src] || this.get(["svg", src])) { return; }
-        const self = this.pending[src] = this.fetchStrap(src);
-        const strap = await self;
-        delete this.pending[src];
-        this.set(["svg", src], strap);
-    }
-
-    async fetchStrap(src) {
-        const path = this.get(["files", src]);
-        if (path) { return await fetch(path).then(resp=>resp.text()).then(Icons.svgStrap) } //Core tray ? 
+    async fetchAll() {
+        const files = this.get("files");
+        const straps = {};
+        const prom = [];
+        jet.obj.map(files, (v,k)=>{
+            prom.push(Icons.fetchSvg(v).then(svg=>{straps[k] = Icons.svgStrap(svg);}))
+        });
+        await Promise.all(prom);
+        return straps;
     }
 
     static svgStrap(svg) {
         return jet.get("string", svg).replace(/^[\S\s]*<svg [^>]*>/, "").replace(/<\/svg>[\S\s]*/, "");
+    }
+
+    static async fetchSvg(file) {
+        return await fetch(file).then(resp=>resp.text())
     }
 
 }

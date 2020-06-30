@@ -3,12 +3,13 @@ import React, { useEffect, useState } from 'react';
 
 import jet, { useForceRender } from "@randajan/react-jetpack";
 
-import Provider from "../Components/Provider";
+import CoreProvider from "../Components/CoreProvider";
 
 import Base from "../Base/Base";
 
 import Query from "./Query";
 import View from "./View";
+import Client from "./Client";
 import Lang from "./Lang";
 import Api from "./Api";
 import Auth from "./Auth";
@@ -23,14 +24,19 @@ class Core extends Base {
     static create(props) { return PRIVATE[0] || new Core(props); }
     
     static useEye(path) {
-        const core = Provider.use().Core;
+        const core = CoreProvider.use().core;
         const rerender = useForceRender();
         useEffect(_=>core.eye(path, rerender), []);
         return core;
     }
 
     static useSerf(path, ...args) {
-        return Provider.use().Core.open(path, ...args);
+        return CoreProvider.use().core.open(path, ...args);
+    }
+
+    static useVal(path) {
+        const core = Core.useEye(path);
+        return core.get(path);
     }
 
     static useKey(path) {
@@ -55,7 +61,8 @@ class Core extends Base {
 
         const { 
             version, nocache, debug, 
-            onBuild, cryptKey, viewSizes, sessionUrl, apiUrl, 
+            beforeBuild, afterBuild, 
+            cryptKey, viewSizes, sessionUrl, apiUrl, 
             langList, langLibs, langFallback, langDefault, 
             authPath, authProviders, 
             iconsList, iconsSize,
@@ -65,26 +72,30 @@ class Core extends Base {
         super(version, nocache, debug);
 
         PRIVATE.push(this);
-        if (debug) { window.jet = jet; window.Base = Base; window.Core = this; }
+        if (debug) { window.jet = jet; window.core = this; }
 
-        this.mount(Query, "Query");
-        this.mount(Api, "Api", apiUrl, _=>this.get("Auth.passport.data.authorization"));
-        this.mount(Lang, "Lang", langList, langLibs, this.get("Query.lang"), langFallback, langDefault);
+        jet.run(beforeBuild, this);
 
-        const auth = this.mount(Auth, "Auth", authPath, authProviders);
+        this.mount(Query, "query");
+        this.mount(Api, "api", apiUrl, _=>this.get("auth.passport.data.authorization"));
+        this.mount(Lang, "lang", langList, langLibs, this.get("query.lang"), langFallback, langDefault);
+
+        const auth = this.mount(Auth, "auth", authPath, authProviders);
         //if (sessionUrl) { auth.storeAsSession(sessionUrl, cryptKey); } else { auth.set(auth.storeAsLocal(cryptKey)); }
 
-        this.mount(Icons, "Icons", iconsList, iconsSize);
-        this.mount(Images, "Images", imagesList);
-        this.mount(View, "View", viewSizes);
+        this.mount(Icons, "icons", iconsList, iconsSize);
+        this.mount(Images, "images", imagesList);
+        this.mount(Client, "client");
+        this.mount(View, "view", viewSizes);
 
         //const test = this.addTask("test", (echo, timeout)=>new Promise(res=>{setTimeout(_=>res(echo), timeout)}));
 
         //this.Auth.onChange.add(_=>this.Lang.select(query, this.Auth.User.loadLang()));
         //this.Lang.onChange.add(_=>this.Auth.User.saveLang(this.Lang.now));
     
-        jet.run(onBuild, this);
+        jet.run(afterBuild, this);
     }
+
 
 
 }

@@ -7,7 +7,7 @@ import Core from "../Mods/Core";
 const cn = css.open();
 
 function Img(props) {
-  const images = Core.useSerf("Images");
+  const images = Core.useSerf("images");
   const { src, className } = props;
 
   return <img {...props} className={cn.get("Img", src, className)} src={images.get(["files", src])}/> 

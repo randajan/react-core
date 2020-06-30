@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 
 import jet from "@randajan/jetpack";
 
-import CoreProvider, { Core, Images, Lang, View, Query, Ico, Img, PopUp, Base} from '@randajan/react-app-core';
+import Core, { CoreProvider, Images, Lang, View, Query, Ico, Img, PopUp, Base} from '@randajan/react-app-core';
 
 const coreConfig = {
   //nocache:true,
@@ -17,7 +17,10 @@ const coreConfig = {
     {priority:10, list:["cs"], path:"index", fetch:lang=>fetch("/index.html").then(data=>data.text())}, 
   ],
   iconsList:[
-    require("./menu.svg")
+    require("./menu.svg"),
+    require("./cart.svg"),
+    require("./cash.svg"),
+    require("./contact.svg")
   ],
   imagesList:[
     require("./menu.svg")
@@ -25,8 +28,11 @@ const coreConfig = {
   apiUrl:"http://api.itcan.dev.itcan.cz",
   authPath:"sauth",
   authProviders:["google"],
-  onBuild:Core=>{
-    
+  beforeBuild:core=>{
+    core.lock("query.fbclid");
+  },
+  afterBuild:core=>{
+
   },
   onLoad:Provider=>{
     //Provider.Core.addAndRunOnChange(View=>Provider.setState({view:View.size}), "View");
@@ -34,32 +40,54 @@ const coreConfig = {
 }
 
 function Example() {
-  const core = Core.use();
-  const [lang, setLang] = Core.useKey("Lang.now");
-  const view = Core.use("View");
-  
-  console.log(Core.useKey("Auth.passport.authorization")[0]);
+  console.log("Render", "Example");
+  const query = Core.useSerf("query");
 
-  //useEffect(_=>{setTimeout(_=>setFoo("XDFG"), 5000)});
-  
-  console.log("RERENDER");
   return (
     <div className="Example">
       <h1>Majestic APP</h1>
-      <p>{core.isLoading() ? "Loading" : core.isError() ? "Error" : "Ready"}</p>
-      <h2>{jet.react.fetchFlags(view.get("size")).joins(" ")}</h2>
-      <h2>{lang}</h2>
+      <h2>Test</h2>
       <NavLink to={"/foo"}>Goto Foo</NavLink>
       <br/>
       <NavLink to={"/bar"}>Gotot Bar</NavLink>
-      <Ico src="menu"/>
-      <Ico src="menu"/>
-      <Img src="menu"/>
-      <Img src="menu"/>
+      <h2>Data</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Path</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ShowKey path="lang.now" />
+          <ShowKey path="view" format={k=>jet.react.fetchFlags(k).joins(" ")} />
+          <ShowKey path="query" format={jet.obj.toJSON} />
+        </tbody>
+      </table>
+      <h2>Icons</h2>
+      <div className={"icons"}>
+        <Ico src="menu"/>
+        <Ico src="cart"/>
+        <Ico src="cash"/>
+        <Ico src="contact"/>
+      </div>
+      <h2>Images</h2>
+      <div className={"images"}>
+        <Img src="menu"/>
+        <Img src="menu"/>
+      </div>
+
+
+
     </div>
   )
-    
+}
 
+function ShowKey(props) {
+    const { path, format } = props;
+    const [ key ] = Core.useKey(path);
+    console.log("Rerender", path);
+    return (<tr><td>{path}</td><td>{jet.is("function", format) ? format(key) : key}</td></tr>)
 }
 
 export default class App extends Component {

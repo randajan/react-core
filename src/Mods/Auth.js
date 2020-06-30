@@ -31,7 +31,7 @@ class Auth extends Serf {
              return v;
         });
 
-        this.eye("login.data.redirect_uri", r=>window.location=r);
+        //this.eye("login.data.redirect_uri", r=>window.location=r);
 
         this.set({
             authPath,
