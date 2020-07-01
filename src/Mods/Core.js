@@ -7,7 +7,7 @@ import CoreProvider from "../Components/CoreProvider";
 
 import Base from "../Base/Base";
 
-import Query from "./Query";
+import Page from "./Page";
 import View from "./View";
 import Client from "./Client";
 import Lang from "./Lang";
@@ -44,6 +44,16 @@ class Core extends Base {
         return [core.get(path), value=>core.set(path, value)];
     }
 
+    static useMethod(path, method) {
+        const serf = Core.useSerf(path);
+        if (!jet.is("function", serf[method])) { throw new Error("Method '"+method+"' at path '"+path+"' was not found.") }
+        return serf[method].bind(serf);
+    }
+
+    static useApi() {
+        return Core.useSerf().api;
+    }
+
     static use(path, ...args) {
         return Core.useEye(path).open(path, ...args);
     }
@@ -76,9 +86,10 @@ class Core extends Base {
 
         jet.run(beforeBuild, this);
 
-        this.mount(Query, "query");
-        this.mount(Api, "api", apiUrl, _=>this.get("auth.passport.data.authorization"));
-        this.mount(Lang, "lang", langList, langLibs, this.get("query.lang"), langFallback, langDefault);
+        jet.obj.addProperty(this, "api", new Api(apiUrl, _=>this.get("auth.passport.data.authorization")), false, true);
+
+        this.mount(Page, "page");
+        this.mount(Lang, "lang", langList, langLibs, this.get("page.lang"), langFallback, langDefault);
 
         const auth = this.mount(Auth, "auth", authPath, authProviders);
         //if (sessionUrl) { auth.storeAsSession(sessionUrl, cryptKey); } else { auth.set(auth.storeAsLocal(cryptKey)); }
@@ -90,7 +101,7 @@ class Core extends Base {
 
         //const test = this.addTask("test", (echo, timeout)=>new Promise(res=>{setTimeout(_=>res(echo), timeout)}));
 
-        //this.Auth.onChange.add(_=>this.Lang.select(query, this.Auth.User.loadLang()));
+        //this.Auth.onChange.add(_=>this.Lang.select(page, this.Auth.User.loadLang()));
         //this.Lang.onChange.add(_=>this.Auth.User.saveLang(this.Lang.now));
     
         jet.run(afterBuild, this);

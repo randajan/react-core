@@ -16,6 +16,9 @@ const coreConfig = {
   langLibs:[
     {priority:10, list:["cs"], path:"index", fetch:lang=>fetch("/index.html").then(data=>data.text())}, 
   ],
+  flags:core=>{
+    console.log("FLAGS", core);
+  },
   iconsList:[
     require("./menu.svg"),
     require("./cart.svg"),
@@ -47,9 +50,9 @@ function Example() {
     <div className="Example">
       <h1>Majestic APP</h1>
       <h2>Test</h2>
-      <NavLink to={"/foo"}>Goto Foo</NavLink>
+      <NavLink to={"/foo?jo=6545"}>Goto Foo</NavLink>
       <br/>
-      <NavLink to={"/bar"}>Gotot Bar</NavLink>
+      <NavLink to={"/bar?jo=2"}>Gotot Bar</NavLink>
       <h2>Data</h2>
       <table>
         <thead>

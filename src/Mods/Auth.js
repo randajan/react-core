@@ -10,10 +10,9 @@ class Auth extends Serf {
         super(core, path);
 
         jet.obj.addProperty(this, {
-            api:core.open("api"),
-            passport:this.addTask("passport", code=>this.api.POST(authPath+"/token", this.api.toForm({ code })), "30d", true),
-            login:this.addTask("login", provider=>this.api.GET(authPath+"/"+provider), "300s", true),
-            user:this.addTask("user", _=>this.api.GET("/user"), "30m", true)
+            passport:this.addTask("passport", code=>core.api.post(authPath+"/token", core.api.toForm({ code })), "30d", true),
+            login:this.addTask("login", provider=>core.api.get(authPath+"/"+provider), "300s", true),
+            user:this.addTask("user", _=>core.api.get("/user"), "30m", true)
         }, null, false, true)
 
         this.fit("providers", v=>jet.arr.wrap(v));

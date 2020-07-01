@@ -8,7 +8,7 @@ import Core from "./Mods/Core";
 import Icons from "./Mods/Icons";
 import Images from "./Mods/Images";
 import Lang from "./Mods/Lang";
-import Query from "./Mods/Query";
+import Page from "./Mods/Page";
 import User from "./Mods/User";
 import View from "./Mods/View";
 
@@ -41,7 +41,7 @@ export {
   Icons,
   Images,
   Lang,
-  Query,
+  Page,
   User,
   View,
 

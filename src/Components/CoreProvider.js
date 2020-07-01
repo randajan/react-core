@@ -8,7 +8,7 @@ import ModalProvider from "@randajan/react-popup";
 import Core from "../Mods/Core";
 
 import IcoDefs from "./IcoDefs";
-import Query from "./Query";
+import PageProvider from "./PageProvider";
 import Lang from "./Lang";
 
 class CoreProvider extends Component {
@@ -48,16 +48,16 @@ class CoreProvider extends Component {
   render() {
     this.core.debugLog("Render", "CoreProvider");
     return (
-      <CoreProvider.Context.Provider value={this}>
-        <ModalProvider {...this.fetchSelfProps()}>
-          <Lang/>
-          <IcoDefs />
-          <BrowserRouter>
-            <Query/>
+      <BrowserRouter>
+        <CoreProvider.Context.Provider value={this}>
+          <ModalProvider {...this.fetchSelfProps()}>
+            <Lang/>
+            <IcoDefs />
+            <PageProvider/>
             {this.props.children}
-          </BrowserRouter>
-        </ModalProvider>
-      </CoreProvider.Context.Provider>
+          </ModalProvider>
+        </CoreProvider.Context.Provider>
+      </BrowserRouter>
     )
   }
 }

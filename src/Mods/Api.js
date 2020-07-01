@@ -1,8 +1,6 @@
 import jet from "@randajan/jetpack";
 
-import Serf from "../Base/Serf";
-
-class Api extends Serf {
+class Api {
 
     static toForm(obj) {
         const form = new FormData();
@@ -21,22 +19,13 @@ class Api extends Serf {
         return "text/plain";
     }
 
-    constructor(Core, path, url, token) {
-        super(Core, path);
-        const origin = window.origin;
-        
+    constructor(url, token) {
+
         jet.obj.addProperty(this, {
-            pending:{},
-            cache:{},
-        }, null, false, true);
-
-        this.lock("origin", origin);
-
-        this.set({
-            origin,
             url,
-            token
-        });
+            token,
+            error:[]
+        }, null, false, true)
     }
 
     toForm(obj) { return Api.toForm(obj); }
@@ -44,8 +33,6 @@ class Api extends Serf {
     getContentType(body) { return Api.getContentType(body); }
 
     fetchOptions(method, body, headers) {
-        const { origin, token } = this.get();
-
         const type = Api.getContentType(body);
         if (type === "application/json") { body = jet.str.to(body); }
         return {
@@ -53,49 +40,31 @@ class Api extends Serf {
             credentials: "include",
             headers: {
                 ...headers,
-                origin,
                 accept: "application/json",
-                authorization: jet.str.to(token),
+                origin: window.origin,
+                authorization: jet.str.to(this.token),
                 //"X-CSRF-Token": this.Storage.get("csrf")
             }
         };
     }
 
-    toCache(id, data) {
-        return this.cache[id] = { timestamp:new Date(), data };
-    }
-
-    fromCache(id, timeout) {
-        const cache = this.cache[id];
-        if (!cache) { return }
-        const msleft = new jet.Amount(timeout, "s").valueOf("ms");
-        if (new Date().getTime() < new Date(cache.timestamp).getTime()+msleft) {
-            return cache.data;
+    async fetch(method, path, body, headers) {
+        const options = this.fetchOptions(method, body, headers);
+        const url = this.url+"/"+path;
+        let reply = "";
+        try {
+            reply = await fetch(url, options).then(resp=>resp.text());
+            return JSON.parse(reply);
+        } catch (error) {
+            this.error.push({ method, url, path, body, headers, reply, error})
+            throw error;
         }
     }
 
-    async fetch(method, path, body, headers, cache) {
-        [method, path, body, headers, cache] = jet.untie({method, path, body, headers, cache});
-        const id = jet.obj.toJSON([method, path, body, headers]);
-
-
-        let reply = this.fromCache(id, cache);
-        if (reply != null) { return reply; }
-
-        if (this.pending[id]) { return await this.pending[id]; }
-
-        const prom = this.pending[id] = fetch(this.get("url")+"/"+path, this.fetchOptions(method, body, headers)).then(resp=>resp.json())
-
-        reply = await prom;
-        delete this.pending[id];
-        if (cache) { this.toCache(id, reply); }
-        return reply;
-    }
-
-    GET(path, body, headers, cache) {return this.fetch("GET", ...jet.untie({path, body, headers, cache}));}
-    POST(path, body, headers, cache) {return this.fetch("POST", ...jet.untie({path, body, headers, cache}));}
-    PUT(path, body, headers, cache) {return this.fetch("PUT", ...jet.untie({path, body, headers, cache}));}
-    DELETE(path, body, headers, cache) {return this.fetch("DELETE", ...jet.untie({path, body, headers, cache}));}
+    get(path, body, headers) {return this.fetch("GET", path, body, headers);}
+    post(path, body, headers) {return this.fetch("POST", path, body, headers);}
+    put(path, body, headers) {return this.fetch("PUT", path, body, headers);}
+    delete(path, body, headers) {return this.fetch("DELETE", path, body, headers);}
 
 }
 
