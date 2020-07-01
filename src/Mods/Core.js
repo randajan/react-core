@@ -6,6 +6,7 @@ import jet, { useForceRender } from "@randajan/react-jetpack";
 import CoreProvider from "../Components/CoreProvider";
 
 import Base from "../Base/Base";
+import Task from "../Base/Task";
 
 import Page from "./Page";
 import View from "./View";
