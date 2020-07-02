@@ -24,7 +24,7 @@ function filterChanges(path, changes) {
 function untieArgs(path, a1, a2, t1, t2, d2) {
     const args = [ path, a1, a2];
     if ( a2 === undefined && jet.is(t1, path) && (a1 === undefined || jet.is(t2, a1))) { args.unshift(""); }
-    args[0] = concatPath(args[0]);
+    args[0] = jet.str.to(args[0], ".");
     args[2] = jet.filter(t2, args[2], d2);
     return args;
 }

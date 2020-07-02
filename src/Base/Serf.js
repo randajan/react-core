@@ -1,15 +1,14 @@
 
 import jet from "@randajan/jetpack";
 
-import { BaseErr, concatPath, untieArgs } from "./Helpers";
+import { BaseErr, untieArgs } from "./Helpers";
 
 class Serf {
     static $$symbol = Symbol("Serf");
     
     constructor(parent, path, data) {
-        path = concatPath(path);
-
-        if (jet.isEmpty(path)) { throw new BaseErr("Serf path is required"); }
+        path = jet.str.to(path);
+        if (!path) { throw new BaseErr("Serf path is required"); }
 
         jet.obj.addProperty(this, { parent, path });
 
