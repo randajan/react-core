@@ -7,13 +7,6 @@ class BaseErr extends Error {
     }
 }
 
-function concatPath(path) {
-    if (jet.is("string", path)) { return path; }
-    let r = "";
-    jet.obj.map(path, p=>{p = concatPath(p); r += ((r&&p)?".":"")+p}, true);
-    return r;
-}
-
 function filterChanges(path, changes) {
     const result = [];
     path = jet.to("string", path, ".");
@@ -31,7 +24,6 @@ function untieArgs(path, a1, a2, t1, t2, d2) {
 
 export {
     BaseErr,
-    concatPath,
     filterChanges,
     untieArgs,
 }

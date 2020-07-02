@@ -27,8 +27,8 @@ class CoreProvider extends Component {
       core: Core.create(props),
     });
   }
-  componentDidMount() { this.cleanUp = this.core.eye(provider => this.forceUpdate()); }
-  componentWillUnmount() { this.cleanUp(); }
+  // componentDidMount() { this.cleanUp = this.core.eye(provider => this.forceUpdate()); }
+  // componentWillUnmount() { this.cleanUp(); }
 
   getBody() {
     return jet.obj.get(this, "refs.modal.refs.body");
