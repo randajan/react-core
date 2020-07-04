@@ -67,10 +67,11 @@ class Task extends Serf {
         ));
 
         if (critical) {
-            this.eye(task=>{
+            this.fit(task=>{
                 const duty = this.parent._duty; //ugly but working
                 if (task.loading) { duty.loading[this.path] = this; } else { delete duty.loading[this.path]; }
                 if (task.error) { duty.error[this.path] = this; } else { delete duty.error[this.path]; }
+                return task;
             })
         }
 
