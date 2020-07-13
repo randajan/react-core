@@ -11,7 +11,7 @@ class Icons extends Serf {
 
         jet.obj.addProperty(this, {
             pending:{},
-            straps:this.addTask("straps", _=>this.fetchAll(), "1y"),
+            straps:this.open("straps"),
         }, null, false, true);
 
         this.fitType("size", "number", 24);
@@ -23,12 +23,17 @@ class Icons extends Serf {
         });
 
         this.set({
-            straps:this.straps.linkLocal(),
+            straps:this.straps.storeLocal(),
             size,
             files,
         });
 
-        this.straps.fetch();
+        if (this.straps.isEmpty()) {
+            core.tray.watch(this.fetchAll(), {
+                result:"Loaded icons",
+                error:"Failed to load icons"
+            })
+        }
     }
 
     getId(src) { return [...this.path.split("."), src].joins("-"); }
@@ -38,9 +43,10 @@ class Icons extends Serf {
         const straps = {};
         const prom = [];
         jet.obj.map(files, (v,k)=>{
-            prom.push(Icons.fetchSvg(v).then(svg=>{straps[k] = Icons.svgStrap(svg);}))
+            prom.push(Icons.fetchSvg(v).then(svg=>straps[k] = Icons.svgStrap(svg)))
         });
         await Promise.all(prom);
+        this.set("straps", straps);
         return straps;
     }
 

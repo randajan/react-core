@@ -21,7 +21,7 @@
     "deploy": "gh-pages -d example/build"
   },
   "peerDependencies": {
-    "@randajan/jetpack": "^4.3.4",
+    "@randajan/jetpack": "^4.3.8",
     "@randajan/react-jetpack": "^1.0.3",
     "@randajan/react-popup": "^3.1.1",
     "crypto-js": "^4.0.0",
@@ -34,7 +34,20 @@
     "react-helmet": "^5.2.1",
     "react-router-dom": "^5.2.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@randajan/jetpack": "^4.4.2",
+    "@randajan/react-jetpack": "^1.0.3",
+    "@randajan/react-popup": "^3.1.1",
+    "crypto-js": "^4.0.0",
+    "moment": "^2.24.0",
+    "prop-types": "^15.5.4",
+    "query-string": "^6.11.1",
+    "react": "^15.0.0 || ^16.0.0",
+    "react-device-detect": "^1.11.14",
+    "react-dom": "^15.0.0 || ^16.0.0",
+    "react-helmet": "^5.2.1",
+    "react-router-dom": "^5.2.0"
+  },
   "devDependencies": {
     "@svgr/rollup": "^2.4.1",
     "babel-core": "^6.26.3",

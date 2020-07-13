@@ -66,14 +66,14 @@ class Task extends Serf {
             error=> this.is("promise", promise) && this.get("loading") && this.error(jet.to("error", error)),
         ));
 
-        if (critical) {
-            this.fit(task=>{
-                const duty = this.parent._duty; //ugly but working
-                if (task.loading) { duty.loading[this.path] = this; } else { delete duty.loading[this.path]; }
-                if (task.error) { duty.error[this.path] = this; } else { delete duty.error[this.path]; }
-                return task;
-            })
-        }
+        // if (critical) {
+        //     this.fit(task=>{
+        //         const duty = this.parent._duty; //ugly but working
+        //         if (task.loading) { duty.loading[this.path] = this; } else { delete duty.loading[this.path]; }
+        //         if (task.error) { duty.error[this.path] = this; } else { delete duty.error[this.path]; }
+        //         return task;
+        //     })
+        // }
 
     }
 

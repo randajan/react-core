@@ -4,7 +4,7 @@ import Core from "../Mods/Core";
 
 function IcoDefs() {
     const icons = Core.useSerf("icons");
-    const straps = jet.get("object", Core.useVal("icons.straps.data"));
+    const straps = jet.get("object", Core.useVal("icons.straps"));
     const viewBox = Core.useVal("icons.viewBox");
     const selfProps = {
         xmlns:'http://www.w3.org/2000/svg',

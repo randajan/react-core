@@ -6,7 +6,7 @@ import jet, { useForceRender } from "@randajan/react-jetpack";
 import CoreProvider from "../Components/CoreProvider";
 
 import Base from "../Base/Base";
-import Task from "../Base/Task";
+import Serf from "../Base/Serf";
 
 import Page from "./Page";
 import View from "./View";
@@ -71,7 +71,7 @@ class Core extends Base {
         if (jet.isFull(PRIVATE)) { throw new Error("There could be just one instance of Core"); }
 
         const { 
-            version, nocache, debug, 
+            version, nostore, debug, 
             beforeBuild, afterBuild, 
             cryptKey, viewSizes, sessionUrl, apiUrl, 
             langList, langLibs, langFallback, langDefault, 
@@ -80,35 +80,40 @@ class Core extends Base {
             imagesList,
         } = props;
 
-        super(version, nocache, debug);
+        super(version, nostore, debug);
 
         PRIVATE.push(this);
         if (debug) { window.jet = jet; window.core = this; }
 
+        this.eye("auth.user.lang", lang=>this.set("lang.now", lang));
+        this.eye("lang.now", lang=>this.set("auth.user.lang", lang));
+
         jet.run(beforeBuild, this);
 
-        jet.obj.addProperty(this, "api", new Api(apiUrl, _=>this.get("auth.passport.data.authorization")), false, true);
+        this.mod("api", new Api(apiUrl, _=>this.get("auth.passport.authorization")));
 
-        this.mount(Page, "page");
-        this.mount(Lang, "lang", langList, langLibs, this.get("page.lang"), langFallback, langDefault);
+        this.modMount(Page, "page");
 
-        const auth = this.mount(Auth, "auth", authPath, authProviders);
-        //if (sessionUrl) { auth.storeAsSession(sessionUrl, cryptKey); } else { auth.set(auth.storeAsLocal(cryptKey)); }
+        this.modMount(Lang, "lang", langList, langLibs, this.get("page.search.lang"), langFallback, langDefault)
 
-        this.mount(Icons, "icons", iconsList, iconsSize);
-        this.mount(Images, "images", imagesList);
-        this.mount(Client, "client");
-        this.mount(View, "view", viewSizes);
+        this.modMount(Auth, "auth", authPath, authProviders, sessionUrl, cryptKey);
 
-        //const test = this.addTask("test", (echo, timeout)=>new Promise(res=>{setTimeout(_=>res(echo), timeout)}));
-
-        //this.Auth.onChange.add(_=>this.Lang.select(page, this.Auth.User.loadLang()));
-        //this.Lang.onChange.add(_=>this.Auth.User.saveLang(this.Lang.now));
+        this.modMount(Icons, "icons", iconsList, iconsSize);
+        this.modMount(Images, "images", imagesList);
+        this.modMount(Client, "client");
+        this.modMount(View, "view", viewSizes);
     
         jet.run(afterBuild, this);
     }
 
+    mod(path, mod) {
+        jet.obj.addProperty(this, path, mod, false, true);
+        return mod;
+    }
 
+    modMount(proto, path, ...args) {
+        return this.mod(path, this.mount(proto, path, ...args));
+    }
 
 }
 

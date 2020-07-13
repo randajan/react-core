@@ -13,12 +13,10 @@ import User from "./Mods/User";
 import View from "./Mods/View";
 
 import Base from "./Base/Base";
-import Task from "./Base/Task";
 import Serf from "./Base/Serf";
 
 import Crypt from "./Base/Crypt";
 import LangLib from "./Helpers/LangLib";
-
 
 import Ico from "./Components/Ico";
 import Img from "./Components/Img";
@@ -33,7 +31,7 @@ export {
 
   Base,
   Serf,
-  Task,
+  SuperPromise,
 
   Api,
   Auth,

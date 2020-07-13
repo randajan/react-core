@@ -50,10 +50,10 @@ class Api {
 
     async fetch(method, path, body, headers) {
         const options = this.fetchOptions(method, body, headers);
-        const url = this.url+"/"+path;
+        const url = this.url+"/"+jet.str.to(path);
         let reply = "";
         try {
-            reply = await fetch(url, options).then(resp=>resp.text());
+            reply = await fetch(url, options).then(resp=>resp.text())
             return JSON.parse(reply);
         } catch (error) {
             this.error.push({ method, url, path, body, headers, reply, error})

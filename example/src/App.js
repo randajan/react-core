@@ -7,12 +7,12 @@ import jet from "@randajan/jetpack";
 import Core, { CoreProvider, Images, Lang, View, Query, Ico, Img, PopUp, Base} from '@randajan/react-app-core';
 
 const coreConfig = {
-  //nocache:true,
+  //nostore:true,
   debug:true,
-  version:"1.0.2",
+  //version:"1.0.2",
   cryptKey:"XYZ",
   langFallback:"en",
-  langList:["en", "cs", "any"],
+  langList:["en", "cs"],
   langLibs:[
     {priority:10, list:["cs"], path:"index", fetch:lang=>fetch("/index.html").then(data=>data.text())}, 
   ],
@@ -44,7 +44,6 @@ const coreConfig = {
 
 function Example() {
   console.log("Render", "Example");
-  const core = Core.use();
 
   return (
     <div className="Example">
@@ -62,8 +61,11 @@ function Example() {
           </tr>
         </thead>
         <tbody>
-          <tr><td>Loading</td><td>{jet.obj.toJSON(core.getLoading())}</td></tr>
-          <tr><td>Errors</td><td>{jet.obj.toJSON(core.getError())}</td></tr>         
+          <ShowKey path="tray.pending" />
+          <ShowKey path="tray.cancel" />
+          <ShowKey path="tray.timeout" />
+          <ShowKey path="tray.error" />
+          <ShowKey path="tray.result" />
           <ShowKey path="lang.now" />
           <ShowKey path="view" format={k=>jet.react.fetchFlags(k).joins(" ")} />
           <ShowKey path="query" format={jet.obj.toJSON} />

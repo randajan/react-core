@@ -12,9 +12,7 @@ class Serf {
 
         jet.obj.addProperty(this, { parent, path });
 
-        Object.defineProperties(this, {mark:{ set:mark=>parent.setMark(this.path, mark), get:_=>parent.getMark(this.path)}});
-
-        (["get", "is", "getType", "isType", "isFull", "isEmpty", "isLoading", "isError", "isReady", "pull", "rem", "lock", "addTask", "open", "fitTo", "fitType", "fitDefault"]).map(k=>{
+        (["get", "is", "getType", "isType", "isFull", "isEmpty", "pull", "rem", "lock", "open", "fitTo", "fitType", "fitDefault", "store", "restoreSync", "restoreAsync"]).map(k=>{
             jet.obj.addProperty(this, k, (path, ...args)=>parent[k]([this.path, path], ...args));
         });
 
@@ -39,19 +37,22 @@ class Serf {
         return this.parent.mount(prototype, [this.path, path], ...args);
     }
 
-    linkLocal(cryptKey) {
-        this.mark = "local";
-        const label = this.path;
-        this.eye(data=>localStorage.setItem(label, this.parent.storeData(data, cryptKey)));
-        return this.parent.restoreData(localStorage.getItem(label), cryptKey);
+    storeLocal(path, cryptKey) {
+        this.store(path, localStorage.setItem.bind(localStorage), cryptKey);
+        return this.restoreSync(path, localStorage.getItem.bind(localStorage), cryptKey);
     }
 
-    linkSession(url, cryptKey) {
-        this.mark = "session";
-        if (!url) { throw new BaseErr("Serf linkSession failed. URL is required"); }
+    async storeRemote(path, restore, store, cryptKey) {
+        this.store(path, store, cryptKey);
+        return await this.restoreAsync(path, restore, cryptKey);
+    }
 
-        this.eye(data => fetch(jet.str.to(url, this.path), { method: "POST", body:this.parent.storeData(data, cryptKey) }));
-        return fetch(jet.str.to(url, this.path)).then(resp=>resp.json()).then(json=>this.parent.restoreData(json, cryptKey));
+    storeSession(path, url, cryptKey) {
+        return this.storeRemote(path, 
+            path=>fetch(jet.str.to(url, path)).then(r=>r.text()), 
+            (path, body)=>fetch(jet.str.to(url, path), { method: "POST", body }), 
+            cryptKey
+        );
     }
 
     toString() { return this.path; }

@@ -39,7 +39,7 @@ class Page extends Serf {
             v.path = v.pathname + (search ? "?"+search : "") + (v.hash ? "#"+v.hash : "");
             v.url = v.origin + v.path;
             return v;
-        })
+        });
 
     }
 

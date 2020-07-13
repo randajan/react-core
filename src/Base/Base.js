@@ -7,9 +7,11 @@ import Crypt from "./Crypt";
 
 import Serf from "./Serf";
 import Task from "./Task";
+import Tray from "./Tray";
 
 class Base {
     static $$symbol = Symbol("Base");
+    static versionKey = "__version__";
 
     static dutyTypes = {
         fit:"function",
@@ -20,16 +22,14 @@ class Base {
     static fit(duty, data, path, to) {
         const from = {};
         jet.obj.match(data, to, (data, to, p)=>{ //heart of base DO not touch :)
-            const isin = p.startsWith(path);
-            const ison = !isin && path.startsWith(p);
+            const isin = p === path || p.startsWith(path+".");
+            const ison = path.startsWith(p+".");
             const pool = duty.fit[p];
-           
-            if (!jet.isMapable(data)) { jet.obj.set(from, p, data, true); } //create copy
+            if (data != null && !jet.isMapable(data)) { jet.obj.set(from, p, data, false); } //create copy
             if (!isin && !ison) { return data; } // skipping validation if it's out of scope
             if (ison || jet.isMapable(to)) { to = data; } //replace mapable and above
             return pool ? pool.fit(to, jet.obj.get(from, p)) : to;
         });
-        
         if (duty.fit[""]) { duty.fit[""].fit(data, from); }
         return from;
     }
@@ -48,30 +48,49 @@ class Base {
         return changes;
     }
 
-    constructor(version, nocache, debug) {
+    static storeData(data, version, cryptKey) {
+        data = jet.get("object", data);
+        if (version) { data[Base.versionKey] = version; }
+        const hash = Crypt.enObj(cryptKey, data);
+        delete data[Base.versionKey];
+        return hash;
+    }
+
+    static restoreData(hash, version, cryptKey) {
+        const data = jet.get("object", hash, Crypt.deObj(cryptKey, hash));
+        if (version && version !== data[Base.versionKey]) { return; }
+        delete data[Base.versionKey];
+        return data;
+    }
+
+    constructor(version, nostore, debug) {
 
         jet.obj.addProperty(this, {
-            version:jet.str.to(version),
-            nocache:jet.to("boolean", nocache),
-            debug:jet.to("boolean", debug),
             serf:{},
         }, null, false, true);
 
         jet.obj.addProperty(this, {
-            _versionKey:"__version__",
-            _data:{},
-            _duty:{}
+            _data:{
+                _:{
+                    version: jet.str.to(version),
+                    nostore: jet.to("boolean", nostore),
+                    debug: jet.to("boolean", debug),
+                }
+            },
+            _duty:jet.obj.addProperty({}, {
+                fit:{},
+                eye:{},
+                spy:{},
+                store:{},
+            })
         });
 
-        jet.obj.addProperty(this._duty, {
-            fit:{},
-            eye:{},
-            spy:{},
-            mark:{},
-            loading:{},
-            error:{}
-        }, null, false, true);
-  
+        this.fitTo("_.version", "string");
+        this.fitTo("_.nostore", "boolean");
+        this.fitTo("_.debug", "boolean");
+
+        jet.obj.addProperty(this, "tray", this.mount(Tray, "tray"), false, true);
+
     }
 
     mount(Prototype, path, ...args) {
@@ -87,10 +106,6 @@ class Base {
     isFull(path) { return jet.isFull(this.get(path)); }
     isEmpty(path) { return jet.isEmpty(this.get(path)); }
 
-    isError(path) { return jet.isFull(this.getError(path)); }
-    isLoading(path) { return jet.isFull(this.getLoading(path)); }
-    isReady(path) { return !this.isLoading(path) && !this.isError(path); }
-
     get(path, def) { return jet.obj.get(this._data, path, def); }
     getType(path, all) { return jet.type(this.get(path), all); }
     getDuty(type, path) {
@@ -101,8 +116,6 @@ class Base {
             if (k.startsWith(path) && (jet.is(Task, v) || jet.isFull(v))) { return v; }
         });
     }
-    getError(path) { return this.getDuty("error", path); }
-    getLoading(path) { return this.getDuty("loading", path); }
 
     set(path, value, force) {
         path = jet.str.to(path, ".");
@@ -114,6 +127,7 @@ class Base {
 
         const to = jet.obj.set({}, path, value, true);
         const from = Base.fit(this._duty, this._data, path, to);
+
         const changes = jet.obj.compare(this._data, from);
 
         this.debugLog("changes", changes);
@@ -151,58 +165,42 @@ class Base {
     fitType(path, type, ...args) { return this.fit(path, v=>jet.get(type, v, ...args)); }
     fitDefault(path, def) { return this.fit(path, v=>jet.isFull(v) ? v : def); }
 
-    addTask(path, fetchMethod, cache, critical) {
-        return this.mount(Task, path, fetchMethod, cache, critical);
-    }
-
-    getMarkPath(path) {
-        const pool = this._duty.mark;
-        path = jet.str.to(path, ".").split(".");
-        for (let k in path) {
-            const p = path.slice(0, Number(k)+1).join(".");
-            if (pool[p]) { return p; }
+    store(path, store, cryptKey) {
+        path = jet.str.to(path, ".");
+        const { version, nostore } = this.get("_");
+        const pool = this._duty.store;
+        if (pool[path]) { jet.run(pool[path].cleanUp); }
+        const job = [];
+        return pool[path] = {
+            job,
+            cleanUp:this.eye(path, data=>{
+                if (nostore) { return; }
+                job.unshift(jet.to("promise", store, path, Base.storeData(data, version, cryptKey)));
+            })
         };
     }
 
-    getMark(path) { return this._duty.mark[this.getMarkPath(path)] || "base"; }
-
-    setMark(path, mark) {
-        const pool = this._duty.mark;
-        const curr = this.getMarkPath(path);
+    restoreSync(path, restore, cryptKey) {
         path = jet.str.to(path, ".");
-        mark = jet.str.to(mark);
-        if (curr) { 
-            throw new BaseErr("Unable to set mark '"+mark+"' at '"+path+"' because '"+curr+"' is allready marked as '"+pool[curr]+"'"); 
-        }
-        jet.obj.addProperty(pool, path, mark, false, true);
+        const { version, nostore } = this.get("_");
+        return nostore ? undefined : Base.restoreData(jet.run(restore, path), version, cryptKey);
     }
 
-    storeData(data, cryptKey) {
-        const { nocache, version, _versionKey } = this;
-        if (nocache) { return; }
-        data = jet.get("object", data);
-        if (version) { data[_versionKey] = version; }
-        const hash = Crypt.enObj(cryptKey, data);
-        delete data[_versionKey];
-        return hash;
+    async restoreAsync(path, restore, cryptKey) {
+        path = jet.str.to(path, ".");
+        const { version, nostore } = this.get("_");
+        return nostore ? undefined : Base.restoreData(await jet.to("promise", restore, path), version, cryptKey);
     }
 
-    restoreData(hash, cryptKey) {
-        const { nocache, version, _versionKey } = this;
-        if (nocache) { return; }
-        const data = jet.get("object", Crypt.deObj(cryptKey, hash));
-        if (data[_versionKey] !== version) { return; }
-        delete data[_versionKey];
-        return data;
-    }
-
-    debugLog(...msg) { if (this.debug) { console.log("BASE-DEBUG", ...msg); } }
+    debugLog(...msg) { if (this.get("_.debug")) { console.log("BASE-DEBUG", ...msg); } }
 
     spaceCount(path, limit) {
         return jet.test.byteCount(this.get(path), limit);
     }
 
 }
+
+window.Base = Base;
 
 export default Base;
 

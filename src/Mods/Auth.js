@@ -2,45 +2,85 @@ import jet from "@randajan/jetpack";
 
 import Serf from "../Base/Serf";
 
-import User from "./User";
-
 class Auth extends Serf {
 
-    constructor(core, path, authPath, providers) {
+    constructor(core, path, authPath, providers, sessionUrl, cryptKey) {
         super(core, path);
-
-        jet.obj.addProperty(this, {
-            passport:this.addTask("passport", code=>core.api.post(authPath+"/token", core.api.toForm({ code })), "30d", true),
-            login:this.addTask("login", provider=>core.api.get(authPath+"/"+provider), "300s", true),
-            user:this.addTask("user", _=>core.api.get("/user"), "30m", true)
-        }, null, false, true)
+        const { api, tray, lang } = core;
 
         this.fit("providers", v=>jet.arr.wrap(v));
         this.fitTo("authPath", "string");
         this.fitType("login", "object");
 
-        this.fitType("passport.data", "object");
-        this.fitType("login.data", "object");
-        this.fitType("user.data", "object");
+        this.fitType("passport", "object");
 
-        this.fit("passport.data", v=>{
+        this.fit("passport", v=>{
              if (!v.access_token) { return {}; }
              v.authorization = [v.token_type, v.access_token].joins(" ");
              return v;
         });
 
-        this.eye("login.data.redirect_uri", r=>window.location=r);
-
-        this.set({
-            authPath,
-            providers,
-            passport:this.passport.linkLocal(),
-            user:this.user.linkLocal()
+        this.fit(v=>{
+            if (!v.user && jet.isEmpty(v.passport)) { v.user = this.storeLocal("user", cryptKey); }
+            v.user = jet.get("object", v.user);
+            return v;
         });
+        
+
+        this.eye("passport.authorization", token=>{
+            if (token) {
+                setTimeout(_=>
+                    tray.watch(
+                        this.storeRemote(
+                            "user", 
+                            _=>api.get("user"), 
+                            (path, data)=>api.post("user", data)
+                        ).then(data=>this.set("user", data)), 
+                        g=>lang.spell(["core.auth.watch.user", g.state])
+                    )
+                )
+            }
+        })
+
+        const set = {
+            authPath,
+            providers
+        }
+
+        if (!sessionUrl) { set.passport = this.storeLocal("passport", cryptKey); }
+        else {
+            tray.watch(this.storeSession("passport", sessionUrl, cryptKey).then(data=>this.set("passport", data)),
+            g=>serf.lang.spell(["core.auth.watch.session", g.state])
+            );
+        }
+
+        this.set(set);
 
     }
 
-    logout() { this.push({passport:null, user:null}) }
+    async login(provider) {
+        const { api, tray, lang } = this.parent;
+        return tray.watch(async _=>{
+            const data = await api.get(this.get("authPath")+"/"+provider);
+            const redirect = jet.obj.get(data, "redirect_uri");
+            if (!redirect) { throw new Error("Login failed: Missing redirect link"); }
+            return window.location = redirect;
+        }, g=>lang.spell(["core.auth.watch.login", g.state]));
+    }
+
+    logout() { this.push({passport:null, user:null}); }
+
+    async setPassport(code) {
+        return this.set("passport", await this.fetchPassport(code));
+    }
+
+    async fetchPassport(code) {
+        const { api, tray, lang } = this.parent;
+        return tray.watch(
+            api.post(this.get("authPath")+"/token", api.toForm({ code })), 
+            g=>lang.spell(["core.auth.watch.passport", g.state])
+        )
+    }
 
     // getMenu() {
     //     const lang = this.Core.Lang;

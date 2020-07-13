@@ -6,26 +6,38 @@ import LangLib from "../Helpers/LangLib";
 
 import Serf from "../Base/Serf";
 
+const defMsg = {
+    pending:"Loading language pack",
+    error:"Failed to load language pack",
+}
+
 class Lang extends Serf {
+
+    static async fetchLibs(libs, lang) {
+        const res = await Promise.all(libs.map(lib => lib.fetch(lang)));
+        if (res) { return jet.obj.merge(...res); }
+    }
 
     constructor(core, path, list, libs, now, fallback, def) {
         super(core, path);
 
         jet.obj.addProperty(this, {
             libs:Lang.validateLibs(libs),
-            books:{}
+            fetch:{}
         }, null, false, true);
 
         this.fitType("book", "object");
         this.fit("list", Lang.validateList);
 
         this.fit((v,f)=>{
-            v = jet.get("object", v);
+            [v, f] = jet.get([["object", v], ["object", f]]);
             v.def = Lang.validateLang([v.def, v.list[0]], v.list);
             v.fallback = Lang.validateLang([v.fallback, v.list[0]], v.list); 
             const now = v.now = Lang.validateLang([v.now, f.now, v.def], v.list);
-            const book = this.openBook(now);
-            if (!book.get("ready")) { v.now = f.now; }
+            if (!v.book[now]) {
+                this.fetchBook(now).then(book=>this.push({now, book:{[now]:book}}));
+                v.now = f.now;
+            }
             return v;
         });
 
@@ -36,7 +48,7 @@ class Lang extends Serf {
             def,
             fallback,
             list:[list, fallback, def],
-            book:this.open("book").linkLocal()
+            book:this.storeLocal("book")
         });
 
     }
@@ -44,27 +56,24 @@ class Lang extends Serf {
     spell(path, ...langs) {
         const { now, list, fallback } = this.get();
         for (let lang of Lang.validateLang([langs, now, fallback], list, true)) {
-            let val = this.get(["book", lang, "data", path]);
+            let val = this.get(["book", lang, path]);
             if (val) { return val; }
         }
     }
 
-    openBook(lang) {
-        if (this.books[lang]) { return this.books[lang]; }
-        const book = this.books[lang] = this.addTask(["book", lang], this.fetchBook.bind(this), "1y", true);
-        book.eye("data", _=>this.set("now", lang));
-        setTimeout(_=>book.fetch(lang));
-        return book;
-    }
-
     async fetchBook(lang) {
-        const data = await Promise.all(this.libs.map(lib => lib.fetch(lang)));
-        if (data) { return jet.obj.merge(...data); }
+        if (!lang || this.fetch[lang]) { return this.fetch[lang]; }
+        return this.fetch[lang] = this.parent.tray.watch(
+            Lang.fetchLibs(this.libs, lang), {
+                pending:this.spell("core.lang.watch.pending") || defMsg.pending,
+                error:this.spell("core.lang.watch.error") || defMsg.error,
+            }
+        );
     }
 
     getMenu() {
-        return this.list.map(lang => {
-            const path = "lang." + lang;
+        return this.get("list").map(lang => {
+            const path = ["core.lang.index", lang]
             const now = this.spell(path);
             const native = this.spell(path, lang);
             const label = (now && now !== native) ? now + " (" + native + ")" : native;
@@ -88,7 +97,7 @@ class Lang extends Serf {
 
     static validateLibs(libs) {
         libs = jet.get("array", libs);
-        libs.unshift(LangLib.create(-1, "", ["cs", "en", "de"], lang => require("./lang/" + lang).default));
+        libs.unshift(LangLib.create(-1, "core", ["cs", "en"], lang => require("./lang/" + lang).default));
         return jet.obj.map(libs, lib => LangLib.create(lib)).sort((a, b) => a.priority - b.priority);
     }
 

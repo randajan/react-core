@@ -10,6 +10,7 @@ import Core from "../Mods/Core";
 import IcoDefs from "./IcoDefs";
 import PageProvider from "./PageProvider";
 import Lang from "./Lang";
+import Tray from "./Tray";
 
 class CoreProvider extends Component {
 
@@ -17,8 +18,8 @@ class CoreProvider extends Component {
   static use() { return useContext(CoreProvider.Context); }
 
   static defaultFlags = {
-    loading: p => p.core.isLoading(),
-    error: p => p.core.isError(),
+    pending: p => p.core.tray.isPending(),
+    error: p => p.core.tray.isError(),
   }
 
   constructor(props) {
@@ -27,7 +28,9 @@ class CoreProvider extends Component {
       core: Core.create(props),
     });
   }
-  componentDidMount() { this.cleanUp = this.core.eye(provider => this.forceUpdate()); }
+  componentDidMount() {
+    this.cleanUp = this.core.eye(provider => this.forceUpdate());
+  }
   componentWillUnmount() { this.cleanUp(); }
 
   getBody() {
@@ -51,6 +54,7 @@ class CoreProvider extends Component {
       <BrowserRouter>
         <CoreProvider.Context.Provider value={this}>
           <ModalProvider {...this.fetchSelfProps()}>
+            <Tray/>
             <Lang/>
             <IcoDefs />
             <PageProvider/>
