@@ -10,7 +10,6 @@ import Core from "../Mods/Core";
 import IcoDefs from "./IcoDefs";
 import PageProvider from "./PageProvider";
 import Lang from "./Lang";
-import Tray from "./Tray";
 
 class CoreProvider extends Component {
 
@@ -54,7 +53,6 @@ class CoreProvider extends Component {
       <BrowserRouter>
         <CoreProvider.Context.Provider value={this}>
           <ModalProvider {...this.fetchSelfProps()}>
-            <Tray/>
             <Lang/>
             <IcoDefs />
             <PageProvider/>
