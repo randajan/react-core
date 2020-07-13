@@ -47,7 +47,7 @@ class View extends Serf {
         else if (jet.is("string", size)) {sizes[size] = check}
         else {return false;}
 
-        return this.set();
+        return this.set(this.fetchSize());
     }
 
     isSize(size) { return this.get(size); }
