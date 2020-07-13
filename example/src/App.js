@@ -9,7 +9,7 @@ import Core, { CoreProvider, Images, Lang, View, Query, Ico, Img, PopUp, Base} f
 const coreConfig = {
   //nostore:true,
   debug:true,
-  //version:"1.0.2",
+  version:"1.0.5",
   cryptKey:"XYZ",
   langFallback:"en",
   langList:["en", "cs"],

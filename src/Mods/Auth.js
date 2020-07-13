@@ -32,8 +32,8 @@ class Auth extends Serf {
                 setTimeout(_=>
                     tray.watch(
                         this.storeRemote(
-                            "user", 
-                            _=>api.get("user"), 
+                            "user",
+                            api.getJSON("user"), 
                             (path, data)=>api.post("user", data)
                         ).then(data=>this.set("user", data)), 
                         g=>lang.spell(["core.auth.watch.user", g.state])
@@ -61,7 +61,7 @@ class Auth extends Serf {
     async login(provider) {
         const { api, tray, lang } = this.parent;
         return tray.watch(async _=>{
-            const data = await api.get(this.get("authPath")+"/"+provider);
+            const data = await api.getJSON(this.get("authPath")+"/"+provider);
             const redirect = jet.obj.get(data, "redirect_uri");
             if (!redirect) { throw new Error("Login failed: Missing redirect link"); }
             return window.location = redirect;
@@ -77,7 +77,7 @@ class Auth extends Serf {
     async fetchPassport(code) {
         const { api, tray, lang } = this.parent;
         return tray.watch(
-            api.post(this.get("authPath")+"/token", api.toForm({ code })), 
+            api.postJSON(this.get("authPath")+"/token", api.toForm({ code })), 
             g=>lang.spell(["core.auth.watch.passport", g.state])
         )
     }

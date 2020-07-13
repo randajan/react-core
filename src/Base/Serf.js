@@ -12,7 +12,10 @@ class Serf {
 
         jet.obj.addProperty(this, { parent, path });
 
-        (["get", "is", "getType", "isType", "isFull", "isEmpty", "pull", "rem", "lock", "open", "fitTo", "fitType", "fitDefault", "store", "restoreSync", "restoreAsync"]).map(k=>{
+        ([
+            "get", "is", "getType", "isType", "isFull", "isEmpty", "pull", "rem", "lock", "open", "fitTo", "fitType", "fitDefault",
+            "store", "restoreSync", "restoreAsync", "storeLocal", "storeRemote", "storeSession"
+        ]).map(k=>{
             jet.obj.addProperty(this, k, (path, ...args)=>parent[k]([this.path, path], ...args));
         });
 
@@ -35,24 +38,6 @@ class Serf {
 
     mount(prototype, path, ...args) {
         return this.parent.mount(prototype, [this.path, path], ...args);
-    }
-
-    storeLocal(path, cryptKey) {
-        this.store(path, localStorage.setItem.bind(localStorage), cryptKey);
-        return this.restoreSync(path, localStorage.getItem.bind(localStorage), cryptKey);
-    }
-
-    async storeRemote(path, restore, store, cryptKey) {
-        this.store(path, store, cryptKey);
-        return await this.restoreAsync(path, restore, cryptKey);
-    }
-
-    storeSession(path, url, cryptKey) {
-        return this.storeRemote(path, 
-            path=>fetch(jet.str.to(url, path)).then(r=>r.text()), 
-            (path, body)=>fetch(jet.str.to(url, path), { method: "POST", body }), 
-            cryptKey
-        );
     }
 
     toString() { return this.path; }

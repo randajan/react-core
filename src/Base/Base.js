@@ -11,7 +11,6 @@ import Tray from "./Tray";
 
 class Base {
     static $$symbol = Symbol("Base");
-    static versionKey = "__version__";
 
     static dutyTypes = {
         fit:"function",
@@ -48,19 +47,21 @@ class Base {
         return changes;
     }
 
-    static storeData(data, version, cryptKey) {
-        data = jet.get("object", data);
-        if (version) { data[Base.versionKey] = version; }
-        const hash = Crypt.enObj(cryptKey, data);
-        delete data[Base.versionKey];
-        return hash;
+    static validateVersion(appVersion, dataVersion) {
+        return !appVersion || appVersion === dataVersion;
     }
 
-    static restoreData(hash, version, cryptKey) {
-        const data = jet.get("object", hash, Crypt.deObj(cryptKey, hash));
-        if (version && version !== data[Base.versionKey]) { return; }
-        delete data[Base.versionKey];
-        return data;
+    static packData(version, data) {
+        return jet.obj.toJSON({ data, version });
+    }
+
+    static unpackData(version, pack) {
+        pack = jet.get("object", pack, jet.obj.fromJSON(pack));
+        if (Base.validateVersion(version, pack.version)) { return pack.data; }
+    }
+
+    static toObj(any, cryptKey) {
+        return jet.filter("object", any, Crypt.deObj(cryptKey, any));
     }
 
     constructor(version, nostore, debug) {
@@ -165,31 +166,48 @@ class Base {
     fitType(path, type, ...args) { return this.fit(path, v=>jet.get(type, v, ...args)); }
     fitDefault(path, def) { return this.fit(path, v=>jet.isFull(v) ? v : def); }
 
-    store(path, store, cryptKey) {
+    store(path, save, cryptKey) {
         path = jet.str.to(path, ".");
-        const { version, nostore } = this.get("_");
+        const { nostore, version } = this.get("_");
         const pool = this._duty.store;
         if (pool[path]) { jet.run(pool[path].cleanUp); }
         const job = [];
         return pool[path] = {
             job,
-            cleanUp:this.eye(path, data=>{
-                if (nostore) { return; }
-                job.unshift(jet.to("promise", store, path, Base.storeData(data, version, cryptKey)));
-            })
+            cleanUp:this.eye(path, data=>{if (!nostore) { 
+                job.unshift(jet.to("promise", save, path, version, Crypt.enObj(cryptKey, data))); 
+            }})
         };
     }
 
-    restoreSync(path, restore, cryptKey) {
+    restoreSync(path, load, cryptKey) {
         path = jet.str.to(path, ".");
         const { version, nostore } = this.get("_");
-        return nostore ? undefined : Base.restoreData(jet.run(restore, path), version, cryptKey);
+        if (!nostore) { return Base.toObj(jet.run(load, path, version), cryptKey); }
     }
 
-    async restoreAsync(path, restore, cryptKey) {
+    async restoreAsync(path, load, cryptKey) {
         path = jet.str.to(path, ".");
         const { version, nostore } = this.get("_");
-        return nostore ? undefined : Base.restoreData(await jet.to("promise", restore, path), version, cryptKey);
+        if (!nostore) { return Base.toObj(await jet.to("promise", load, path, version), cryptKey); }
+    }
+
+    storeLocal(path, cryptKey) {
+        this.store(path, (p, v, d)=>localStorage.setItem(p, Base.packData(v, d)), cryptKey);
+        return this.restoreSync(path, (p, v)=>Base.unpackData(v, localStorage.getItem(p)), cryptKey);
+    }
+
+    async storeRemote(path, load, save, cryptKey) {
+        this.store(path, save, cryptKey);
+        return await this.restoreAsync(path, load, cryptKey);
+    }
+
+    storeSession(path, url, cryptKey) {
+        return this.storeRemote(path, 
+            (p, v)=>fetch(jet.str.to(url, p, v)).then(res=>Base.unpackData(v, res.json())),
+            (p, v, d)=>fetch(jet.str.to(url, p, v), { method: "POST", body:Base.packData(v, d) }),
+            cryptKey
+        );
     }
 
     debugLog(...msg) { if (this.get("_.debug")) { console.log("BASE-DEBUG", ...msg); } }
@@ -200,7 +218,6 @@ class Base {
 
 }
 
-window.Base = Base;
 
 export default Base;
 

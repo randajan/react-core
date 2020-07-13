@@ -51,9 +51,13 @@ class Api {
     async fetch(method, path, body, headers) {
         const options = this.fetchOptions(method, body, headers);
         const url = this.url+"/"+jet.str.to(path);
+        return fetch(url, options);
+    }
+
+    async fetchJSON(method, path, body, headers) {
         let reply = "";
         try {
-            reply = await fetch(url, options).then(resp=>resp.text())
+            reply = await this.fetch(method, path, body, headers).then(resp=>resp.text())
             return JSON.parse(reply);
         } catch (error) {
             this.error.push({ method, url, path, body, headers, reply, error})
@@ -65,6 +69,11 @@ class Api {
     post(path, body, headers) {return this.fetch("POST", path, body, headers);}
     put(path, body, headers) {return this.fetch("PUT", path, body, headers);}
     delete(path, body, headers) {return this.fetch("DELETE", path, body, headers);}
+
+    getJSON(path, body, headers) {return this.fetchJSON("GET", path, body, headers);}
+    postJSON(path, body, headers) {return this.fetchJSON("POST", path, body, headers);}
+    putJSON(path, body, headers) {return this.fetchJSON("PUT", path, body, headers);}
+    deleteJSON(path, body, headers) {return this.fetchJSON("DELETE", path, body, headers);}
 
 }
 

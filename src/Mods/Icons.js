@@ -29,10 +29,7 @@ class Icons extends Serf {
         });
 
         if (this.straps.isEmpty()) {
-            core.tray.watch(this.fetchAll(), {
-                result:"Loaded icons",
-                error:"Failed to load icons"
-            })
+            core.tray.watch(this.fetchAll(), g=>core.lang.spell(["core.icons.watch", g.state]))
         }
     }
 
