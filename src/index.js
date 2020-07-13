@@ -31,7 +31,6 @@ export {
 
   Base,
   Serf,
-  SuperPromise,
 
   Api,
   Auth,
