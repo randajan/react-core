@@ -60,7 +60,7 @@ class Api {
             reply = await this.fetch(method, path, body, headers).then(resp=>resp.text())
             return JSON.parse(reply);
         } catch (error) {
-            this.error.push({ method, url, path, body, headers, reply, error})
+            this.error.push({ method, path, body, headers, reply, error})
             throw error;
         }
     }
