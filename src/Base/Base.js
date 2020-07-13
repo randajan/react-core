@@ -64,7 +64,7 @@ class Base {
         return jet.filter("object", any, Crypt.deObj(cryptKey, any));
     }
 
-    constructor(version, nostore, debug) {
+    constructor(version, nocache, debug) {
 
         jet.obj.addProperty(this, {
             serf:{},
@@ -74,7 +74,7 @@ class Base {
             _data:{
                 _:{
                     version: jet.str.to(version),
-                    nostore: jet.to("boolean", nostore),
+                    nocache: jet.to("boolean", nocache),
                     debug: jet.to("boolean", debug),
                 }
             },
@@ -87,7 +87,7 @@ class Base {
         });
 
         this.fitTo("_.version", "string");
-        this.fitTo("_.nostore", "boolean");
+        this.fitTo("_.nocache", "boolean");
         this.fitTo("_.debug", "boolean");
 
         jet.obj.addProperty(this, "tray", this.mount(Tray, "tray"), false, true);
@@ -168,33 +168,33 @@ class Base {
 
     store(path, save, cryptKey) {
         path = jet.str.to(path, ".");
-        const { nostore, version } = this.get("_");
         const pool = this._duty.store;
         if (pool[path]) { jet.run(pool[path].cleanUp); }
-        const job = [];
+        const task = [];
         return pool[path] = {
-            job,
-            cleanUp:this.eye(path, data=>{if (!nostore) { 
-                job.unshift(jet.to("promise", save, path, version, Crypt.enObj(cryptKey, data))); 
-            }})
+            task,
+            cleanUp:this.eye(path, data=>{
+                const { nocache, version } = this.get("_");
+                task.unshift(jet.to("promise", save, Crypt.enObj(cryptKey, data), path, version, nocache))
+            })
         };
     }
 
     restoreSync(path, load, cryptKey) {
         path = jet.str.to(path, ".");
-        const { version, nostore } = this.get("_");
-        if (!nostore) { return Base.toObj(jet.run(load, path, version), cryptKey); }
+        const { nocache, version } = this.get("_.version");
+        return Base.toObj(jet.run(load, path, version, nocache), cryptKey);
     }
 
     async restoreAsync(path, load, cryptKey) {
         path = jet.str.to(path, ".");
-        const { version, nostore } = this.get("_");
-        if (!nostore) { return Base.toObj(await jet.to("promise", load, path, version), cryptKey); }
+        const { nocache, version } = this.get("_.version");
+        return Base.toObj(await jet.to("promise", load, path, version, nocache), cryptKey);
     }
 
     storeLocal(path, cryptKey) {
-        this.store(path, (p, v, d)=>localStorage.setItem(p, Base.packData(v, d)), cryptKey);
-        return this.restoreSync(path, (p, v)=>Base.unpackData(v, localStorage.getItem(p)), cryptKey);
+        this.store(path, (d, p, v, n)=>n ? null : localStorage.setItem(p, Base.packData(v, d)), cryptKey);
+        return this.restoreSync(path, (p, v, n)=>n ? null :Base.unpackData(v, localStorage.getItem(p)), cryptKey);
     }
 
     async storeRemote(path, load, save, cryptKey) {
@@ -204,8 +204,8 @@ class Base {
 
     storeSession(path, url, cryptKey) {
         return this.storeRemote(path, 
-            (p, v)=>fetch(jet.str.to(url, p, v)).then(res=>Base.unpackData(v, res.json())),
-            (p, v, d)=>fetch(jet.str.to(url, p, v), { method: "POST", body:Base.packData(v, d) }),
+            (p, v, n)=>n ? null : fetch(jet.str.to(url, p, v, n)).then(res=>Base.unpackData(v, res.json())),
+            (d, p, v, n)=>n ? null : fetch(jet.str.to(url, p, v, n), { method: "POST", body:Base.packData(v, d) }),
             cryptKey
         );
     }

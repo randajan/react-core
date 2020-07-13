@@ -31,11 +31,8 @@ class Auth extends Serf {
             if (token) {
                 setTimeout(_=>
                     tray.watch(
-                        this.storeRemote(
-                            "user",
-                            api.getJSON("user"), 
-                            (path, data)=>api.post("user", data)
-                        ).then(data=>this.set("user", data)), 
+                        this.storeRemote("user", api.getJSON("user"), data=>api.post("user", data))
+                            .then(data=>this.set("user", data)), 
                         g=>lang.spell(["core.auth.watch.user", g.state])
                     )
                 )
