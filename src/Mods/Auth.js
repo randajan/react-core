@@ -61,7 +61,7 @@ class Auth extends Serf {
             const data = await api.getJSON(this.get("authPath")+"/"+provider);
             const redirect = jet.obj.get(data, "redirect_uri");
             if (!redirect) { throw new Error("Login failed: Missing redirect link"); }
-            return window.location = redirect;
+            await new Promise(_=>window.location = redirect);
         }, g=>lang.spell(["core.auth.watch.login", g.state]));
     }
 
