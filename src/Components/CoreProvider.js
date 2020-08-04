@@ -51,10 +51,12 @@ class CoreProvider extends BaseProvider {
       <BrowserRouter>
         <CoreProvider.Context.Provider value={this.base}>
           <ModalProvider {...this.fetchSelfProps()}>
-            {lang && lang.build.is("result") ? <Lang/> : null}
-            {icons && icons.build.is("result") ? <IcoDefs /> : null}
-            {page ? <PageProvider/> : null}
-            {build.is("result") ? this.props.children : null}
+            {build.is("result") ? [
+              <Lang/>,
+              <IcoDefs />,
+              <PageProvider/>,
+              this.props.children
+            ] : null}
             {trayBar}
           </ModalProvider>
         </CoreProvider.Context.Provider>

@@ -6,7 +6,6 @@ function IcoDefs() {
     const icons = Core.useSerf("icons");
     const straps = jet.get("object", Core.useVal("icons.straps"));
     const viewBox = Core.useVal("icons.viewBox");
-    console.log("DEFS", straps);
     const selfProps = {
         xmlns:'http://www.w3.org/2000/svg',
         xmlnsXlink:'http://www.w3.org/1999/xlink',
