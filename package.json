@@ -1,6 +1,6 @@
 {
   "name": "@randajan/react-app-core",
-  "version": "5.1.7",
+  "version": "5.2.0-0",
   "description": "Pack of core systems for react application",
   "license": "MIT",
   "repository": "randajan/react-app-core",
@@ -34,9 +34,7 @@
     "react-helmet": "^5.2.1",
     "react-router-dom": "^5.2.0"
   },
-  "dependencies": {
-
-  },
+  "dependencies": {},
   "devDependencies": {
     "@svgr/rollup": "^2.4.1",
     "babel-core": "^6.26.3",
