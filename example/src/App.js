@@ -51,10 +51,10 @@ const coreConfig = {
   apiUrl:"http://api.itcan.dev.itcan.cz",
   authPath:"sauth",
   authProviders:["google"],
-  onBuild:core=>{
+  atBuild:core=>{
     core.lock("query.fbclid");
   },
-  onInit:core=>{
+  onBuild:core=>{
 
   },
   trayBar:<TrayBar/>,

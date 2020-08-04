@@ -31,7 +31,7 @@ class Core extends Base {
         if (jet.isFull(PRIVATE)) { throw new Error("There could be just one instance of Core"); }
 
         const {
-            version, nostore, debug, onBuild, onInit, crashMsg,
+            version, nostore, debug, atBuild, onBuild, crashMsg,
             cryptKey, viewSizes, sessionUrl, apiUrl, 
             langList, langLibs, langDefault, 
             authPath, authProviders, 
@@ -44,13 +44,15 @@ class Core extends Base {
         PRIVATE.push(this);
         if (debug) { window.jet = jet; window.core = this; }
 
-        jet.run(onBuild, this);
+        jet.run(atBuild, this);
     
         jet.obj.addProperty(this, "build", this.tray.watch(
             async _=>{
                 this.mod("api", new Api(apiUrl, _=>this.get("auth.passport.authorization")));
 
                 await this.modMount(Lang, "lang", langLibs, langList, langDefault).build;
+                this.eye("auth.user.lang", lang=>this.set("lang.now", lang));
+
                 await Promise.all([
                     this.modMount(Auth, "auth", authPath, authProviders, sessionUrl, cryptKey).build,
                     this.modMount(Icons, "icons", iconsList, iconsSize).build,
@@ -59,12 +61,9 @@ class Core extends Base {
                     this.modMount(Client, "client"),
                     this.modMount(Page, "page"),
                 ]);
-        
-                this.eye("auth.user.lang", lang=>this.set("lang.now", lang));
                 this.eye("lang.now", lang=>this.set("auth.user.lang", lang));
         
-                //lang from page.search this.get("page.search.lang")
-                jet.run(onInit, this);
+                await jet.to("promise", onBuild, this);
             }, 
             {
                 running:"...",
