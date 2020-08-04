@@ -9,7 +9,8 @@ class Images extends Serf {
     constructor(core, path, files) {
         super(core, path);
 
-        this.fit("files", Core.fetchFiles);
+        files = Core.fetchFiles(files);
+        this.lock("files", files);
 
         this.set({ files });
     }

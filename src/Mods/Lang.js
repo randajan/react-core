@@ -46,10 +46,10 @@ class Lang extends Serf {
         }, null, false, true);
 
         this.fitType("book", "object");
-        this.fit("list", Lang.validateList);
+        this.fit("list", next=>Lang.validateList(next()));
 
-        this.fit((v,f)=>{
-            [v, f] = jet.get([["object", v], ["object", f]]);
+        this.fit((next, v, f)=>{
+            [v, f] = jet.get([["object", next()], ["object", f]]);
             v.def = Lang.validateLang([v.def, v.list[0]], v.list); 
             const now = v.now = Lang.validateLang([v.now, f.now, v.def], v.list);
             if (!v.book[now]) {

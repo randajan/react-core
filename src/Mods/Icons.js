@@ -6,7 +6,6 @@ import Core from "./Core";
 
 class Icons extends Serf {
 
-
     static svgStrap(svg) {
         return jet.get("string", svg).replace(/^[\S\s]*<svg [^>]*>/, "").replace(/<\/svg>[\S\s]*/, "");
     }
@@ -28,14 +27,12 @@ class Icons extends Serf {
     constructor(core, path, files, size) {
         super(core, path);
 
-        jet.obj.addProperty(this, {
-            pending:{},
-        }, null, false, true);
+        files = Core.fetchFiles(files);
+        this.lock("files", files);
 
         this.fitType("size", "number", 24);
-        this.fit("files", Core.fetchFiles);
-        this.fit(v=>{
-            v = jet.get("object", v);
+        this.fit(next=>{
+            const v = jet.get("object", next());
             v.viewBox = `0 0 ${v.size} ${v.size}`;
             return v;
         });

@@ -25,16 +25,15 @@ class Page extends Serf {
 
         const loc = window.location;
 
-        this.fitType("", "object");
-
-        this.fit("search", Page.parseSearch);
-        this.fit("hash", Page.parseHash);
-
-        this.fit(v=>{
+        this.fit((next, v)=>{
+            v = jet.get("object", v);
             v.protocol = loc.protocol;
             v.hostname = loc.hostname;
             v.port = loc.port;
             v.origin = loc.origin;
+            v.search = Page.parseSearch(v.search);
+            v.hash = Page.parseHash(v.hash);
+            v = next(v);
             const search = Page.buildSearch(v.search);
             v.path = v.pathname + (search ? "?"+search : "") + (v.hash ? "#"+v.hash : "");
             v.url = v.origin + v.path;

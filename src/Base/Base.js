@@ -163,9 +163,9 @@ class Base {
     pip(path, exe) { const rem = this.eye(path, exe), pip = this.eye(path, rem); return _=>jet.run([rem, pip]); }
 
     lock(path, val) { return this.fit(path, (v,f)=>val !== undefined ? val : f); }
-    fitTo(path, type, ...args) { return this.fit(path, v=>jet.to(type, v, ...args));  }
-    fitType(path, type, ...args) { return this.fit(path, v=>jet.get(type, v, ...args)); }
-    fitDefault(path, def) { return this.fit(path, v=>jet.isFull(v) ? v : def); }
+    fitTo(path, type, ...args) { return this.fit(path, next=>jet.to(type, next(), ...args)); }
+    fitType(path, type, ...args) { return this.fit(path, next=>jet.get(type, next(), ...args)); }
+    fitDefault(path, def) { return this.fit(path, next=>jet.get("full", next(), def)); }
 
     uniqPath(path) { return this._id+"_"+jet.str.to(path, "."); }
 

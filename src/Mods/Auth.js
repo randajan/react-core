@@ -8,17 +8,16 @@ class Auth extends Serf {
         super(core, path);
         const { tray, lang } = core;
 
-        this.fit("providers", v=>jet.arr.wrap(v));
+        this.fit("providers", next=>jet.arr.wrap(next()));
         this.fitTo("authPath", "string");
         this.fitType("login", "object");
         this.fitType("user", "object");
 
-        this.fitType("passport", "object");
-
-        this.fit("passport", v=>{
-             if (!v.access_token) { return {}; }
-             v.authorization = [v.token_type, v.access_token].joins(" ");
-             return v;
+        this.fit("passport", next=>{
+            const v = jet.get("object", next());
+            if (!v.access_token) { return {}; }
+            v.authorization = [v.token_type, v.access_token].joins(" ");
+            return v;
         });
 
         this.eye("passport.authorization", _=>
