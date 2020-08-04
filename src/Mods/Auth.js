@@ -6,11 +6,12 @@ class Auth extends Serf {
 
     constructor(core, path, authPath, providers, sessionUrl, cryptKey) {
         super(core, path);
-        const { api, tray, lang } = core;
+        const { tray, lang } = core;
 
         this.fit("providers", v=>jet.arr.wrap(v));
         this.fitTo("authPath", "string");
         this.fitType("login", "object");
+        this.fitType("user", "object");
 
         this.fitType("passport", "object");
 
@@ -20,38 +21,24 @@ class Auth extends Serf {
              return v;
         });
 
-        this.fit(v=>{
-            if (!v.user && jet.isEmpty(v.passport)) { v.user = this.storeLocal("user", cryptKey); }
-            v.user = jet.get("object", v.user);
-            return v;
-        });
-        
+        this.eye("passport.authorization", _=>
+            tray.watch(this.storeUser().fill(), g=>lang.spell(["core.auth.watch.user", g.state]))
+        )
 
-        this.eye("passport.authorization", token=>{
-            if (token) {
-                setTimeout(_=>
-                    tray.watch(
-                        this.storeRemote("user", api.getJSON("user"), data=>api.post("user", data))
-                            .then(data=>this.set("user", data)), 
-                        g=>lang.spell(["core.auth.watch.user", g.state])
-                    )
-                )
-            }
-        })
+        jet.obj.addProperty(this, "build", tray.watch(
+            async _=>{
+                const passport = await this.storeSession("passport", sessionUrl, cryptKey).load();
+                const user = await this.storeUser(cryptKey).load();
 
-        const set = {
-            authPath,
-            providers
-        }
-
-        if (!sessionUrl) { set.passport = this.storeLocal("passport", cryptKey); }
-        else {
-            tray.watch(this.storeSession("passport", sessionUrl, cryptKey).then(data=>this.set("passport", data)),
-            g=>serf.lang.spell(["core.auth.watch.session", g.state])
-            );
-        }
-
-        this.set(set);
+                this.set({
+                    authPath,
+                    providers,
+                    passport,
+                    user,
+                });
+            },
+            g=>lang.spell(["core.auth.watch.session", g.state])
+        ));
 
     }
 
@@ -77,6 +64,10 @@ class Auth extends Serf {
             api.postJSON(this.get("authPath")+"/token", api.toForm({ code })), 
             g=>lang.spell(["core.auth.watch.passport", g.state])
         )
+    }
+
+    storeUser(cryptKey) {
+        return this.isFull("passport.authorization") ? this.storeApi("user", "user") : this.storeLocal("user", cryptKey);
     }
 
     // getMenu() {

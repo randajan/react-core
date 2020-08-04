@@ -6,12 +6,30 @@ import Core from "./Core";
 
 class Icons extends Serf {
 
+
+    static svgStrap(svg) {
+        return jet.get("string", svg).replace(/^[\S\s]*<svg [^>]*>/, "").replace(/<\/svg>[\S\s]*/, "");
+    }
+
+    static async fetchSvg(file) {
+        return await fetch(file).then(resp=>resp.text())
+    }
+
+    static async fetchAll(files) {
+        const straps = {};
+        const prom = [];
+        jet.obj.map(files, (v,k)=>{
+            prom.push(Icons.fetchSvg(v).then(svg=>straps[k] = Icons.svgStrap(svg)))
+        });
+        await Promise.all(prom);
+        return straps;
+    }
+
     constructor(core, path, files, size) {
         super(core, path);
 
         jet.obj.addProperty(this, {
             pending:{},
-            straps:this.open("straps"),
         }, null, false, true);
 
         this.fitType("size", "number", 24);
@@ -22,38 +40,22 @@ class Icons extends Serf {
             return v;
         });
 
-        this.set({
-            straps:this.straps.storeLocal(),
-            size,
-            files,
-        });
+        jet.obj.addProperty(this, "build", core.tray.watch(
+            async _=>{
+                const straps = await this.storeLocal("straps").load() || await Icons.fetchAll(files);
 
-        if (this.straps.isEmpty()) {
-            core.tray.watch(this.fetchAll(), g=>core.lang.spell(["core.icons.watch", g.state]))
-        }
+                this.set({
+                    size,
+                    files,
+                    straps
+                });
+            },
+            g=>core.lang.spell(["core.icons.watch", g.state])
+        ));
+
     }
 
     getId(src) { return [...this.path.split("."), src].joins("-"); }
-
-    async fetchAll() {
-        const files = this.get("files");
-        const straps = {};
-        const prom = [];
-        jet.obj.map(files, (v,k)=>{
-            prom.push(Icons.fetchSvg(v).then(svg=>straps[k] = Icons.svgStrap(svg)))
-        });
-        await Promise.all(prom);
-        this.set("straps", straps);
-        return straps;
-    }
-
-    static svgStrap(svg) {
-        return jet.get("string", svg).replace(/^[\S\s]*<svg [^>]*>/, "").replace(/<\/svg>[\S\s]*/, "");
-    }
-
-    static async fetchSvg(file) {
-        return await fetch(file).then(resp=>resp.text())
-    }
 
 }
 

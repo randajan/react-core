@@ -34,18 +34,18 @@ class Tray extends Serf {
             else { this.push({pending:{[id]:null}, [state]:{[id]:msg}}); }
         });
 
-        if (eng.msg && (eng.is("waiting") || eng.is("pending"))) {
+        if (eng.msg && eng.pending) {
             this.set(["pending", id], eng.msg);
         }
 
         return eng;
     }
 
-    getPending() { return this.get("pending"); }
-    getCancel() { return this.get("cancel"); }
-    getTimeout() { return this.get("timeout"); }
-    getError() { return this.get("error"); }
-    getResult() { return this.get("result"); }
+    getPending() { return jet.arr.to(this.get("pending")).filter(_=>_); }
+    getCancel() { return jet.arr.to(this.get("cancel")).filter(_=>_); }
+    getTimeout() { return jet.arr.to(this.get("timeout")).filter(_=>_); }
+    getError() { return jet.arr.to(this.get("error")).filter(_=>_); }
+    getResult() { return jet.arr.to(this.get("result")).filter(_=>_); }
 
     isPending() { return this.isFull("pending"); }
     isCancel() { return this.isFull("cancel"); }

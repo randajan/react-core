@@ -3,7 +3,7 @@ import React from "react";
 
 import { Helmet } from "react-helmet";
 
-import Core from "../Mods/Core";
+import Core from "./CoreProvider";
 
 function Lang() {
     const [ lang ] = Core.useKey("lang.now");

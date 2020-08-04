@@ -14,7 +14,7 @@ class Serf {
 
         ([
             "get", "is", "getType", "isType", "isFull", "isEmpty", "pull", "rem", "lock", "open", "fitTo", "fitType", "fitDefault",
-            "store", "restoreSync", "restoreAsync", "storeLocal", "storeRemote", "storeSession"
+            "store", "storeLocal", "storeSession", "storeApi"
         ]).map(k=>{
             jet.obj.addProperty(this, k, (path, ...args)=>parent[k]([this.path, path], ...args));
         });
@@ -23,7 +23,7 @@ class Serf {
             jet.obj.addProperty(this, k, (path, value, force)=>parent[k](...this.untieArgs(path, value, force, "object", "boolean", true)));
         });
 
-        jet.obj.map({"eye":"function", "spy":"function", "fit":"function"}, (t,k)=>{
+        jet.obj.map({eye:"function", spy:"function", fit:"function", pip:"function"}, (t,k)=>{
             jet.obj.addProperty(this, k, (path, exe, after)=>parent[k](...this.untieArgs(path, exe, after, t, "function")));
         })
 

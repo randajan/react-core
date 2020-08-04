@@ -4,14 +4,34 @@ import { NavLink } from "react-router-dom";
 
 import jet from "@randajan/jetpack";
 
-import Core, { CoreProvider, Images, Lang, View, Query, Ico, Img, PopUp, Base} from '@randajan/react-app-core';
+import Core, { CoreProvider, Ico, Img, Modal } from '@randajan/react-app-core';
+
+
+function TrayBar() {
+  const tray = Core.use("tray");
+  const pop = Modal.usePop();
+
+  console.log("RERENDER TRAY");
+
+  useEffect(_=>{
+    if (tray.isError()) {
+      pop.up({children:tray.getError().map((v,k)=><p key={k}>{v}</p>)});
+    }  
+  })
+
+  return (
+    <div className="TrayBar">
+      {tray.getPending().map((v,k)=><p key={k}>{v}</p>)}
+    </div>
+  );
+}
 
 const coreConfig = {
   //nostore:true,
   debug:true,
   version:"1.0.5",
   cryptKey:"XYZ",
-  langFallback:"en",
+  langDefault:"en",
   langList:["en", "cs"],
   langLibs:[
     {priority:10, list:["cs"], path:"index", fetch:lang=>fetch("/index.html").then(data=>data.text())}, 
@@ -31,15 +51,14 @@ const coreConfig = {
   apiUrl:"http://api.itcan.dev.itcan.cz",
   authPath:"sauth",
   authProviders:["google"],
-  beforeBuild:core=>{
+  onBuild:core=>{
     core.lock("query.fbclid");
   },
-  afterBuild:core=>{
+  onInit:core=>{
 
   },
-  onLoad:Provider=>{
-    //Provider.Core.addAndRunOnChange(View=>Provider.setState({view:View.size}), "View");
-  }
+  trayBar:<TrayBar/>,
+  crashMsg:"Critical error please contact our support info@itcan.cz"
 }
 
 function Example() {
@@ -83,9 +102,6 @@ function Example() {
         <Img src="menu"/>
         <Img src="menu"/>
       </div>
-
-
-
     </div>
   )
 }
@@ -96,6 +112,7 @@ function ShowKey(props) {
     console.log("Rerender", path);
     return (<tr><td>{path}</td><td>{jet.is("function", format) ? format(key) : key}</td></tr>)
 }
+
 
 export default class App extends Component {
   render () {

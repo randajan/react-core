@@ -21,7 +21,7 @@
     "deploy": "gh-pages -d example/build"
   },
   "peerDependencies": {
-    "@randajan/jetpack": "^4.4.2",
+    "@randajan/jetpack": "^4.4.5",
     "@randajan/react-jetpack": "^1.0.3",
     "@randajan/react-popup": "^3.1.1",
     "crypto-js": "^4.0.0",
@@ -34,7 +34,9 @@
     "react-helmet": "^5.2.1",
     "react-router-dom": "^5.2.0"
   },
-  "dependencies": {},
+  "dependencies": {
+
+  },
   "devDependencies": {
     "@svgr/rollup": "^2.4.1",
     "babel-core": "^6.26.3",

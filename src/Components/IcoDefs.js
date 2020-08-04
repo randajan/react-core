@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Core from "../Mods/Core";
+import Core from "./CoreProvider";
 
 function IcoDefs() {
     const icons = Core.useSerf("icons");

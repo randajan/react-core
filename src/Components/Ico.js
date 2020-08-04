@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { css } from "@randajan/react-popup";
 
-import Core from "../Mods/Core";
+import Core from "./CoreProvider";
 
 const cn = css.open();
 

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { withRouter } from "react-router-dom";
 
-import Core from "../Mods/Core";
+import Core from "./CoreProvider";
 
 import jet from '@randajan/jetpack';
 

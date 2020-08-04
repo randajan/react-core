@@ -1,5 +1,5 @@
 
-import React, { Component, useContext } from 'react'
+import React from 'react'
 import { BrowserRouter } from "react-router-dom";
 
 import jet from "@randajan/react-jetpack";
@@ -11,26 +11,22 @@ import IcoDefs from "./IcoDefs";
 import PageProvider from "./PageProvider";
 import Lang from "./Lang";
 
-class CoreProvider extends Component {
+import BaseProvider from "../Base/Provider";
 
-  static Context = React.createContext();
-  static use() { return useContext(CoreProvider.Context); }
+class CoreProvider extends BaseProvider {
+
+  static useApi() {
+      return CoreProvider.useSerf().api;
+  }
 
   static defaultFlags = {
-    pending: p => p.core.tray.isPending(),
-    error: p => p.core.tray.isError(),
+    //pending: c => c.tray.isPending(),
+    //error: c => c.tray.isError(),
   }
 
-  constructor(props) {
-    super(props);
-    jet.obj.addProperty(this, {
-      core: Core.create(props),
-    });
+  build(props) {
+    return Core.create(props);
   }
-  componentDidMount() {
-    this.cleanUp = this.core.eye(provider => this.forceUpdate());
-  }
-  componentWillUnmount() { this.cleanUp(); }
 
   getBody() {
     return jet.obj.get(this, "refs.modal.refs.body");
@@ -42,21 +38,24 @@ class CoreProvider extends Component {
     return {
       id, className, ref:"modal",
       onLoad: _ => jet.run(onLoad, this),
-      flags:jet.react.fetchFlags({ ...CoreProvider.defaultFlags, ...flags }, this)
+      flags:jet.react.fetchFlags({ ...CoreProvider.defaultFlags, ...flags }, this.base)
     };
 
   }
 
   render() {
-    this.core.debugLog("Render", "CoreProvider");
+    const { trayBar } = this.props;
+    const { build, lang, icons, page } = this.base;
+
     return (
       <BrowserRouter>
-        <CoreProvider.Context.Provider value={this}>
+        <CoreProvider.Context.Provider value={this.base}>
           <ModalProvider {...this.fetchSelfProps()}>
-            <Lang/>
-            <IcoDefs />
-            <PageProvider/>
-            {this.props.children}
+            {lang && lang.build.is("result") ? <Lang/> : null}
+            {icons && icons.build.is("result") ? <IcoDefs /> : null}
+            {page ? <PageProvider/> : null}
+            {build.is("result") ? this.props.children : null}
+            {trayBar}
           </ModalProvider>
         </CoreProvider.Context.Provider>
       </BrowserRouter>
