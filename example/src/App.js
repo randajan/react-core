@@ -87,7 +87,9 @@ function Example() {
           <ShowKey path="tray.result" />
           <ShowKey path="lang.now" />
           <ShowKey path="view" format={k=>jet.react.fetchFlags(k).joins(" ")} />
-          <ShowKey path="query" format={jet.obj.toJSON} />
+          <ShowKey path="test.test" />
+          <ShowKey path="page.title" />
+          <ShowKey path="page.search" format={jet.obj.toJSON} />
         </tbody>
       </table>
       <h2>Icons</h2>
@@ -109,7 +111,9 @@ function Example() {
 function ShowKey(props) {
     const { path, format } = props;
     const [ key ] = Core.useKey(path);
-    console.log("Rerender", path);
+    const core = Core.useSerf();
+    console.log("Rerender", path, key, core.get(path));
+    useEffect(_=>console.log(path, core.getDuty("eye", path), key, core.get(path)));
     return (<tr><td>{path}</td><td>{jet.is("function", format) ? format(key) : key}</td></tr>)
 }
 

@@ -1,5 +1,7 @@
 import React from 'react'
 
+import jet from "@randajan/react-jetpack"
+
 import Core from "./CoreProvider";
 
 function IcoDefs() {

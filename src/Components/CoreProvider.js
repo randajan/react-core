@@ -45,18 +45,20 @@ class CoreProvider extends BaseProvider {
 
   render() {
     const { trayBar } = this.props;
-    const { build, lang, icons, page } = this.base;
+    const { build } = this.base;
 
     return (
       <BrowserRouter>
         <CoreProvider.Context.Provider value={this.base}>
           <ModalProvider {...this.fetchSelfProps()}>
-            {build.is("result") ? [
-              <Lang/>,
-              <IcoDefs />,
-              <PageProvider/>,
-              this.props.children
-            ] : null}
+            {build.is("result") ? 
+              <React.Fragment>
+                <Lang/>
+                <IcoDefs />
+                {this.props.children}
+                <PageProvider/>
+              </React.Fragment>
+            : null}
             {trayBar}
           </ModalProvider>
         </CoreProvider.Context.Provider>
