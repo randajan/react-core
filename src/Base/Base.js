@@ -118,6 +118,7 @@ class Base {
     }
 
     set(path, value, force) {
+        const ms = new Date();
         path = jet.str.to(path, ".");
         force = jet.get("boolean", force, true);
         if (!path) { throw new BaseErr("The first argument of set (path) can't be empty"); }
@@ -132,7 +133,7 @@ class Base {
 
         if (jet.isFull(changes)) { Base.run(this._duty, this._data, changes); }
 
-        this.debugLog("changes", changes);
+        this.debugLog("changes", new Date()-ms, changes);
         return changes;
     }
 
