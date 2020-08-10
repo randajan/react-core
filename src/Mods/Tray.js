@@ -1,7 +1,7 @@
 
 import jet from "@randajan/jetpack";
 
-import Serf from "./Serf";
+import Serf from "../Base/Serf";
 
 class Tray extends Serf {
 

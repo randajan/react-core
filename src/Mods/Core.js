@@ -4,6 +4,7 @@ import jet from "@randajan/react-jetpack";
 import Base from "../Base/Base";
 import Api from "../Base/Api";
 
+import Tray from "./Tray";
 import Page from "./Page";
 import View from "./View";
 import Client from "./Client";
@@ -45,21 +46,23 @@ class Core extends Base {
         if (debug) { window.jet = jet; window.core = this; }
 
         jet.run(atBuild, this);
-    
+
+        this.modMount("tray", Tray);
+
         jet.obj.addProperty(this, "build", this.tray.watch(
             async _=>{
                 this.mod("api", new Api(apiUrl, _=>this.get("auth.passport.authorization")));
-
-                await this.modMount(Lang, "lang", langLibs, langList, langDefault).build;
+                
+                await this.modMount("lang", Lang, langLibs, langList, langDefault).build;
                 this.eye("auth.user.lang", lang=>this.set("lang.now", lang));
 
                 await Promise.all([
-                    this.modMount(Auth, "auth", authPath, authProviders, sessionUrl, cryptKey).build,
-                    this.modMount(Icons, "icons", iconsList, iconsSize).build,
-                    this.modMount(Images, "images", imagesList),
-                    this.modMount(View, "view", viewSizes),
-                    this.modMount(Client, "client"),
-                    this.modMount(Page, "page"),
+                    this.modMount("auth", Auth, authPath, authProviders, sessionUrl, cryptKey).build,
+                    this.modMount("icons", Icons, iconsList, iconsSize).build,
+                    this.modMount("images", Images, imagesList),
+                    this.modMount("view", View, viewSizes),
+                    this.modMount("client", Client),
+                    this.modMount("page", Page),
                 ]);
                 this.eye("lang.now", lang=>this.set("auth.user.lang", lang));
         
@@ -78,8 +81,8 @@ class Core extends Base {
         return mod;
     }
 
-    modMount(proto, path, ...args) {
-        return this.mod(path, this.mount(proto, path, ...args));
+    modMount(path, ...args) {
+        return this.mod(path, this.mount(path, ...args));
     }
 
 }

@@ -13,7 +13,8 @@ class Serf {
         jet.obj.addProperty(this, { parent, path });
 
         ([
-            "get", "is", "getType", "isType", "isFull", "isEmpty", "pull", "rem", "lock", "open", "fitTo", "fitType", "fitDefault",
+            "get", "is", "getType", "isType", "isFull", "isEmpty", "pull", "rem", "lock", 
+            "tag", "open", "mount", "fitTo", "fitType", "fitDefault",
             "store", "storeLocal", "storeSession", "storeApi"
         ]).map(k=>{
             jet.obj.addProperty(this, k, (path, ...args)=>parent[k]([this.path, path], ...args));
@@ -34,10 +35,6 @@ class Serf {
         const arg = untieArgs(...args);
         arg[0] = [this.path, arg[0]];
         return arg;
-    }
-
-    mount(prototype, path, ...args) {
-        return this.parent.mount(prototype, [this.path, path], ...args);
     }
 
     toString() { return this.path; }

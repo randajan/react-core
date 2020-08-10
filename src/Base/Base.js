@@ -6,7 +6,6 @@ import { BaseErr, filterChanges, untieArgs } from "./Helpers";
 import Crypt from "./Crypt";
 
 import Serf from "./Serf";
-import Tray from "./Tray";
 import Api from "./Api";
 
 let BID = 0;
@@ -81,6 +80,7 @@ class Base {
                 fit:{},
                 eye:{},
                 spy:{},
+                pipe:{},
                 store:{},
             })
         });
@@ -89,17 +89,17 @@ class Base {
         this.fitTo("_.nostore", "boolean");
         this.fitTo("_.debug", "boolean");
 
-        jet.obj.addProperty(this, "tray", this.mount(Tray, "tray"), false, true);
-
     }
 
-    mount(Prototype, path, ...args) {
+    tag(path) { return this._id+"_"+jet.str.to(path, "."); }
+
+    mount(path, Prototype, ...args) {
         path = jet.str.to(path, ".");
-        if (Prototype.$$symbol !== Serf.$$symbol) { throw new BaseErr("Passed invalid first argument (prototype) to Base.mount. Must be Serf or extend Serf"); }
+        if (Prototype.$$symbol !== Serf.$$symbol) { throw new BaseErr("Passed invalid second argument (prototype) to Base.mount. Must be Serf or extend Serf"); }
         return this.serf[path] = this.serf[path] || new Prototype(this, path, ...args);
     }
 
-    open(path, ...args) { return jet.isEmpty(path) ? this : this.mount(Serf, path, ...args); }
+    open(path, ...args) { return jet.isEmpty(path) ? this : this.mount(path, Serf, ...args); }
 
     is(path, value) { return this.get(path) === value; }
     isType(path, type, soft) { return jet.is(type, this.get(path), soft); }
@@ -123,15 +123,20 @@ class Base {
         force = jet.get("boolean", force, true);
         if (!path) { throw new BaseErr("The first argument of set (path) can't be empty"); }
 
+        const pipe = path.split(".")[0];
+        const data = {[pipe]:this._data[pipe]};
+
         const oldval = this.get(path);
         if (oldval && !force) { return []; }
 
         const to = jet.obj.set({}, path, value, true);
-        const from = Base.fit(this._duty, this._data, path, to);
+        const from = Base.fit(this._duty, data, path, to);
+        
+        this._data[pipe] = data[pipe];
 
-        const changes = jet.obj.compare(this._data, from);
+        const changes = jet.obj.compare(data, from);
 
-        if (jet.isFull(changes)) { Base.run(this._duty, this._data, changes); }
+        if (jet.isFull(changes)) { Base.run(this._duty, data, changes); }
 
         this.debugLog("changes", new Date()-ms, changes);
         return changes;
@@ -160,15 +165,13 @@ class Base {
     
     eye(path, exe) { return this.addDuty("eye", path, exe); }
     spy(path, exe) { return this.addDuty("spy", path, exe); }
-    fit(path, exe) { return this.addDuty("fit", path, exe); }
     pip(path, exe) { const rem = this.eye(path, exe), pip = this.eye(path, rem); return _=>jet.run([rem, pip]); }
+    fit(path, exe) { return this.addDuty("fit", path, exe); }
 
     lock(path, val) { return this.fit(path, (v,f)=>val !== undefined ? val : f); }
     fitTo(path, type, ...args) { return this.fit(path, next=>jet.to(type, next(), ...args)); }
     fitType(path, type, ...args) { return this.fit(path, next=>jet.get(type, next(), ...args)); }
     fitDefault(path, def) { return this.fit(path, next=>jet.get("full", next(), def)); }
-
-    uniqPath(path) { return this._id+"_"+jet.str.to(path, "."); }
 
     store(path, load, save, cryptKey) {
         path = jet.str.to(path, ".");
@@ -203,15 +206,15 @@ class Base {
     storeLocal(path, cryptKey) {
         return this.store(
             path,
-            (p, v, n)=>n ? null :Base.unpackData(v, localStorage.getItem(this.uniqPath(p))), 
-            (d, p, v, n)=>n ? null : localStorage.setItem(this.uniqPath(p), Base.packData(v, d)),
+            (p, v, n)=>n ? null :Base.unpackData(v, localStorage.getItem(this.tag(p))), 
+            (d, p, v, n)=>n ? null : localStorage.setItem(this.tag(p), Base.packData(v, d)),
             cryptKey
         );
     }
 
     storeSession(path, url, cryptKey) {
         if (!url) {
-            console.warn("Base path '"+this.uniqPath(path)+"' will be stored locally because url was not provided");
+            console.warn("Base path '"+this.tag(path)+"' will be stored locally because url was not provided");
             return this.storeLocal(path, cryptKey);
         }
         return this.store(path, 
@@ -224,7 +227,7 @@ class Base {
     storeApi(path, url, api) {
         api = api || this.api;
         if (!url || !jet.is(Api, api)) {
-            console.warn("Base path '"+this.uniqPath(path)+"' will be stored locally because url or api was not provided");
+            console.warn("Base path '"+this.tag(path)+"' will be stored locally because url or api was not provided");
             return this.storeLocal(path, cryptKey);
         }
         return this.store(path, 
