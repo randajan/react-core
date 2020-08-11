@@ -16,7 +16,11 @@ import BaseProvider from "../Base/Provider";
 class CoreProvider extends BaseProvider {
 
   static useMod(name) {
-      return CoreProvider.useSerf()[name];
+    return CoreProvider.useSerf()[name];
+  }
+
+  static useApi() {
+    return CoreProvider.useMod("api");
   }
 
   static defaultFlags = {

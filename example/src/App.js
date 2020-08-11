@@ -63,7 +63,8 @@ const coreConfig = {
 
 function Example() {
   console.log("Render", "Example");
-
+  const api = Core.useApi();
+  console.log(api);
   return (
     <div className="Example">
       <h1>Majestic APP</h1>
