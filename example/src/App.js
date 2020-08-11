@@ -54,11 +54,29 @@ const coreConfig = {
   atBuild:core=>{
     core.lock("query.fbclid");
   },
-  onBuild:core=>{
-
-  },
   trayBar:<TrayBar/>,
-  crashMsg:"Critical error please contact our support info@itcan.cz"
+  crashMsg:"Critical error please contact our support info@itcan.cz",
+  onBuild:async core=>{
+
+    //title page change
+    core.fit("page", next=>{
+        const v = next();
+        v.title = "TEST APP";
+        delete v.search["fbclid"];
+        return v;
+    })
+
+    //auto authenticate user
+    core.fit("page", next=>{
+        const page = next();
+
+        if (page.pathname === "/user" && page.search.code) {
+            core.auth.setPassport(page.search.code);
+            delete page.search.code;
+        }
+        return page;
+    });
+  }
 }
 
 function Example() {

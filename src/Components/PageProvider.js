@@ -8,25 +8,31 @@ import Core from "./CoreProvider";
 
 function PageProvider({ location, history }) {
   const page = Core.useSerf("page");
+  
 
   useEffect(_=>{
     let f, t;
+    const {pathname, search} = location;
 
     const cleanUp = [
       page.eye("title", _=> document.title = page.get("title")),
       page.eye("path", path=>{
-        t = true;
-        history[f ? "replace" : "push"](path);
-        t = false;
+        if (!t) {
+          t = true;
+          history[f ? "replace" : "push"](path);
+          t = false;
+        }
       }),
-      history.listen((location)=>{
-        f = true;
-        if (!t) { page.set(location); }
-        f = false;
+      history.listen(({pathname, search})=>{
+        if (!t && !f) {
+          f = true;
+          page.set({pathname, search});
+          f = false;
+        }
       })
     ];
 
-    page.set(location);
+    page.set({pathname, search});
     return _=>jet.run(cleanUp);
   }, []);
 
