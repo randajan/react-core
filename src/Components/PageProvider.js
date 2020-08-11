@@ -1,34 +1,34 @@
 import { useEffect } from 'react'
 import { withRouter } from "react-router-dom";
 
+import jet from "@randajan/jetpack";
+
 import Core from "./CoreProvider";
 
-function PageProvider(props) {
-  const { location, history } = props;
-  const { pathname, search } = location;
 
+function PageProvider({ location, history }) {
   const page = Core.useSerf("page");
-  let update = false;
 
-  //title
-  useEffect(_=>page.eye("title", _=> document.title = page.get("title")), []);
+  useEffect(_=>{
+    let f, t;
 
-  //from base.page
-  useEffect(_=>page.eye("path", path=>{
-    if (update) { return; }
-    update = true;
-    history.push(path);
-    update = false
-  }), []);
+    const cleanUp = [
+      page.eye("title", _=> document.title = page.get("title")),
+      page.eye("path", path=>{
+        t = true;
+        history[f ? "replace" : "push"](path);
+        t = false;
+      }),
+      history.listen((location)=>{
+        f = true;
+        if (!t) { page.set(location); }
+        f = false;
+      })
+    ];
 
-  //to base.page
-  useEffect(_ =>{
-    if (update) { return; }
-    update = true;
-    page.set({ pathname, search });
-    history.replace(page.get("path"));
-    update = false;
-  }, [pathname, search]);
+    page.set(location);
+    return _=>jet.run(cleanUp);
+  }, []);
 
   return null;
 

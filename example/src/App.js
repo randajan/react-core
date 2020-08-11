@@ -90,7 +90,7 @@ function Example() {
           <ShowKey path="view" format={k=>jet.react.fetchFlags(k).joins(" ")} />
           <ShowKey path="test.test" />
           <ShowKey path="page.title" />
-          <ShowKey path="page.search" format={jet.obj.toJSON} />
+          <ShowKey path="page.path" />
         </tbody>
       </table>
       <h2>Icons</h2>
