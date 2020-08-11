@@ -69,7 +69,7 @@ class Core extends Base {
                 await jet.to("promise", onBuild, this);
             }, 
             {
-                running:"...",
+                result:eng=>"Loaded in "+eng.timein+"ms",
                 error:crashMsg
             }
         ));
