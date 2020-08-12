@@ -12,7 +12,6 @@ function PageProvider({ location, history }) {
 
   useEffect(_=>{
     let f, t;
-    const {pathname, search} = location;
 
     const cleanUp = [
       page.eye("title", _=> document.title = page.get("title")),
@@ -23,16 +22,16 @@ function PageProvider({ location, history }) {
           t = false;
         }
       }),
-      history.listen(({pathname, search})=>{
+      history.listen((location)=>{
         if (!t && !f) {
           f = true;
-          page.set({pathname, search});
+          page.set(location);
           f = false;
         }
       })
     ];
 
-    page.set({pathname, search});
+    page.set(location);
     return _=>jet.run(cleanUp);
   }, []);
 
