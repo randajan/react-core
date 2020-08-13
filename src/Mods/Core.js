@@ -48,6 +48,7 @@ class Core extends Base {
         jet.run(atBuild, this);
 
         this.modMount("tray", Tray);
+        this.modMount("page", Page);
 
         jet.obj.addProperty(this, "build", this.tray.watch(
             async _=>{
@@ -62,7 +63,6 @@ class Core extends Base {
                     this.modMount("images", Images, imagesList),
                     this.modMount("view", View, viewSizes),
                     this.modMount("client", Client),
-                    this.modMount("page", Page),
                 ]);
                 this.eye("lang.now", lang=>this.set("auth.user.lang", lang));
         
