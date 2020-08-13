@@ -76,13 +76,14 @@ const coreConfig = {
         }
         return page;
     });
+
+    core.eye("page", page=>console.log("EYEPAGE", page));
   }
 }
 
 function Example() {
-  console.log("Render", "Example");
   const api = Core.useApi();
-  console.log(api);
+
   return (
     <div className="Example">
       <h1>Majestic APP</h1>
@@ -108,7 +109,7 @@ function Example() {
           <ShowKey path="view" format={k=>jet.react.fetchFlags(k).joins(" ")} />
           <ShowKey path="test.test" />
           <ShowKey path="page.title" />
-          <ShowKey path="page.path" />
+          <ShowPage path="page.path" />
         </tbody>
       </table>
       <h2>Icons</h2>
@@ -132,9 +133,17 @@ function ShowKey(props) {
     const [ key ] = Core.useKey(path);
     const core = Core.useSerf();
     console.log("Rerender", path, key, core.get(path));
-    useEffect(_=>console.log(path, core.getDuty("eye", path), key, core.get(path)));
     return (<tr><td>{path}</td><td>{jet.is("function", format) ? format(key) : key}</td></tr>)
 }
+
+function ShowPage(props) {
+  const { path, format } = props;
+  const [ key ] = Core.useKey(path);
+  const core = Core.useSerf();
+  console.log("REPAGE", path, key, core.get(path));
+  return (<tr><td>{path}</td><td>{jet.is("function", format) ? format(key) : key}</td></tr>)
+}
+
 
 
 export default class App extends Component {

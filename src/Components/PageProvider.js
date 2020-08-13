@@ -9,7 +9,6 @@ import Core from "./CoreProvider";
 function PageProvider({ location, history }) {
   const page = Core.useSerf("page");
   
-
   useEffect(_=>{
     let f, t;
 
@@ -30,7 +29,7 @@ function PageProvider({ location, history }) {
         }
       })
     ];
-
+    
     page.set(location);
     return _=>jet.run(cleanUp);
   }, []);

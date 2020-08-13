@@ -1,5 +1,5 @@
 
-import React, { Component, useContext, useEffect } from 'react'
+import React, { Component, useState, useContext, useEffect } from 'react'
 
 import jet, { useForceRender } from "@randajan/react-jetpack";
 
@@ -14,7 +14,8 @@ class Provider extends Component {
   static useEye(path) {
       const base = Provider.useContext();
       const rerender = useForceRender();
-      useEffect(_=>base.eye(path, rerender), []);
+      const cleanUp = useState(_=>base.eye(path, rerender))[0];
+      useEffect(_=>cleanUp, []);
       return base;
   }
 

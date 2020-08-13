@@ -57,10 +57,11 @@ class CoreProvider extends BaseProvider {
           <ModalProvider {...this.fetchSelfProps()}>
             {build.is("result") ? 
               <React.Fragment>
+                <PageProvider/>
                 <Lang/>
                 <IcoDefs />
                 {this.props.children}
-                <PageProvider/>
+                
               </React.Fragment>
             : null}
             {trayBar}
