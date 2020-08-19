@@ -109,7 +109,7 @@ function Example() {
           <ShowKey path="view" format={k=>jet.react.fetchFlags(k).joins(" ")} />
           <ShowKey path="test.test" />
           <ShowKey path="page.title" />
-          <ShowPage path="page.path" />
+          <ShowKey path="page.path" />
         </tbody>
       </table>
       <h2>Icons</h2>
@@ -134,14 +134,6 @@ function ShowKey(props) {
     const core = Core.useSerf();
     console.log("Rerender", path, key, core.get(path));
     return (<tr><td>{path}</td><td>{jet.is("function", format) ? format(key) : key}</td></tr>)
-}
-
-function ShowPage(props) {
-  const { path, format } = props;
-  const [ key ] = Core.useKey(path);
-  const core = Core.useSerf();
-  console.log("REPAGE", path, key, core.get(path));
-  return (<tr><td>{path}</td><td>{jet.is("function", format) ? format(key) : key}</td></tr>)
 }
 
 

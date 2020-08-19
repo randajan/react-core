@@ -1,5 +1,12 @@
 import jet from "@randajan/jetpack";
 
+class ApiErr extends Error {
+    constructor(...msgs) {
+        super(msgs.joins(" "));
+        this.name = "ApiError"; // (different names for different built-in error classes)
+    }
+}
+
 class Api {
 
     static toForm(obj) {
@@ -55,12 +62,15 @@ class Api {
     }
 
     async fetchJSON(method, path, body, headers) {
-        let reply = "";
+        let resp, reply;
         try {
-            reply = await this.fetch(method, path, body, headers).then(resp=>resp.text())
-            return JSON.parse(reply);
+            resp = await this.fetch(method, path, body, headers);
+            reply = resp.body = JSON.parse(reply = await resp.text());
+            const { ok, url, status, statusText } = resp;
+            if (!ok) { throw new ApiErr(method, url, status, statusText); }
+            return reply;
         } catch (error) {
-            this.error.push({ method, path, body, headers, reply, error})
+            this.error.push({ method, path, body, headers, error, resp, reply})
             throw error;
         }
     }
