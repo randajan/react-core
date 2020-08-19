@@ -65,7 +65,7 @@ class Api {
         let resp, reply;
         try {
             resp = await this.fetch(method, path, body, headers);
-            reply = resp.body = JSON.parse(reply = await resp.text());
+            reply = JSON.parse(reply = await resp.text());
             const { ok, url, status, statusText } = resp;
             if (!ok) { throw new ApiErr(method, url, status, statusText); }
             return reply;
