@@ -9,7 +9,7 @@ import Icons from "./Mods/Icons";
 import Images from "./Mods/Images";
 import Lang from "./Mods/Lang";
 import Page from "./Mods/Page";
-import View from "./Mods/View";
+import Screen from "./Mods/Screen";
 
 import Base from "./Base/Base";
 import Serf from "./Base/Serf";
@@ -39,7 +39,7 @@ export {
   Images,
   Lang,
   Page,
-  View,
+  Screen,
 
   Crypt,
   LangLib,

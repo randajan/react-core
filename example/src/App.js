@@ -106,7 +106,7 @@ function Example() {
           <ShowKey path="tray.error" />
           <ShowKey path="tray.result" />
           <ShowKey path="lang.now" />
-          <ShowKey path="view" format={k=>jet.react.fetchFlags(k).joins(" ")} />
+          <ShowKey path="screen" format={k=>jet.react.fetchFlags(k).joins(" ")} />
           <ShowKey path="test.test" />
           <ShowKey path="page.title" />
           <ShowKey path="page.path" />

@@ -154,49 +154,52 @@ name | parent | purpose | 3rd scripts
 --- | --- | --- | --- 
 Core | - | Container for everything | __Helmet__
 Tray | Core | Handle and log every Core Task such as initialization process, loading modules, login user and selecting lang | -
-Query | Core | Handle query string and backpropagate changes to url | __query-string__
-Crypt | Core | Take care of crypting and decrypting everything | __crypt-js__
-View | Core | Collecting information about client and window size | __react-device-detect__
-Storage | Core | Saving and loading localStorage data | -
-Session | Core | Saving and loading sensitive data | -
+Page | Core | Collecting information about page like path, title, query, hash | __query-string__
+Crypt | - | Take care of crypting and decrypting everything | __crypt-js__
+Screen | Core | Collecting information about screen size | -
+Client | Core | Collecting information about client | __react-device-detect__
 Auth | Core | Manage Users and authorization via oauth | -
 User | Auth | Keep user profile | -
 Api | Core | Shorthand for fetching data from Rest Api | -
 Lang | Core | Responsible for select language, fetch external lang libraries and provide right text | __moment__
 Icons | Core | Fetch and cache svg icons
-PopUp | Core | Handling PopUp windows | __@randajan/react-popup__
+Images | Core | Fetch images
 
-_*every script uses @randajan/jetpack_
+_*every script uses @randajan/react-jetpack_
 
 ## Exports
 ```jsx
-export default Provider;
+export default CoreProvider;
 export {
-  Context,
+  jet,
+  css,
+
+  Base,
+  Serf,
+
+  Api,
+  Auth,
   Core,
-  Tray,
-  Task,
-  Query,
+  Icons,
+  Images,
+  Lang,
+  Page,
+  Screen,
+
   Crypt,
-  Storage,
-  Session,
   LangLib,
-  useCore,
-  usePopUp,
-  useCrypt,
-  useView,
-  useStorage,
-  useSession,
-  useLang,
-  useApi,
-  useQuery,
-  useAuth,
-  useUser,
-  useIcons,
-  useImages,
+
   Ico,
-  Img
+  Img,
+  CoreProvider,
+
+  ModalProvider,
+  Modal,
+  PopUp,
+  Pop
+
 }
+
 ```
 
 

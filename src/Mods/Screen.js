@@ -18,7 +18,7 @@ const DEFAULTSIZES = {
     "xl": w=>w>1920
 }
 
-class View extends Serf {
+class Screen extends Serf {
 
     constructor(Core, path, sizes) {
         super(Core, path);
@@ -55,4 +55,4 @@ class View extends Serf {
 }
 
 
-export default View;
+export default Screen;

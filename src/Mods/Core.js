@@ -6,7 +6,7 @@ import Api from "../Base/Api";
 
 import Tray from "./Tray";
 import Page from "./Page";
-import View from "./View";
+import Screen from "./Screen";
 import Client from "./Client";
 import Lang from "./Lang";
 import Auth from "./Auth";
@@ -33,7 +33,7 @@ class Core extends Base {
 
         const {
             version, nostore, debug, atBuild, onBuild, crashMsg,
-            cryptKey, viewSizes, sessionUrl, apiUrl, 
+            cryptKey, screenSizes, sessionUrl, apiUrl, 
             langList, langLibs, langDefault, 
             authPath, authProviders, 
             iconsList, iconsSize,
@@ -61,7 +61,7 @@ class Core extends Base {
                     this.modMount("auth", Auth, authPath, authProviders, sessionUrl, cryptKey).build,
                     this.modMount("icons", Icons, iconsList, iconsSize).build,
                     this.modMount("images", Images, imagesList),
-                    this.modMount("view", View, viewSizes),
+                    this.modMount("screen", Screen, screenSizes),
                     this.modMount("client", Client),
                 ]);
                 this.eye("lang.now", lang=>this.set("auth.user.lang", lang));
