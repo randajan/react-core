@@ -2,7 +2,7 @@ import ModalProvider, {jet as jet_pu, Modal, PopUp, Pop, css } from "@randajan/r
 
 import jet from "@randajan/jetpack";
 
-
+import Analytics from "./Mods/Analytics";
 import Auth from "./Mods/Auth";
 import Core from "./Mods/Core";
 import Icons from "./Mods/Icons";
@@ -20,6 +20,10 @@ import LangLib from "./Helpers/LangLib";
 
 import Ico from "./Components/Ico";
 import Img from "./Components/Img";
+import Link from "./Components/Link";
+import Avatar from "./Components/Avatar";
+import Graphic from "./Components/Graphic";
+import Article from "./Components/Article";
 import CoreProvider from "./Components/CoreProvider";
 
 if (jet !== jet_pu) { throw new Error("Multiple jet instance present :("); }
@@ -33,6 +37,7 @@ export {
   Serf,
 
   Api,
+  Analytics,
   Auth,
   Core,
   Icons,
@@ -44,8 +49,13 @@ export {
   Crypt,
   LangLib,
 
+
   Ico,
   Img,
+  Link,
+  Avatar,
+  Graphic,
+  Article,
   CoreProvider,
 
   ModalProvider,

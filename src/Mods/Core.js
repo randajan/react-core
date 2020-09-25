@@ -5,6 +5,7 @@ import Base from "../Base/Base";
 import Api from "../Base/Api";
 
 import Tray from "./Tray";
+import Analytics from "./Analytics";
 import Page from "./Page";
 import Screen from "./Screen";
 import Client from "./Client";
@@ -38,6 +39,7 @@ class Core extends Base {
             authPath, authProviders, 
             iconsList, iconsSize,
             imagesList,
+            analyticTag
         } = props;
 
         super(version, nostore, debug);
@@ -47,6 +49,7 @@ class Core extends Base {
 
         jet.run(atBuild, this);
 
+        this.modMount("analytics", Analytics, analyticTag, debug);
         this.modMount("tray", Tray);
         this.modMount("page", Page);
 

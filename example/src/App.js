@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 
 import jet from "@randajan/jetpack";
 
-import Core, { CoreProvider, Ico, Img, Modal } from '@randajan/react-app-core';
+import Core, { CoreProvider, Ico, Img, Modal, Article } from '@randajan/react-app-core';
 
 
 function TrayBar() {
@@ -34,7 +34,8 @@ const coreConfig = {
   langDefault:"en",
   langList:["en", "cs"],
   langLibs:[
-    {priority:10, list:["cs"], path:"index", fetch:lang=>fetch("/index.html").then(data=>data.text())}, 
+    {priority:10, list:["cs", "en"], path:"index", fetch:lang=>fetch("/index.html").then(data=>data.text())},
+    {priority:11, list:["cs", "en"], path:"md.test", fetch:lang=>fetch("/test."+lang+".md").then(data=>data.text())}
   ],
   flags:core=>{
     console.log("FLAGS", core);
@@ -124,6 +125,7 @@ function Example() {
         <Img src="menu"/>
         <Img src="menu"/>
       </div>
+      <Article src="md.test"/>
     </div>
   )
 }

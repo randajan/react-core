@@ -20,8 +20,8 @@ class Page extends Serf {
         return jet.str.to(search);
     }
 
-    constructor(Core, path) {
-        super(Core, path);
+    constructor(core, path) {
+        super(core, path);
 
         const loc = window.location;
 
@@ -39,6 +39,8 @@ class Page extends Serf {
             v.url = v.origin + v.path;
             return v;
         });
+
+        this.eye("pathname", v=>core.analytics.page(v));
 
     }
 

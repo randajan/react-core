@@ -60,6 +60,7 @@ class Lang extends Serf {
         });
 
         this.eye("now", now=>moment.locale(now));
+        this.eye("now", now=>core.analytics.lang(now));
 
         jet.obj.addProperty(this, "build", core.tray.watch(
             async _=>{

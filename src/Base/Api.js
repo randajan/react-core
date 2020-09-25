@@ -57,7 +57,8 @@ class Api {
 
     async fetch(method, path, body, headers) {
         const options = this.fetchOptions(method, body, headers);
-        const url = this.url+"/"+jet.str.to(path);
+        path = jet.str.to(path);
+        const url = this.url+(path.startsWith("/") ? path : "/"+path);
         return fetch(url, options);
     }
 
