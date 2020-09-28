@@ -27,9 +27,9 @@ function Avatar(props) {
   delete imgProps.style;
 
   return (
-    <div {...selfProps}>
+    <span {...selfProps}>
       <Img {...props}/>
-    </div>
+    </span>
   );
 }
 
