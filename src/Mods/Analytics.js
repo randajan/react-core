@@ -1,7 +1,7 @@
 
 import ReactGA from 'react-ga';
 
-import initAnalytics, { page as gaPage, viewTake, langChange } from './Analytics';
+import jet from "@randajan/react-jetpack";
 
 import Serf from "../Base/Serf";
 
