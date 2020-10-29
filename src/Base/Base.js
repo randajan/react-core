@@ -7,6 +7,7 @@ import Crypt from "./Crypt";
 
 import Serf from "./Serf";
 import Api from "./Api";
+import Store from "./Store";
 
 let BID = 0;
 
@@ -48,34 +49,17 @@ class Base {
         return changes;
     }
 
-    static validateVersion(appVersion, dataVersion) {
-        return !appVersion || appVersion === dataVersion;
-    }
-
-    static packData(version, data) {
-        return jet.obj.toJSON({ data, version });
-    }
-
-    static unpackData(version, pack) {
-        pack = jet.get("object", pack, jet.obj.fromJSON(pack));
-        if (Base.validateVersion(version, pack.version)) { return pack.data; }
-    }
-
-    constructor(version, nostore, debug) {
+    constructor(version, debug) {
 
         jet.obj.addProperty(this, {
+            version,
+            debug,
             serf:{},
         }, null, false, true);
 
         jet.obj.addProperty(this, {
             _id:BID++,
-            _data:{
-                _:{
-                    version: jet.str.to(version),
-                    nostore: jet.to("boolean", nostore),
-                    debug: jet.to("boolean", debug),
-                }
-            },
+            _data:{},
             _duty:jet.obj.addProperty({}, {
                 fit:{},
                 eye:{},
@@ -84,10 +68,6 @@ class Base {
                 store:{},
             })
         });
-
-        this.fitTo("_.version", "string");
-        this.fitTo("_.nostore", "boolean");
-        this.fitTo("_.debug", "boolean");
 
     }
 
@@ -173,70 +153,54 @@ class Base {
     fitType(path, type, ...args) { return this.fit(path, next=>jet.get(type, next(), ...args)); }
     fitDefault(path, def) { return this.fit(path, next=>jet.get("full", next(), def)); }
 
-    store(path, load, save, cryptKey) {
+    store(path, load, save) {
         path = jet.str.to(path, ".");
         const pool = this._duty.store;
         if (pool[path]) { jet.run(pool[path].cleanUp); }
-        const store = pool[path] = {
-            saves:[],
-            loads:[]
-        };
 
-        store.save = (...a)=>{
-            const { nostore, version } = this.get("_");
-            const data = Crypt.enObj(cryptKey, this.get(path));
-            const eng = jet.to("promise", save, data, path, version, nostore).engage(...a)
-            store.saves.unshift(eng);
-            return eng;
-        };
-        const _load = (set, ...a)=>{
-            const { nostore, version } = this.get("_");
-            let prom = jet.to("promise", load, path, version, nostore).then(data=>Crypt.deObj(cryptKey, data));
-            if (set) { prom = prom.then(data=>this.set(path, data)); }
-            const eng = prom.engage(...a);
-            store.loads.unshift(eng);
-            return eng;
-        };
-        store.load = (...a)=>_load(false, ...a);
-        store.fill = (...a)=>_load(true, ...a);
-        store.cleanUp = this.eye(path, store.save);
+        const store = pool[path] = new Store();
+        store.path = path;
+
+        store.setLoad(load, (s, data)=>this.set(path, data));
+        store.setSave(save, s=>this.get(path));
+
+        store.cleanUp = this.eye(path, store.save.bind(store));
         return store;
     }
 
-    storeLocal(path, cryptKey) {
+    storeLocal(path) {
+        path = jet.str.to(path, ".");
         return this.store(
             path,
-            (p, v, n)=>n ? null :Base.unpackData(v, localStorage.getItem(this.tag(p))), 
-            (d, p, v, n)=>n ? null : localStorage.setItem(this.tag(p), Base.packData(v, d)),
-            cryptKey
+            s=>this.debug ? null : localStorage.getItem(this.tag(p)), 
+            (s, data)=>this.debug ? null : localStorage.setItem(this.tag(p), data)
         );
     }
 
-    storeSession(path, url, cryptKey) {
+    storeSession(path, url) {
         if (!url) {
             console.warn("Base path '"+this.tag(path)+"' will be stored locally because url was not provided");
-            return this.storeLocal(path, cryptKey);
+            return this.storeLocal(path);
         }
         return this.store(path, 
-            (p, v, n)=>n ? null : fetch(jet.str.to(url, p, v, n)).then(res=>Base.unpackData(v, res.json())),
-            (d, p, v, n)=>n ? null : fetch(jet.str.to(url, p, v, n), { method: "POST", body:Base.packData(v, d) }),
-            cryptKey
+            s=>fetch(jet.str.to(url, s)).then(res=>res.json()),
+            (s, body)=>fetch(jet.str.to(url, s), { method: "POST", body })
         );
     }
 
-    storeApi(path, url, api) {
+    storeApi(path, url, api, saveable) {
         api = api || this.api;
-        if (!url || !jet.is(Api, api)) {
+        if (saveable && (!url || !jet.is(Api, api))) {
             console.warn("Base path '"+this.tag(path)+"' will be stored locally because url or api was not provided");
-            return this.storeLocal(path, cryptKey);
+            return this.storeLocal(path);
         }
         return this.store(path, 
-            (p, v, n)=>n ? null : api.get(jet.str.to(url, p, v, n)).then(res=>res.json()),
-            (d, p, v, n)=>n ? null : api.post(jet.str.to(url, p, v, n), d),
+            s=>api.getJSON(jet.str.to(url, s)),
+            saveable ? (s, data)=>api.post(jet.str.to(url, s), data) : null
         );
     }
 
-    debugLog(...msg) { if (this.get("_.debug")) { console.log("BASE-DEBUG", ...msg); } }
+    debugLog(...msg) { if (this.debug) { console.log("BASE-DEBUG", ...msg); } }
 
     spaceCount(path, limit) {
         return jet.test.byteCount(this.get(path), limit);

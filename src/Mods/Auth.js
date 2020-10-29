@@ -26,8 +26,8 @@ class Auth extends Serf {
 
         jet.obj.addProperty(this, "build", tray.watch(
             async _=>{
-                const passport = await this.storeSession("passport", sessionUrl, cryptKey).load();
-                const user = await this.storeUser(cryptKey).load();
+                const passport = await this.storeSession("passport", sessionUrl).encrypt(cryptKey).pull();
+                const user = await this.storeUser(cryptKey).pull();
 
                 this.set({
                     authPath,
@@ -66,7 +66,7 @@ class Auth extends Serf {
     }
 
     storeUser(cryptKey) {
-        return this.isFull("passport.authorization") ? this.storeApi("user", "user") : this.storeLocal("user", cryptKey);
+        return this.isFull("passport.authorization") ? this.storeApi("user", "user") : this.storeLocal("user").encrypt(cryptKey);
     }
 
     // getMenu() {

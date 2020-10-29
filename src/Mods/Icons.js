@@ -39,7 +39,7 @@ class Icons extends Serf {
 
         jet.obj.addProperty(this, "build", core.tray.watch(
             async _=>{
-                const straps = await this.storeLocal("straps").load() || await Icons.fetchAll(files);
+                const straps = await this.storeLocal("straps").version(core.version).pull() || await Icons.fetchAll(files);
 
                 this.set({
                     size,

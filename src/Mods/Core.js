@@ -33,7 +33,7 @@ class Core extends Base {
         if (jet.isFull(PRIVATE)) { throw new Error("There could be just one instance of Core"); }
 
         const {
-            version, nostore, debug, atBuild, onBuild, crashMsg,
+            version, debug, atBuild, onBuild, crashMsg,
             cryptKey, screenSizes, sessionUrl, apiUrl, 
             langList, langLibs, langDefault, 
             authPath, authProviders, 
@@ -42,7 +42,7 @@ class Core extends Base {
             analyticTag
         } = props;
 
-        super(version, nostore, debug);
+        super(version, debug);
 
         PRIVATE.push(this);
         if (debug) { window.jet = jet; window.core = this; }

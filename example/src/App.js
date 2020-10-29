@@ -125,7 +125,7 @@ function Example() {
         <Img src="menu"/>
         <Img src="menu"/>
       </div>
-      <Article src="md.test"/>
+
     </div>
   )
 }

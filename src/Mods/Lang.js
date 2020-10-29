@@ -64,7 +64,7 @@ class Lang extends Serf {
 
         jet.obj.addProperty(this, "build", core.tray.watch(
             async _=>{
-                const book = jet.get("object", await this.storeLocal("book").load());
+                const book = jet.get("object", await this.storeLocal("book").version(core.version).pull());
                 book[def] = book[def] || await this.fetchBook(def);
                 this.set({
                     list:[list, def],
