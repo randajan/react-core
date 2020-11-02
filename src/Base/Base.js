@@ -97,6 +97,11 @@ class Base {
         });
     }
 
+    getStore(path) { return this._duty.store[jet.str.to(path, ".")]; }
+    saveStore(path, ...a) { const store = this.getStore(path); return store ? store.save(...a) : false; }
+    pullStore(path, ...a) { const store = this.getStore(path); return store ? store.pull(...a) : false; }
+    fillStore(path, ...a) { const store = this.getStore(path); return store ? store.fill(...a) : false; }
+
     set(path, value, force) {
         const ms = new Date();
         path = jet.str.to(path, ".");
