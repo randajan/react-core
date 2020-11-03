@@ -24,6 +24,7 @@ import Link from "./Components/Link";
 import Avatar from "./Components/Avatar";
 import Graphic from "./Components/Graphic";
 import Article from "./Components/Article";
+import Help from "./Components/Help";
 import CoreProvider from "./Components/CoreProvider";
 
 if (jet !== jet_pu) { throw new Error("Multiple jet instance present :("); }
@@ -45,6 +46,7 @@ export {
   Lang,
   Page,
   Screen,
+  Help,
 
   Crypt,
   LangLib,
