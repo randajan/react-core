@@ -75,7 +75,7 @@ class Api {
 
         const error = new ApiErr( {method, url, headers, body}, response );
         this.errors.push(error);
-        return error;
+        throw error;
     }
 
     get(path, body, headers, acceptJson) {return this.fetch("GET", path, body, headers, acceptJson);}
