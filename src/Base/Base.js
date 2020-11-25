@@ -173,12 +173,13 @@ class Base {
         return store;
     }
 
-    storeLocal(path) {
+    storeLocal(path, tag) {
         path = jet.str.to(path, ".");
+        tag = this.tag(jet.str.to(tag, ".") || path);
         return this.store(
             path,
-            s=>localStorage.getItem(this.tag(path)), 
-            (s, data)=>localStorage.setItem(this.tag(path), data)
+            s=>localStorage.getItem(tag), 
+            (s, data)=>localStorage.setItem(tag, data)
         );
     }
 

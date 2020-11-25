@@ -57,7 +57,7 @@ const coreConfig = {
   },
   trayBar:<TrayBar/>,
   crashMsg:"Critical error please contact our support info@itcan.cz",
-  onBuild:async core=>{
+  atBuild:core=>{
 
     //title page change
     core.fit("page", next=>{
@@ -67,18 +67,15 @@ const coreConfig = {
         return v;
     })
 
-    //auto authenticate user
-    core.fit("page", next=>{
-        const page = next();
-
-        if (page.pathname === "/user" && page.search.code) {
-            core.auth.setPassport(page.search.code);
-            delete page.search.code;
-        }
-        return page;
-    });
-
     core.eye("page", page=>console.log("EYEPAGE", page));
+  },
+  onBuild:async core=>{
+    const { page, auth } = core;
+
+    //auto authenticate user
+    if (page.is("pathname", "/user") && page.get("search.code")) {
+        await auth.setPassport(page.pull("search.code"));
+    }
   }
 }
 
@@ -111,6 +108,8 @@ function Example() {
           <ShowKey path="test.test" />
           <ShowKey path="page.title" />
           <ShowKey path="page.path" />
+          <ShowKey path="auth.user.data" format={k=>jet.obj.toJSON(k)} />
+          <ShowKey path="auth.user.profile.name" />
         </tbody>
       </table>
       <h2>Icons</h2>
