@@ -169,7 +169,7 @@ class Base {
         store.setLoad(load, (s, data)=>this.set(path, data));
         store.setSave(save, s=>this.get(path));
 
-        store.cleanUp = this.eye(path, store.save.bind(store));
+        store.cleanUp = this.eye(path, _=>store.save());
         return store;
     }
 
@@ -177,8 +177,8 @@ class Base {
         path = jet.str.to(path, ".");
         return this.store(
             path,
-            s=>this.debug ? null : localStorage.getItem(this.tag(p)), 
-            (s, data)=>this.debug ? null : localStorage.setItem(this.tag(p), data)
+            s=>localStorage.getItem(this.tag(path)), 
+            (s, data)=>localStorage.setItem(this.tag(path), data)
         );
     }
 

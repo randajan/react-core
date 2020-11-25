@@ -10,7 +10,7 @@ import Core, { CoreProvider, Ico, Img, Modal, Article } from '@randajan/react-ap
 function TrayBar() {
   const tray = Core.use("tray");
   const pop = Modal.usePop();
-
+  console.log(tray);
   console.log("RERENDER TRAY");
 
   useEffect(_=>{
