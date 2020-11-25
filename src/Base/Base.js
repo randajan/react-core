@@ -200,7 +200,7 @@ class Base {
             return this.storeLocal(path);
         }
         return this.store(path, 
-            s=>api.getJSON(jet.str.to(url, s)),
+            s=>api.get(jet.str.to(url, s)),
             saveable ? (s, data)=>api.post(jet.str.to(url, s), data) : null
         );
     }

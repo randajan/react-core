@@ -1,9 +1,15 @@
 import jet from "@randajan/jetpack";
 
 class ApiErr extends Error {
-    constructor(...msgs) {
-        super(msgs.joins(" "));
+    constructor(request, response) {
+        const { method, url } = request;
+        const { status, statusText } = response;
+
+        super([method, url, status, statusText].joins(" "));
+
         this.name = "ApiError"; // (different names for different built-in error classes)
+        this.request = request;
+        this.response = response;
     }
 }
 
@@ -27,11 +33,10 @@ class Api {
     }
 
     constructor(url, token) {
-
         jet.obj.addProperty(this, {
             url,
             token,
-            error:[]
+            errors:[]
         }, null, false, true)
     }
 
@@ -39,52 +44,44 @@ class Api {
     isForm(obj) { return Api.isForm(obj); }
     getContentType(body) { return Api.getContentType(body); }
 
-    fetchOptions(method, body, headers) {
+    fetchOptions(method, body, headers, acceptJson) {
         const type = Api.getContentType(body);
+        const accept = acceptJson ? "application/json" : undefined;
         if (type === "application/json") { body = jet.str.to(body); }
         return {
             method, body,
             credentials: "include",
             headers: {
                 ...headers,
-                accept: "application/json",
+                accept,
                 origin: window.origin,
-                authorization: jet.str.to(this.token),
-                //"X-CSRF-Token": this.Storage.get("csrf")
+                authorization: jet.str.to(this.token)
             }
         };
     }
 
-    async fetch(method, path, body, headers) {
-        const options = this.fetchOptions(method, body, headers);
+    async fetch(method, path, body, headers, acceptJson) {
+        const options = this.fetchOptions(method, body, headers, acceptJson);
         path = jet.str.to(path);
         const url = this.url+(path.startsWith("/") ? path : "/"+path);
-        return fetch(url, options);
+        const response = await fetch(url, options);
+        const text = response.text = await response.text();
+        const isJson = response.headers.get("content-type") === "application/json";
+        const fetchJson = jet.get("boolean", acceptJson, isJson);
+        const json = response.json = fetchJson ? jet.obj.fromJSON(text) : undefined;
+
+        jet.obj.addProperty(response, "body", fetchJson ? json : text, false, true, true);
+        if (response.ok) { return response.body; }
+
+        const error = new ApiErr( {method, url, headers, body}, response );
+        this.errors.push(error);
+        return error;
     }
 
-    async fetchJSON(method, path, body, headers) {
-        let resp, reply;
-        try {
-            resp = await this.fetch(method, path, body, headers);
-            reply = JSON.parse(reply = await resp.text());
-            const { ok, url, status, statusText } = resp;
-            if (!ok) { throw new ApiErr(method, url, status, statusText); }
-            return reply;
-        } catch (error) {
-            this.error.push({ method, path, body, headers, error, resp, reply})
-            throw error;
-        }
-    }
-
-    get(path, body, headers) {return this.fetch("GET", path, body, headers);}
-    post(path, body, headers) {return this.fetch("POST", path, body, headers);}
-    put(path, body, headers) {return this.fetch("PUT", path, body, headers);}
-    delete(path, body, headers) {return this.fetch("DELETE", path, body, headers);}
-
-    getJSON(path, body, headers) {return this.fetchJSON("GET", path, body, headers);}
-    postJSON(path, body, headers) {return this.fetchJSON("POST", path, body, headers);}
-    putJSON(path, body, headers) {return this.fetchJSON("PUT", path, body, headers);}
-    deleteJSON(path, body, headers) {return this.fetchJSON("DELETE", path, body, headers);}
+    get(path, body, headers, acceptJson) {return this.fetch("GET", path, body, headers, acceptJson);}
+    post(path, body, headers, acceptJson) {return this.fetch("POST", path, body, headers, acceptJson);}
+    put(path, body, headers, acceptJson) {return this.fetch("PUT", path, body, headers, acceptJson);}
+    delete(path, body, headers, acceptJson) {return this.fetch("DELETE", path, body, headers, acceptJson);}
 
 }
 

@@ -44,7 +44,7 @@ class Auth extends Serf {
     async login(provider) {
         const { api, tray, lang } = this.parent;
         return tray.watch(async _=>{
-            const data = await api.getJSON(this.get("authPath")+"/"+provider);
+            const data = await api.get(this.get("authPath")+"/"+provider);
             const redirect = jet.obj.get(data, "redirect_uri");
             if (!redirect) { throw new Error("Login failed: Missing redirect link"); }
             await new Promise(_=>window.location = redirect);
@@ -60,7 +60,7 @@ class Auth extends Serf {
     async fetchPassport(code) {
         const { api, tray, lang } = this.parent;
         return tray.watch(
-            api.postJSON(this.get("authPath")+"/token", api.toForm({ code })), 
+            api.post(this.get("authPath")+"/token", api.toForm({ code })), 
             g=>lang.spell(["core.auth.watch.passport", g.state])
         )
     }
