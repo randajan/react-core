@@ -34,7 +34,7 @@ function Md(props) {
     }
   }
 
-  return <Markdown {...pass} />;
+  return <Pack nowrap><Markdown {...pass} /></Pack>;
 }
 
 
