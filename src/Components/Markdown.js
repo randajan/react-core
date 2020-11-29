@@ -21,14 +21,12 @@ function Md(props) {
       overrides: {
           a:Link,
           img:Graphic,
-          p:Pack.p,
-          div:Pack.div,
-          h1:Caption,
-          h2:Caption,
-          h3:Caption,
-          h4:Caption,
-          h5:Caption,
-          h6:Caption,
+          h1:Caption.h1,
+          h2:Caption.h2,
+          h3:Caption.h3,
+          h4:Caption.h4,
+          h5:Caption.h5,
+          h6:Caption.h6,
           ...overrides
       }
     }

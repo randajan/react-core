@@ -10,28 +10,26 @@ class Pack extends Component {
 
   static use() { return useContext(Context); }
 
-  static useCaption() {
-    const nest = Pack.use();
-    return nest ? nest.regCaption() : 1;
-  }
-
   static contextType = Context;
 
-  level = 0;
-  captions = 0;
+  captions = new Set();
 
-  hasCaptions() {
-    return jet.to("boolean", this.captions);
-  }
+  hasCaptions() { return !!this.captions.size; }
 
   getLevel() {
-    const above = this.context;
-    return above ? above.getLevel() + this.hasCaptions() : 0;
+    return this.context ? this.context.getLevel() + this.hasCaptions() : 0;
   }
 
-  regCaption() {
-    this.captions ++;
-    return this.getLevel() + 1;
+  addCaption(caption) {
+    const { captions, context } = this;
+    if (context && !context.hasCaptions()) { return context.addCaption(caption); }
+    captions.add(caption);
+    return this.getLevel();
+  }
+
+  remCaption(caption) {
+    const { captions, context } = this;
+    if (!captions.delete(caption) && context) { context.remCaption(caption); }
   }
 
   render() {
