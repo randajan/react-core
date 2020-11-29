@@ -21,7 +21,8 @@ function Md(props) {
       overrides: {
           a:Link,
           img:Graphic,
-          div:Pack,
+          p:Pack.p,
+          div:Pack.div,
           h1:Caption,
           h2:Caption,
           h3:Caption,

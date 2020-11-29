@@ -35,13 +35,19 @@ class Pack extends Component {
   }
 
   render() {
+    const Tag = this.props.tag || "div";
 
     return (
       <Context.Provider value={this}>
-        {this.props.nowrap ? this.props.children : <div {...this.props}/>}
+        {this.props.nowrap ? this.props.children : <Tag {...this.props} tag={null} ref={body=>this.body=body}/>}
       </Context.Provider>
     )
   }
 }
+
+["p", "div", "pre", "section", "header", "footer", "main", "nav", "table", "li", "ul"].map(tag=>{
+  Pack[tag] = props=><Pack {...props} tag={tag}/>
+});
+
 
 export default Pack;
