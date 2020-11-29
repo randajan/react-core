@@ -7,6 +7,7 @@ import jet from "@randajan/react-jetpack";
 import Graphic from "./Graphic";
 import Link from "./Link";
 import Caption from "./Caption";
+import Pack from "./Pack";
 
 
 function Md(props) {
@@ -18,8 +19,9 @@ function Md(props) {
     options: {
       forceBlock: true,
       overrides: {
-          a: Link,
-          img: Graphic,
+          a:Link,
+          img:Graphic,
+          div:Pack,
           h1:Caption,
           h2:Caption,
           h3:Caption,
