@@ -4,8 +4,7 @@ import { NavLink } from "react-router-dom";
 
 import jet from "@randajan/jetpack";
 
-import Core, { CoreProvider, Ico, Img, Modal, Article } from '@randajan/react-app-core';
-
+import Core, { CoreProvider, Ico, Img, Modal, Markdown, Article, Nest, Pack, Caption } from '@randajan/react-app-core';
 
 function TrayBar() {
   const tray = Core.use("tray");
@@ -83,49 +82,50 @@ function Example() {
   const api = Core.useApi();
 
   return (
-    <div className="Example">
-      <h1>Majestic APP</h1>
-      <h2>Test</h2>
-      <NavLink to={"/foo?jo=6545"}>Goto Foo</NavLink>
-      <br/>
-      <NavLink to={"/bar?jo=2"}>Gotot Bar</NavLink>
-      <h2>Data</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Path</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <ShowKey path="tray.pending" />
-          <ShowKey path="tray.cancel" />
-          <ShowKey path="tray.timeout" />
-          <ShowKey path="tray.error" />
-          <ShowKey path="tray.result" />
-          <ShowKey path="lang.now" />
-          <ShowKey path="screen" format={k=>jet.react.fetchFlags(k).joins(" ")} />
-          <ShowKey path="test.test" />
-          <ShowKey path="page.title" />
-          <ShowKey path="page.path" />
-          <ShowKey path="auth.user.data" format={k=>jet.obj.toJSON(k)} />
-          <ShowKey path="auth.user.profile.name" />
-        </tbody>
-      </table>
-      <h2>Icons</h2>
-      <div className={"icons"}>
+    <Nest className="Example" caption="Majestic APP">
+      <Nest caption="Test">
+        <NavLink to={"/foo?jo=6545"}>Goto Foo</NavLink>
+        <br/>
+        <NavLink to={"/bar?jo=2"}>Gotot Bar</NavLink>
+      </Nest>
+      <Markdown>#Ahoj</Markdown>
+      {/* <Article src="test"/> */}
+      <Nest caption="Data">
+        <table>
+          <thead>
+            <tr>
+              <th>Path</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ShowKey path="tray.pending" />
+            <ShowKey path="tray.cancel" />
+            <ShowKey path="tray.timeout" />
+            <ShowKey path="tray.error" />
+            <ShowKey path="tray.result" />
+            <ShowKey path="lang.now" />
+            <ShowKey path="screen" format={k=>jet.react.fetchFlags(k).joins(" ")} />
+            <ShowKey path="test.test" />
+            <ShowKey path="page.title" />
+            <ShowKey path="page.path" />
+            <ShowKey path="auth.user.data" format={k=>jet.obj.toJSON(k)} />
+            <ShowKey path="auth.user.profile.name" />
+          </tbody>
+        </table>
+      </Nest>
+      <Nest className={"icons"} caption="Icons" wrap>
         <Ico src="menu"/>
         <Ico src="cart"/>
         <Ico src="cash"/>
         <Ico src="contact"/>
-      </div>
-      <h2>Images</h2>
-      <div className={"images"}>
+      </Nest>
+      <Nest className={"images"} caption="Images" wrap>
         <Img src="menu"/>
         <Img src="menu"/>
-      </div>
+      </Nest>
 
-    </div>
+    </Nest>
   )
 }
 

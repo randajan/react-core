@@ -21,8 +21,12 @@ import LangLib from "./Helpers/LangLib";
 import Ico from "./Components/Ico";
 import Img from "./Components/Img";
 import Link from "./Components/Link";
+import Pack from "./Components/Pack";
+import Caption from "./Components/Caption";
+import Nest from "./Components/Nest";
 import Avatar from "./Components/Avatar";
 import Graphic from "./Components/Graphic";
+import Markdown from "./Components/Markdown";
 import Article from "./Components/Article";
 import Help from "./Components/Help";
 import CoreProvider from "./Components/CoreProvider";
@@ -55,6 +59,10 @@ export {
   Ico,
   Img,
   Link,
+  Nest,
+  Pack,
+  Markdown,
+  Caption,
   Avatar,
   Graphic,
   Article,

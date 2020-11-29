@@ -5,7 +5,7 @@ body {
 }
 
 
-.icons, .images {
+.icons .wrap, .images .wrap {
   display:flex;
   justify-content:center;
 }

@@ -49,7 +49,7 @@ class CoreProvider extends BaseProvider {
 
   render() {
     const { trayBar } = this.props;
-    const { build, lang, icons } = this.base;
+    const { build } = this.base;
 
     return (
       <BrowserRouter>
