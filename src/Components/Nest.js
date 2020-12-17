@@ -17,7 +17,7 @@ function Nest(props) {
 
   return (
     <Pack {...passProps}>
-      <Caption>{caption}</Caption>
+      {caption ? <Caption>{caption}</Caption> : null}
       {
         (type === "boolean" && wrap) ? <div className={cn.get("wrap")}>{children}</div> :
         type === "string" ? <div className={wrap}>{children}</div> :

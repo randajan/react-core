@@ -39,9 +39,12 @@ function Md(props) {
   const { overrides, inView } = props;
   const inject = {inView}
 
+
+
   const pass = {
     ...props,
     overrides:null,
+    inView:null,
     options: {
       forceBlock: true,
       overrides: {

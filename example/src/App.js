@@ -84,13 +84,20 @@ function Example() {
   return (
     <Nest className="Example" caption="Majestic APP" inView>
       <Nest caption="Test">
-        <Tile src="menu" title="whack"/> 
         <NavLink to={"/foo?jo=6545"}>Goto Foo</NavLink>
         <br/>
         <NavLink to={"/bar?jo=2"}>Gotot Bar</NavLink>
       </Nest>
       {/* <Markdown>#Ahoj</Markdown> */}
       {/* <Article src="test"/> */}
+      <Nest caption="h2">
+        <Nest>
+          <Nest caption="h3.0"></Nest>
+        </Nest>
+        <Nest caption="h3.1"></Nest>
+        <Nest caption="h3.2"></Nest>
+        <Nest caption="h3.3"></Nest>
+      </Nest>
       <Nest caption="Data">
         <table>
           <thead>
