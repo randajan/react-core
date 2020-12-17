@@ -15,8 +15,8 @@ import Help from "./Help";
 
 function Image(props) {
   const path = jet.str.to(props.src).split("/");
-  const src = path.join("/");
   const kind = path.shift();
+  const src = path.join("/");
 
   if (kind === "ico") {
     return <Ico {...props} src={src}/>
