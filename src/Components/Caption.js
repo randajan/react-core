@@ -16,7 +16,7 @@ class Caption extends Component {
 
   getLevel() {
     const level = this.context ? this.context.addCaption(this) : 0;
-    return jet.num.frame(level + jet.num.to(this.props.mod), 0, 5)
+    return jet.num.frame(level, 0, 5)
   }
 
   render() {
