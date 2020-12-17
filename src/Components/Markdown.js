@@ -49,6 +49,7 @@ function Md(props) {
       forceBlock: true,
       overrides: {
           a:Link,
+          //p:{component:Pack.p, props:inject},
           img:{component:Image, props:inject},
           h1:{component:Caption.h1, props:inject},
           h2:{component:Caption.h2, props:inject},
@@ -61,7 +62,7 @@ function Md(props) {
     }
   }
 
-  return <Pack nowrap><Markdown {...pass} /></Pack>;
+  return <Markdown {...pass} />;
 }
 
 
