@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 
 import jet from "@randajan/jetpack";
 
-import Core, { CoreProvider, Ico, Img, Modal, Markdown, Article, Nest, Pack, Caption } from '@randajan/react-app-core';
+import Core, { CoreProvider, Ico, Img, Modal, Markdown, Article, Nest, Pack, Caption, Tile } from '@randajan/react-app-core';
 
 function TrayBar() {
   const tray = Core.use("tray");
@@ -82,8 +82,9 @@ function Example() {
   const api = Core.useApi();
 
   return (
-    <Nest className="Example" caption="Majestic APP">
+    <Nest className="Example" caption="Majestic APP" inView>
       <Nest caption="Test">
+        <Tile src="menu" title="whack"/> 
         <NavLink to={"/foo?jo=6545"}>Goto Foo</NavLink>
         <br/>
         <NavLink to={"/bar?jo=2"}>Gotot Bar</NavLink>
@@ -114,8 +115,8 @@ function Example() {
           </tbody>
         </table>
       </Nest>
-      <Nest className={"icons"} caption="Icons" wrap>
-        <Ico src="menu"/>
+      <Nest className={"icons"} caption="Icons" wrap inView>
+        <Ico src="menu" inView/>
         <Ico src="cart"/>
         <Ico src="cash"/>
         <Ico src="contact"/>

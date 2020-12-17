@@ -25,7 +25,7 @@ import Pack from "./Components/Pack";
 import Caption from "./Components/Caption";
 import Nest from "./Components/Nest";
 import Avatar from "./Components/Avatar";
-import Graphic from "./Components/Graphic";
+import Tile from "./Components/Tile";
 import Markdown from "./Components/Markdown";
 import Article from "./Components/Article";
 import Help from "./Components/Help";
@@ -64,7 +64,7 @@ export {
   Markdown,
   Caption,
   Avatar,
-  Graphic,
+  Tile,
   Article,
   CoreProvider,
 

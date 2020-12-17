@@ -1,5 +1,8 @@
 import React, { Component, useContext } from 'react';
 
+
+import Observer from "./Observer";
+
 import jet from "@randajan/react-jetpack";
 
 const Context = React.createContext();
@@ -33,11 +36,9 @@ class Pack extends Component {
   }
 
   render() {
-    const Tag = this.props.tag || "div";
-
     return (
       <Context.Provider value={this}>
-        {this.props.nowrap ? this.props.children : <Tag {...this.props} tag={null} ref={body=>this.body=body}/>}
+        {this.props.nowrap ? this.props.children : <Observer {...this.props}/>}
       </Context.Provider>
     )
   }

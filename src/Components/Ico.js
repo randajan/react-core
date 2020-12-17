@@ -4,6 +4,8 @@ import { css } from "@randajan/react-popup";
 
 import Core from "./CoreProvider";
 
+import Observer from "./Observer";
+
 const cn = css.open();
 
 function Ico(props) {
@@ -14,11 +16,11 @@ function Ico(props) {
   const id = "#"+icons.getId(src);
   
   return (
-      <svg {...props} className={cn.get("Ico", src, className)} viewBox={viewBox}>
+      <Observer tag="svg" {...props} className={cn.get("Ico", src, className)} viewBox={viewBox}>
           {title ? <title>{title}</title> : null}
           <use className="svgShadow" xlinkHref={id}/>
           <use xlinkHref={id}/>
-      </svg>
+      </Observer>
   )
 }
 

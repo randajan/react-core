@@ -2,6 +2,8 @@ import React from 'react';
 
 import Img from "./Img";
 
+import Observer from "./Observer";
+
 import { css } from "@randajan/react-popup";
 
 const cn = css.open();
@@ -27,9 +29,9 @@ function Avatar(props) {
   delete imgProps.style;
 
   return (
-    <span {...selfProps}>
+    <Observer tag="span" {...selfProps}>
       <Img {...props}/>
-    </span>
+    </Observer>
   );
 }
 

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import Pack from "./Pack";
+import Observer from "./Observer";
 
 import { css } from "@randajan/react-popup";
 
@@ -20,10 +21,10 @@ class Caption extends Component {
 
   render() {
 
-    const Tag = "h"+(this.getLevel() + 1);
-    const passProps = {...this.props, mod:null};
+    const tag = "h"+(this.getLevel() + 1)
+    const passProps = {...this.props, mod:null, tag, className:cn.get("Caption", this.props.className)};
 
-    return <Tag {...passProps} className={cn.get("Caption", this.props.className)}/>;
+    return <Observer {...passProps}/>;
   }
 }
 
