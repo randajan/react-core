@@ -16,20 +16,21 @@ import Help from "./Help";
 function Image(props) {
   const path = jet.str.to(props.src).split("/");
   const kind = path.shift();
+  const title = props.alt;
   const src = path.join("/");
 
   if (kind === "ico") {
-    return <Ico {...props} src={src}/>
+    return <Ico {...props} title={title} src={src}/>
   } else if (kind === "img") {
-    return <Img {...props} src={src}/>
+    return <Img {...props} title={title} src={src}/>
   } else if (kind === "avatar") {
-    return <Avatar {...props} src={src}/>
+    return <Avatar {...props} title={title} src={src}/>
   } else if (kind === "tile") {
-    return <Tile {...props} src={src}/>
+    return <Tile {...props} title={title} src={src}/>
   } else if (kind === "help") {
-    return <Help {...props} src={src}/>
+    return <Help {...props} title={title} src={src}/>
   } else {
-    return <Img {...props}/>
+    return <Img {...props} title={title} />
   }
 }
 
