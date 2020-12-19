@@ -13,7 +13,7 @@ import Avatar from "./Avatar";
 import Tile from "./Tile";
 import Help from "./Help";
 
-function Gal(props) {
+function Image(props) {
   const path = jet.str.to(props.src).split("/");
   const kind = path.shift();
   const title = props.alt;
@@ -34,16 +34,22 @@ function Gal(props) {
   }
 }
 
+
 function Md(props) {
-  const { overrides, inView } = props;
+  const { overrides, inView, sandbox } = props;
   const inject = { inView }
 
-  const md = {
+  const pass = {
+    ...props,
+    overrides:null,
+    inView:null,
+    sandbox:null,
     options: {
+      forceBlock: true,
       overrides: {
           a:Link,
           p:{component:Pack.p, props:inject},
-          img:{component:Gal, props:inject},
+          img:{component:Image, props:inject},
           h1:{component:Caption.h1, props:inject},
           h2:{component:Caption.h2, props:inject},
           h3:{component:Caption.h3, props:inject},
@@ -55,7 +61,7 @@ function Md(props) {
     }
   }
 
-  return <Pack {...props} overrides={null}><Markdown {...md} /></Pack>;
+  return <Pack notag sandbox={sandbox}><Markdown {...pass} /></Pack>;
 }
 
 
