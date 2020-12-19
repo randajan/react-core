@@ -11,6 +11,8 @@ const cn = css.open();
 function Tile(props) {
   const { src, title, children, className, wrap } = props
 
+  const type = jet.type(wrap);
+
   return (
     <Pack {...props} src={null} wrap={null} className={cn.get("Tile", className)}>
       <Ico src={src}/>
