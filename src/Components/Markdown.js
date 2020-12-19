@@ -36,19 +36,17 @@ function Image(props) {
 
 
 function Md(props) {
-  const { overrides, inView, sandbox } = props;
+  const { overrides, inView } = props;
   const inject = { inView }
 
   const pass = {
     ...props,
     overrides:null,
     inView:null,
-    sandbox:null,
     options: {
       forceBlock: true,
       overrides: {
           a:Link,
-          p:{component:Pack.p, props:inject},
           img:{component:Image, props:inject},
           h1:{component:Caption.h1, props:inject},
           h2:{component:Caption.h2, props:inject},
@@ -61,7 +59,7 @@ function Md(props) {
     }
   }
 
-  return <Pack notag sandbox={sandbox}><Markdown {...pass} /></Pack>;
+  return <Markdown {...pass} />;
 }
 
 

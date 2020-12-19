@@ -1,4 +1,4 @@
-import React, { Component, useContext } from 'react';
+import React from 'react';
 
 import jet from "@randajan/react-jetpack";
 
@@ -12,11 +12,10 @@ const cn = css.open();
 function Nest(props) {
   const { caption, children, wrap } = props;
 
-  const passProps = {...props, caption:null, children:null, wrap:null};
   const type = jet.type(wrap);
 
   return (
-    <Pack {...passProps}>
+    <Pack {...props} caption={null} wrap={null}>
       {caption ? <Caption>{caption}</Caption> : null}
       {
         (type === "boolean" && wrap) ? <div className={cn.get("wrap")}>{children}</div> :
