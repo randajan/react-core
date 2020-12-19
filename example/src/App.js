@@ -80,9 +80,11 @@ const coreConfig = {
 
 function Example() {
   const api = Core.useApi();
-
+  const val = Core.useVal("page.search.jo");
+  
   return (
-    <Nest className="Example" caption="Majestic APP" inView>
+    <Pack className="Example" inView>
+      <Nest caption="Majestic APP"/>
       <Nest caption="Test">
         <NavLink to={"/foo?jo=6545"}>Goto Foo</NavLink>
         <br/>
@@ -90,14 +92,12 @@ function Example() {
       </Nest>
       {/* <Markdown>#Ahoj</Markdown> */}
       {/* <Article src="test"/> */}
-      <Nest caption="h2">
-        <Nest>
-          <Nest caption="h3.0"></Nest>
-        </Nest>
-        <Nest caption="h3.1"></Nest>
-        <Nest caption="h3.2"></Nest>
-        <Nest caption="h3.3"></Nest>
-      </Nest>
+      <Pack>
+        {val == 2 ? <Pack><Caption>h1</Caption><Caption>h1</Caption></Pack> : null }
+        <Pack><Nest caption="h3.1"></Nest></Pack>
+        <Pack sandbox inView><Nest caption="h3.2"></Nest></Pack>
+        <Pack><Nest caption="h3.3"></Nest></Pack>
+      </Pack>
       <Nest caption="Data">
         <table>
           <thead>
@@ -133,7 +133,7 @@ function Example() {
         <Img src="menu"/>
       </Nest>
 
-    </Nest>
+    </Pack>
   )
 }
 

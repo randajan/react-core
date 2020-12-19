@@ -13,7 +13,7 @@ import Avatar from "./Avatar";
 import Tile from "./Tile";
 import Help from "./Help";
 
-function Image(props) {
+function Gal(props) {
   const path = jet.str.to(props.src).split("/");
   const kind = path.shift();
   const title = props.alt;
@@ -34,23 +34,16 @@ function Image(props) {
   }
 }
 
-
 function Md(props) {
   const { overrides, inView } = props;
-  const inject = {inView}
+  const inject = { inView }
 
-
-
-  const pass = {
-    ...props,
-    overrides:null,
-    inView:null,
+  const md = {
     options: {
-      forceBlock: true,
       overrides: {
           a:Link,
-          //p:{component:Pack.p, props:inject},
-          img:{component:Image, props:inject},
+          p:{component:Pack.p, props:inject},
+          img:{component:Gal, props:inject},
           h1:{component:Caption.h1, props:inject},
           h2:{component:Caption.h2, props:inject},
           h3:{component:Caption.h3, props:inject},
@@ -62,7 +55,7 @@ function Md(props) {
     }
   }
 
-  return <Markdown {...pass} />;
+  return <Pack {...props} overrides={null}><Markdown {...md} /></Pack>;
 }
 
 

@@ -1,4 +1,4 @@
-import React, { Component, useContext } from 'react';
+import React, { useState } from 'react';
 
 
 import { useInView } from 'react-intersection-observer';
@@ -13,9 +13,14 @@ function Custom(props) {
 }
 
 function InView(props) {
-  const { ref, inView } = useInView(jet.get("object", props.inView, {triggerOnce:true}));
+  const [ state ] = useState({last:false, count:0});
+  const { ref, inView } = useInView(jet.get("object", props.inView));
   const Tag = jet.str.to(props.tag) || "div";
-  const p = {...props, ref, "data-inview":inView}
+  const p = {...props, ref}
+  
+  if (inView && !state.last) { state.count ++; }
+  if (inView) { p["data-inview"] = state.count; }
+
   delete p.inView;
   delete p.tag
   return <Tag {...p}/>

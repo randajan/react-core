@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
 import Pack from "./Pack";
-import Observer from "./Observer";
 
 import { css } from "@randajan/react-popup";
 
@@ -10,21 +9,37 @@ const cn = css.open();
 class Caption extends Component {
   static contextType = Pack.Context;
 
-  componentWillUnmount() {
-    if (this.context) { this.context.remCaption(this); }
+  state = {}
+
+  componentDidMount() { Pack.regCaption(this); }
+  componentWillUnmount() { Pack.remCaption(this); }
+
+  redraw() {
+    const { context } = this;
+    const mod = context ? context.regCaption(this) : 0
+    this.setState({mod});
   }
 
-  getLevel() {
-    const level = this.context ? this.context.addCaption(this) : 0;
-    return jet.num.frame(level, 0, 5)
+  getMod() {
+    const { props, state } = this
+    return Math.max(Math.round(jet.num.to(state.mod) + jet.num.to(props.mod)), 0)
+  }
+
+  getTag() {
+    const mod = 1+this.getMod();
+    return mod > 6 ? "span" : "h"+mod;
   }
 
   render() {
+    const Tag = this.getTag()
+    const passProps = {
+      ...this.props,
+      ref:body=>this.body = body,
+      mod:null,
+      className:cn.get("Caption", this.props.className),
+    };
 
-    const tag = "h"+(this.getLevel() + 1)
-    const passProps = {...this.props, mod:null, tag, className:cn.get("Caption", this.props.className)};
-
-    return <Observer {...passProps}/>;
+    return <Tag {...passProps}/>;
   }
 }
 

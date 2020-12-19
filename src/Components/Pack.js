@@ -1,44 +1,84 @@
 import React, { Component, useContext } from 'react';
 
-
 import Observer from "./Observer";
 
 import jet from "@randajan/react-jetpack";
 
 const Context = React.createContext();
+let rtsk;
 
 class Pack extends Component {
 
   static Context = Context;
+  static contextType = Context;
+  static captions = [];
+  static packs = [];
 
   static use() { return useContext(Context); }
 
-  static contextType = Context;
-
-  captions = new Set();
-
-  hasCaptions() { return !!this.captions.size; }
-
-  getLevel() {
-    return this.context ? this.context.getLevel() + this.hasCaptions() : 0;
+  static selectCaptions() {
+    return document.querySelectorAll(".Caption");
   }
 
-  addCaption(caption) {
-    const { captions, context } = this;
-    if (context && !context.hasCaptions()) { return context.addCaption(caption); }
-    captions.add(caption);
+  static redraw() {
+    Object.entries(Pack.selectCaptions()).map(([i, ele])=>ele.sourceIndex = i);
+    Pack.captions = Pack.captions.sort((a, b)=>a.body.sourceIndex - b.body.sourceIndex);
+    Pack.packs.map(p=>p.flush());
+    Pack.captions.map(c=>c.redraw());
+  }
+
+  static redrawTask() {
+    clearTimeout(rtsk);
+    rtsk = setTimeout(Pack.redraw);
+  }
+
+  static regCaption(caption) {
+    const { captions } = Pack;
+    let x = captions.indexOf(caption);
+    if (x >= 0) { return; }
+    captions.push(caption);
+    Pack.redrawTask();
+  }
+
+  static remCaption(caption) {
+    const { captions } = Pack;
+    const x = captions.indexOf(caption);
+    if (x < 0) { return; }
+    this.captions.splice(x, 1)
+    Pack.redrawTask();
+  }
+
+  constructor(props) {
+    super(props);
+    this.id = Pack.packs.push(this)-1;
+    this.flush();
+  }
+
+  flush() {
+    this.captions = [];
+  }
+
+  hasCaptions() {
+    return !!this.captions.length;
+  }
+
+  regCaption(caption) {
+    const { context, captions, props } = this;
+    if (!props.sandbox && context && !context.hasCaptions()) { return context.regCaption(); }
+    captions.push(caption);
     return this.getLevel();
   }
 
-  remCaption(caption) {
-    const { captions, context } = this;
-    if (!captions.delete(caption) && context) { context.remCaption(caption); }
+  getLevel() {
+    const { context, props } = this;
+    return (!props.sandbox && context) ? context.getLevel() + this.hasCaptions() : 0;
   }
 
   render() {
+    const { props } = this;
     return (
       <Context.Provider value={this}>
-        {this.props.nowrap ? this.props.children : <Observer {...this.props}/>}
+        {props.notag ? props.children : <Observer {...props} sandbox={null}/>}
       </Context.Provider>
     )
   }
