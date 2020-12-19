@@ -93,9 +93,9 @@ function Example() {
       {/* <Markdown>#Ahoj</Markdown> */}
       {/* <Article src="test"/> */}
       <Pack>
-        {val == 2 ? <Pack><Caption>h1</Caption><Caption>h1</Caption></Pack> : null }
+        {val == 2 ? <Pack><Caption>h1</Caption><Caption>h2</Caption></Pack> : null }
         <Pack><Nest caption="h3.1"></Nest></Pack>
-        <Pack sandbox inView><Nest caption="h3.2"></Nest></Pack>
+        <Pack sandbox inView><Nest caption="h2"></Nest></Pack>
         <Pack><Nest caption="h3.3"></Nest></Pack>
       </Pack>
       <Nest caption="Data">

@@ -6,14 +6,13 @@ import jet from "@randajan/react-jetpack";
 
 import Link from "./Link";
 import Caption from "./Caption";
-import Pack from "./Pack";
 import Ico from "./Ico";
 import Img from "./Img";
 import Avatar from "./Avatar";
 import Tile from "./Tile";
 import Help from "./Help";
 
-function Image(props) {
+function Gal(props) {
   const path = jet.str.to(props.src).split("/");
   const kind = path.shift();
   const title = props.alt;
@@ -47,13 +46,13 @@ function Md(props) {
       forceBlock: true,
       overrides: {
           a:Link,
-          img:{component:Image, props:inject},
-          h1:{component:Caption.h1, props:inject},
-          h2:{component:Caption.h2, props:inject},
-          h3:{component:Caption.h3, props:inject},
-          h4:{component:Caption.h4, props:inject},
-          h5:{component:Caption.h5, props:inject},
-          h6:{component:Caption.h6, props:inject},
+          img:{component:Gal, props:inject},
+          h1:Caption.h1,
+          h2:Caption.h2,
+          h3:Caption.h3,
+          h4:Caption.h4,
+          h5:Caption.h5,
+          h6:Caption.h6,
           ...overrides
       }
     }

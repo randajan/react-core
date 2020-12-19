@@ -24,7 +24,7 @@ class Pack extends Component {
     Object.entries(Pack.selectCaptions()).map(([i, ele])=>ele.sourceIndex = i);
     Pack.captions = Pack.captions.sort((a, b)=>a.body.sourceIndex - b.body.sourceIndex);
     Pack.packs.map(p=>p.flush());
-    Pack.captions.map(c=>c.redraw());
+    Pack.captions.map(c=>c.forceUpdate());
   }
 
   static redrawTask() {
@@ -62,23 +62,29 @@ class Pack extends Component {
     return !!this.captions.length;
   }
 
-  regCaption(caption) {
+  hasCaption(caption) {
+    return this.captions.includes(caption);
+  }
+
+  regCaption(caption, offer) {
     const { context, captions, props } = this;
-    if (!props.sandbox && context && !context.hasCaptions()) { return context.regCaption(); }
+    if (captions.includes(caption)) { return true; }
+    if (offer && captions.length) { return false; }
+    if (!props.sandbox && context && context.regCaption(caption, true)) { return true; }
     captions.push(caption);
-    return this.getLevel();
+    return true;
   }
 
   getLevel() {
     const { context, props } = this;
-    return (!props.sandbox && context) ? context.getLevel() + this.hasCaptions() : 0;
+    return jet.num.to(props.level) + (!props.sandbox && context) ? context.getLevel() + this.hasCaptions() : 0;
   }
 
   render() {
     const { props } = this;
     return (
       <Context.Provider value={this}>
-        {props.notag ? props.children : <Observer {...props} sandbox={null}/>}
+        {props.notag ? props.children : <Observer {...props} sandbox={null} level={null}/>}
       </Context.Provider>
     )
   }
