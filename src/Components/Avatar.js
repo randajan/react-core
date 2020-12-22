@@ -1,10 +1,12 @@
 import React from 'react';
 
 import Img from "./Img";
+import Ico from "./Ico";
 
 import Observer from "./Observer";
 
 import { css } from "@randajan/react-popup";
+
 
 const cn = css.open();
 
