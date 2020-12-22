@@ -32,7 +32,7 @@ function Avatar(props) {
 
   return (
     <Observer tag="span" {...selfProps}>
-      {src ? <Img {...imgProps} style={{display:"block", height:"100%", width:"100%", "object-fit":"cover"}}/> : (props.default || <Ico {...imgProps} src={"avatar"}/>)}
+      {src ? <Img {...imgProps} style={{display:"block", height:"100%", width:"100%", objectFit:"cover"}}/> : (props.default || <Ico {...imgProps} src={"avatar"}/>)}
     </Observer>
   );
 }
