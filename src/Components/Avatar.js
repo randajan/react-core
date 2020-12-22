@@ -28,11 +28,10 @@ function Avatar(props) {
   delete imgProps.id;
   delete imgProps.title;
   delete imgProps.onClick;
-  delete imgProps.style;
   delete imgProps.default;
 
   return (
-    <Observer tag="span" {...selfProps}>
+    <Observer {...selfProps}>
       {src ? <Img {...imgProps}/> : (props.default || <Ico {...imgProps} src={"avatar"}/>)}
     </Observer>
   );

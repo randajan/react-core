@@ -14,6 +14,8 @@ function Ico(props) {
   const { src, className, title } = props;
 
   const id = "#"+icons.getId(src);
+
+  console.log(src, props.style);
   
   return (
       <Observer tag="svg" {...props} className={cn.get("Ico", src, className)} viewBox={viewBox}>
