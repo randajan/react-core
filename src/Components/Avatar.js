@@ -9,11 +9,10 @@ import { css } from "@randajan/react-popup";
 const cn = css.open();
 
 function Avatar(props) {
-  const { className, id, title, onClick } = props;
+  const { className, id, title, src, onClick } = props;
 
   const imgProps = {
     ...props,
-    style:{display:"block", height:"100%", width:"100%", "object-fit":"cover"}
   }
 
   const selfProps = {
@@ -27,10 +26,11 @@ function Avatar(props) {
   delete imgProps.title;
   delete imgProps.onClick;
   delete imgProps.style;
+  delete imgProps.default;
 
   return (
     <Observer tag="span" {...selfProps}>
-      <Img {...props}/>
+      {src ? <Img {...imgProps} style={{display:"block", height:"100%", width:"100%", "object-fit":"cover"}}/> : (props.default || <Ico {...imgProps} src={"avatar"}/>)}
     </Observer>
   );
 }

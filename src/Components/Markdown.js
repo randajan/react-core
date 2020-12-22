@@ -11,6 +11,7 @@ import Img from "./Img";
 import Avatar from "./Avatar";
 import Tile from "./Tile";
 import Help from "./Help";
+import Observer from "./Observer";
 
 function Gal(props) {
   const path = jet.str.to(props.src).split("/");
@@ -46,6 +47,7 @@ function Md(props) {
       forceBlock: true,
       overrides: {
           a:Link,
+          p:{component:Observer, props:inject},
           img:{component:Gal, props:inject},
           h1:Caption.h1,
           h2:Caption.h2,

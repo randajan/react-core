@@ -14,7 +14,7 @@ function Tile(props) {
   const type = jet.type(wrap);
 
   return (
-    <Pack.p {...props} src={null} wrap={null} className={cn.get("Tile", className)}>
+    <Pack {...props} src={null} wrap={null} className={cn.get("Tile", className)}>
       <Ico src={src}/>
       <Caption>{title}</Caption>
       {
@@ -24,7 +24,7 @@ function Tile(props) {
         children
       }
       {children}
-    </Pack.p>
+    </Pack>
   )
 }
 
