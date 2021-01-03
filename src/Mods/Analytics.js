@@ -14,12 +14,13 @@ class Analytics extends Serf {
 
     constructor(core, path, tag, debug) {
         super(core, path);
-
+        
         if (tag) {
             ReactGA.initialize(tag, { debug });
         }
-      
+
         this.set({ tag });
+        
     }
       
       event(category, action, label) {

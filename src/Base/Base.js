@@ -29,6 +29,7 @@ class Base {
             if (ison || jet.type.is.map(to)) { to = data; } //replace mapable and above
             return pool ? pool.fit(to, jet.map.dig(from, p)) : to;
         });
+
         if (duty.fit[""]) { duty.fit[""].fit(data, from); }
         return from;
     }
@@ -110,10 +111,8 @@ class Base {
 
         const oldval = this.get(path);
         if (oldval && !force) { return []; }
-
         const to = jet.map.put({}, path, value, true);
         const from = Base.fit(this._duty, data, path, to);
-        
         this._data[pipe] = data[pipe];
 
         const changes = jet.map.compare(data, from);

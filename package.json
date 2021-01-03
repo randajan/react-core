@@ -38,7 +38,7 @@
     "react-transition-group": "^4.4.1"
   },
   "dependencies": {
-    "@randajan/jetpack": "^5.0.9",
+    "@randajan/jetpack": "^5.0.12",
     "@randajan/react-jetpack": "^2.0.2",
     "@randajan/react-popup": "^4.0.0",
     "crypto-js": "^4.0.0",

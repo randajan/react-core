@@ -6,7 +6,7 @@ import Core from "./CoreProvider";
 
 function IcoDefs() {
     const icons = Core.useSerf("icons");
-    const straps = jet.obj.tap(Core.useVal("icons.straps"));
+    const straps = Core.useVal("icons.straps");
     const viewBox = Core.useVal("icons.viewBox");
     const selfProps = {
         xmlns:'http://www.w3.org/2000/svg',
@@ -17,7 +17,7 @@ function IcoDefs() {
     
     return (
         <svg {...selfProps}>
-            <defs children={Object.entries(straps).map(([src, __html])=>{
+            <defs children={jet.map.it(straps, (__html, src)=>{
                 if (!__html) { return; }
                 return <symbol key={src} id={icons.getId(src)} viewBox={viewBox} dangerouslySetInnerHTML={{__html}}/>
             })}/>

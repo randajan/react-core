@@ -21,7 +21,7 @@ class Pack extends Component {
   }
 
   static redraw() {
-    Object.entries(Pack.selectCaptions()).map(([i, ele])=>ele.sourceIndex = i);
+    jet.map.it(Pack.selectCaptions(), (ele, i)=>ele.sourceIndex = i);
     Pack.captions = Pack.captions.sort((a, b)=>a.body.sourceIndex - b.body.sourceIndex);
     Pack.packs.map(p=>p.flush());
     Pack.captions.map(c=>c.forceUpdate());
