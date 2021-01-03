@@ -18,9 +18,9 @@ function Nest(props) {
     <Pack {...props} caption={null} wrap={null}>
       {caption ? <Caption>{caption}</Caption> : null}
       {
-        (type === "boolean" && wrap) ? <div className={cn.get("wrap")}>{children}</div> :
-        type === "string" ? <div className={wrap}>{children}</div> :
-        type === "object" ? <div {...wrap}>{children}</div> :
+        (type === "bol" && wrap) ? <div className={cn.get("wrap")}>{children}</div> :
+        type === "str" ? <div className={wrap}>{children}</div> :
+        type === "obj" ? <div {...wrap}>{children}</div> :
         children
       }
     </Pack>

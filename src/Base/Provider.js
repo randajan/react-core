@@ -34,7 +34,7 @@ class Provider extends Component {
 
   static useMethod(path, method) {
       const serf = Provider.useSerf(path);
-      if (!jet.is("function", serf[method])) { throw new Error("Method '"+method+"' at path '"+path+"' was not found.") }
+      if (!jet.fce.is(serf[method])) { throw new Error("Method '"+method+"' at path '"+path+"' was not found.") }
       return serf[method].bind(serf);
   }
 
@@ -44,7 +44,7 @@ class Provider extends Component {
 
   constructor(props) {
     super(props);
-    jet.obj.addProperty(this, { base:this.build(props) });
+    jet.obj.prop.add(this, { base:this.build(props) });
   }
 
   build(props) {

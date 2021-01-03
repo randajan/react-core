@@ -22,15 +22,15 @@ class Core extends Base {
     static create(props) { return PRIVATE[0] || new Core(props); }
 
     static fetchFiles(files) {
-        const nfiles = jet.get("object", files);
-        if (jet.is("array", files)) {
+        const nfiles = jet.obj.tap(files);
+        if (jet.arr.is(files)) {
             files.map(path=>nfiles[path.match(/[^\/\s\n\r\.]+(?=\.)/)[0]] = path);
         }
         return nfiles;
     }
 
     constructor(props) {
-        if (jet.isFull(PRIVATE)) { throw new Error("There could be just one instance of Core"); }
+        if (jet.type.is.full(PRIVATE)) { throw new Error("There could be just one instance of Core"); }
 
         const {
             version, debug, atBuild, onBuild, crashMsg,
@@ -47,13 +47,13 @@ class Core extends Base {
         PRIVATE.push(this);
         if (debug) { window.jet = jet; window.core = this; }
 
-        jet.run(atBuild, this);
+        jet.fce.run(atBuild, this);
 
         this.modMount("analytics", Analytics, analyticTag, debug);
         this.modMount("tray", Tray);
         this.modMount("page", Page);
 
-        jet.obj.addProperty(this, "build", this.tray.watch(
+        jet.obj.prop.add(this, "build", this.tray.watch(
             async _=>{
                 this.mod("api", new Api(apiUrl, _=>this.get("auth.passport.authorization")));
                 
@@ -69,7 +69,7 @@ class Core extends Base {
                 ]);
                 this.eye("lang.now", lang=>this.set("auth.user.lang", lang));
         
-                await jet.to("promise", onBuild, this);
+                await jet.prom.to(onBuild, this);
             }, 
             {
                 result:eng=>"Loaded in "+eng.timein+"ms",
@@ -80,7 +80,7 @@ class Core extends Base {
     }
 
     mod(path, mod) {
-        jet.obj.addProperty(this, path, mod, false, true);
+        jet.obj.prop.add(this, path, mod, false, true);
         return mod;
     }
 

@@ -9,7 +9,7 @@ import Serf from "../Base/Serf";
 class Analytics extends Serf {
 
     static formatAll(obj) {
-        return jet.obj.map(obj, v=>jet.str.to(v, "|"));
+        return jet.map.of(obj, v=>jet.str.to(v, "|"));
     }
 
     constructor(core, path, tag, debug) {

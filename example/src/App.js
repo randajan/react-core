@@ -84,7 +84,6 @@ function Example() {
   
   return (
     <Pack className="Example" inView>
-      <Avatar/>
       <Nest caption="Majestic APP"/>
       <Nest caption="Test">
         <NavLink to={"/foo?jo=6545"}>Goto Foo</NavLink>
@@ -96,7 +95,7 @@ function Example() {
       <Pack>
         {val == 2 ? <Pack><Caption>h1</Caption><Caption>h2</Caption></Pack> : null }
         <Pack><Nest caption="h3.1"></Nest></Pack>
-        <Pack sandbox inView><Nest caption="h2"></Nest></Pack>
+        <Pack inView><Nest caption="h2"></Nest></Pack>
         <Pack><Nest caption="h3.3"></Nest></Pack>
       </Pack>
       <Nest caption="Data">
@@ -114,11 +113,11 @@ function Example() {
             <ShowKey path="tray.error" />
             <ShowKey path="tray.result" />
             <ShowKey path="lang.now" />
-            <ShowKey path="screen" format={k=>jet.react.fetchFlags(k).joins(" ")} />
+            <ShowKey path="screen" format={k=>jet.map.melt(jet.rele.flags(k), " ")} />
             <ShowKey path="test.test" />
             <ShowKey path="page.title" />
             <ShowKey path="page.path" />
-            <ShowKey path="auth.user.data" format={k=>jet.obj.toJSON(k)} />
+            <ShowKey path="auth.user.data" format={k=>jet.obj.json.to(k)} />
             <ShowKey path="auth.user.profile.name" />
           </tbody>
         </table>
@@ -143,7 +142,7 @@ function ShowKey(props) {
     const [ key ] = Core.useKey(path);
     const core = Core.useSerf();
     console.log("Rerender", path, key, core.get(path));
-    return (<tr><td>{path}</td><td>{jet.is("function", format) ? format(key) : key}</td></tr>)
+    return (<tr><td>{path}</td><td>{jet.fce.is(format) ? format(key) : key}</td></tr>)
 }
 
 

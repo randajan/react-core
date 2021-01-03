@@ -7,7 +7,7 @@ import Core from "./Core";
 class Icons extends Serf {
 
     static svgStrap(svg) {
-        return jet.get("string", svg).replace(/^[\S\s]*<svg [^>]*>/, "").replace(/<\/svg>[\S\s]*/, "");
+        return jet.str.tap(svg).replace(/^[\S\s]*<svg [^>]*>/, "").replace(/<\/svg>[\S\s]*/, "");
     }
 
     static async fetchSvg(file) {
@@ -17,7 +17,7 @@ class Icons extends Serf {
     static async fetchAll(files) {
         const straps = {};
         const prom = [];
-        jet.obj.map(files, (v,k)=>{
+        jet.map.it(files, (v,k)=>{
             prom.push(Icons.fetchSvg(v).then(svg=>straps[k] = Icons.svgStrap(svg)))
         });
         await Promise.all(prom);
@@ -30,14 +30,14 @@ class Icons extends Serf {
         files = Core.fetchFiles(files);
         this.lock("files", files);
 
-        this.fitType("size", "number", 24);
+        this.fitType("size", "num", 24);
         this.fit(next=>{
-            const v = jet.get("object", next());
+            const v = jet.obj.tap(next());
             v.viewBox = `0 0 ${v.size} ${v.size}`;
             return v;
         });
 
-        jet.obj.addProperty(this, "build", core.tray.watch(
+        jet.obj.prop.add(this, "build", core.tray.watch(
             async _=>{
                 const straps = await this.storeLocal("straps").version(core.version).pull() || await Icons.fetchAll(files);
 
@@ -52,7 +52,7 @@ class Icons extends Serf {
 
     }
 
-    getId(src) { return [...this.path.split("."), src].joins("-"); }
+    getId(src) { return jet.map.melt([...this.path.split("."), src], "-"); }
 
 }
 

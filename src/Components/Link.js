@@ -18,7 +18,7 @@ function Link(props) {
   const pass = {
     ...props, 
     className: cn.get("Link", className).toString(),
-    "data-flags":jet.react.fetchFlags({local, query, ...flags}, props),
+    "data-flags":jet.rele.flags({local, query, ...flags}, props),
     href:null, 
     to:null
   };

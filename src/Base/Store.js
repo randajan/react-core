@@ -6,7 +6,7 @@ import Crypt from "./Crypt";
 class Store {
 
     constructor() {
-        jet.obj.addProperty(this, {
+        jet.obj.prop.add(this, {
             saves:[],
             loads:[],
             method:{},
@@ -15,24 +15,24 @@ class Store {
     }
 
     encrypt(cryptKey) {
-        jet.obj.addProperty(this.proof, {cryptKey});
+        jet.obj.prop.add(this.proof, {cryptKey});
         return this;
     }
 
     version(version) {
-        jet.obj.addProperty(this.proof, {version});
+        jet.obj.prop.add(this.proof, {version});
         return this;
     }
 
     setSave(save, pack) {
-        this.method.save = jet.get("function", save);
-        this.method.pack = jet.get("function", pack);
+        this.method.save = jet.fce.tap(save);
+        this.method.pack = jet.fce.tap(pack);
         return this;
     }
 
     setLoad(load, unpack) {
-        this.method.load = jet.get("function", load);
-        this.method.unpack = jet.get("function", unpack);
+        this.method.load = jet.fce.tap(load);
+        this.method.unpack = jet.fce.tap(unpack);
         return this;
     }
 
@@ -50,10 +50,10 @@ class Store {
 
     load(timeout, unpack, ...a) {
         const { method, loads } = this;
-        if (!method.load) { return jet.to("engage", false); }
-        let prom = jet.to("promise", method.load, this, ...a).then(this.decode.bind(this));
+        if (!method.load) { return jet.eng.to(false); }
+        let prom = jet.prom.to(method.load, this, ...a).then(this.decode.bind(this));
         if (unpack && method.unpack) { prom = prom.then(data=>method.unpack(this, data)); }
-        const eng = prom.engage(timeout);
+        const eng = jet.eng(prom, timeout);
         loads.unshift(eng);
         return eng;
     }
@@ -63,9 +63,9 @@ class Store {
 
     save(timeout, ...a) {
         const { method, saves } = this;
-        if (!method.save || !method.pack) { return jet.to("engage", false); }
-        const hash = this.encode(jet.run(method.pack, this));
-        const eng = jet.to("promise", method.save, this, hash, ...a).engage(timeout)
+        if (!method.save || !method.pack) { return jet.eng.to(false); }
+        const hash = this.encode(jet.fce.run(method.pack, this));
+        const eng = jet.eng(jet.prom.to(method.save, this, hash, ...a), timeout);
         saves.unshift(eng);
         return eng;
     }

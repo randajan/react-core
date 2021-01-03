@@ -1,11 +1,11 @@
-import jet from "@randajan/jetpack";
+import jet from "@randajan/react-jetpack";
 
 class ApiErr extends Error {
     constructor(request, response) {
         const { method, url } = request;
         const { status, statusText } = response;
 
-        super([method, url, status, statusText].joins(" "));
+        super(jet.str.to([method, url, status, statusText], " "));
 
         this.name = "ApiError"; // (different names for different built-in error classes)
         this.request = request;
@@ -17,23 +17,22 @@ class Api {
 
     static toForm(obj) {
         const form = new FormData();
-        jet.obj.map(obj, (v,k)=>form.append(k,v));
+        jet.map.it(obj, (v,k)=>form.append(k,v));
         return form;
     }
 
     static isForm(body) {
-        return jet.is(FormData, body) || (jet.is("element", body) && body.tagName === "FORM");
+        return jet.type.is(FormData, body) || (jet.ele.is(body) && body.tagName === "FORM");
     }
 
     static getContentType(body) {
-        const type = jet.type(body);
         if (Api.isForm(body)) { return "multipart/form-data"; }
-        if (type === "object") { return "application/json"; }
+        if (jet.obj.is(body)) { return "application/json"; }
         return "text/plain";
     }
 
     constructor(url, token) {
-        jet.obj.addProperty(this, {
+        jet.obj.prop.add(this, {
             url,
             token,
             errors:[]
@@ -67,10 +66,10 @@ class Api {
         const response = await fetch(url, options);
         const text = response.text = await response.text();
         const isJson = response.headers.get("content-type") === "application/json";
-        const fetchJson = jet.get("boolean", acceptJson, isJson);
-        const json = response.json = fetchJson ? jet.obj.fromJSON(text) : undefined;
+        const fetchJson = jet.bol.tap(acceptJson, isJson);
+        const json = response.json = fetchJson ? jet.obj.json.from(text) : undefined;
 
-        jet.obj.addProperty(response, "body", fetchJson ? json : text, false, true, true);
+        jet.obj.prop.add(response, "body", fetchJson ? json : text, false, true, true);
         if (response.ok) { return response.body; }
 
         const error = new ApiErr( {method, url, headers, body}, response );

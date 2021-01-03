@@ -8,15 +8,15 @@ class Auth extends Serf {
         super(core, path);
         const { tray, lang } = core;
 
-        this.fit("providers", next=>jet.arr.wrap(next()));
-        this.fitTo("authPath", "string");
-        this.fitType("login", "object");
-        this.fitType("user", "object");
+        this.fitTo("providers", "arr");
+        this.fitTo("authPath", "str");
+        this.fitType("login", "obj");
+        this.fitType("user", "obj");
 
         this.fit("passport", next=>{
-            const v = jet.get("object", next());
+            const v = jet.obj.tap(next());
             if (!v.access_token) { return {}; }
-            v.authorization = [v.token_type, v.access_token].joins(" ");
+            v.authorization = jet.map.melt([v.token_type, v.access_token], " ");
             return v;
         });
 
@@ -27,7 +27,7 @@ class Auth extends Serf {
             )
         )
 
-        jet.obj.addProperty(this, "build", tray.watch(
+        jet.obj.prop.add(this, "build", tray.watch(
             async _=>{
                 const passport = await this.storeSession("passport", sessionUrl).encrypt(cryptKey).pull();
                 const user = await this.fetchUser(cryptKey);
@@ -48,7 +48,7 @@ class Auth extends Serf {
         const { api, tray, lang } = this.parent;
         return tray.watch(async _=>{
             const data = await api.get(this.get("authPath")+"/"+provider, null, null, true );
-            const redirect = jet.obj.get(data, "redirect_uri");
+            const redirect = jet.map.dig(data, "redirect_uri");
             if (!redirect) { throw new Error("Login failed: Missing redirect link"); }
             await new Promise(_=>window.location = redirect);
         }, g=>lang.spell(["core.auth.watch.login", g.state]));
@@ -69,7 +69,7 @@ class Auth extends Serf {
     }
 
     async fetchUserProfile() {
-        if (this.isEmpty("passport.authorization")) { return; }
+        if (!this.isFull("passport.authorization")) { return; }
         const user = await this.storeApi("user.profile", "user").pull();
         if (user) { return user; }
         this.logout();
@@ -77,8 +77,8 @@ class Auth extends Serf {
 
     async fetchUser(cryptKey) {
         const profile = await this.fetchUserProfile() || await this.storeLocal("user.profile", ["auth.user", "anonym", "profile"]).encrypt(cryptKey).pull();
-        const { id, key } = jet.get("object", profile);
-        const data = await this.storeLocal("user.data", ["auth.user", id||"anonym", "data"]).encrypt([cryptKey, key].joins("-")).pull();
+        const { id, key } = jet.obj.tap(profile);
+        const data = await this.storeLocal("user.data", ["auth.user", id||"anonym", "data"]).encrypt([cryptKey, key]).pull();
         return {profile, data};
     }
 

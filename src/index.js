@@ -1,4 +1,4 @@
-import ModalProvider, {jet as jet_pu, Modal, PopUp, Pop, css } from "@randajan/react-popup";
+import ModalProvider, {Modal, PopUp, Pop, css } from "@randajan/react-popup";
 
 import jet from "@randajan/jetpack";
 
@@ -30,8 +30,6 @@ import Markdown from "./Components/Markdown";
 import Article from "./Components/Article";
 import Help from "./Components/Help";
 import CoreProvider from "./Components/CoreProvider";
-
-if (jet !== jet_pu) { throw new Error("Multiple jet instance present :("); }
 
 export default CoreProvider;
 export {

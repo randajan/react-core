@@ -6,7 +6,7 @@ import Serf from "../Base/Serf";
 class Page extends Serf {
 
     static parseSearch(search) {
-        if (jet.is("object", search)) { return search; }
+        if (jet.obj.is(search)) { return search; }
         return qs.parse(jet.str.to(search), {parseNumbers: true, parseBooleans: true});
     }
 
@@ -16,7 +16,7 @@ class Page extends Serf {
     }
 
     static buildSearch(search) {
-        if (jet.is("object", search)) { return qs.stringify(search); }
+        if (jet.obj.is(search)) { return qs.stringify(search); }
         return jet.str.to(search);
     }
 
@@ -26,7 +26,7 @@ class Page extends Serf {
         const loc = window.location;
 
         this.fit((next, v)=>{
-            v = jet.get("object", v);
+            v = jet.obj.tap(v);
             v.protocol = loc.protocol;
             v.hostname = loc.hostname;
             v.port = loc.port;

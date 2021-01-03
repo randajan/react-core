@@ -8,7 +8,7 @@ class Tray extends Serf {
     constructor(parent, path) {
         super(parent, path)
 
-        jet.obj.addProperty(this, {
+        jet.obj.prop.add(this, {
             all:{},
             pending: {},
             cancel: {},
@@ -20,7 +20,7 @@ class Tray extends Serf {
     }
 
     watch(eng, state, msg) {
-        eng = jet.to("engage", eng).echo(state, msg);
+        eng = jet.eng.to(eng).echo(state, msg);
         const id = eng.id;
 
         this.all[id] = eng;

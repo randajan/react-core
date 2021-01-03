@@ -14,7 +14,7 @@ function Custom(props) {
 
 function InView(props) {
   const [ state ] = useState({last:false, count:0});
-  const { ref, inView } = useInView(jet.get("object", props.inView));
+  const { ref, inView } = useInView(jet.obj.tap(props.inView));
   const Tag = jet.str.to(props.tag) || "div";
   const p = {...props, ref}
   

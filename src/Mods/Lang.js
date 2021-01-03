@@ -10,46 +10,47 @@ class Lang extends Serf {
 
     static async fetchLibs(libs, lang) {
         const res = await Promise.all(libs.map(lib => lib.fetch(lang)));
-        if (res) { return jet.obj.merge(...res); }
+        if (res) { return jet.map.merge(...res); }
     }
 
-    static fromString(lang) { return jet.get("string", lang).substr(0, 2).lower(); }
+    static fromString(lang) { return jet.str.tap(lang).substr(0, 2).toLowerCase(); }
 
     static validateList(...langs) {
         const list = new Set();
-        jet.obj.map(langs, v => {
+        jet.map.it(langs, v => {
             const lang = Lang.fromString(v);
             if (lang) { list.add(lang); }
         }, true);
-        if (jet.isEmpty(list)) { list.add("en"); }
+        if (!jet.type.is.full(list)) { list.add("en"); }
         return Array.from(list);
     }
 
     static validateLibs(libs) {
-        libs = jet.get("array", libs);
+        libs = jet.arr.tap(libs);
         libs.unshift(LangLib.create(-1, "core", ["cs", "en"], lang => require("./lang/" + lang).default));
-        return jet.obj.map(libs, lib => LangLib.create(lib)).sort((a, b) => a.priority - b.priority);
+        return jet.map.of(libs, lib => LangLib.create(lib)).sort((a, b) => a.priority - b.priority);
     }
 
     static validateLang(langs, list, all) {
         langs = Lang.validateList(langs);
-        if (jet.is("array", list)) { langs = langs.filter(lang => list.includes(lang)); }
+        if (jet.arr.is(list)) { langs = langs.filter(lang => list.includes(lang)); }
         return all ? langs : langs[0];
     }
 
     constructor(core, path, libs, list, def) {
         super(core, path);
 
-        jet.obj.addProperty(this, {
+        jet.obj.prop.add(this, {
             libs:Lang.validateLibs(libs),
             fetch:{}
         }, null, false, true);
 
-        this.fitType("book", "object");
+        this.fitType("book", "obj");
         this.fit("list", next=>Lang.validateList(next()));
 
         this.fit((next, v, f)=>{
-            [v, f] = jet.get([["object", next()], ["object", f]]);
+            v = jet.obj.tap(next());
+            f = jet.obj.tap(f);
             v.def = Lang.validateLang([v.def, v.list[0]], v.list); 
             const now = v.now = Lang.validateLang([v.now, f.now, v.def], v.list);
             if (!v.book[now]) {
@@ -62,9 +63,9 @@ class Lang extends Serf {
         this.eye("now", now=>moment.locale(now));
         this.eye("now", now=>core.analytics.lang(now));
 
-        jet.obj.addProperty(this, "build", core.tray.watch(
+        jet.obj.prop.add(this, "build", core.tray.watch(
             async _=>{
-                const book = jet.get("object", await this.storeLocal("book").version(core.version).pull());
+                const book = jet.obj.tap(await this.storeLocal("book").version(core.version).pull());
                 book[def] = book[def] || await this.fetchBook(def);
                 this.set({
                     list:[list, def],
@@ -81,7 +82,7 @@ class Lang extends Serf {
     }
 
     spell(path, ...langs) {
-        const { now, list, def } = jet.get("object", this.get());
+        const { now, list, def } = jet.obj.tap(this.get());
         for (let lang of Lang.validateLang([langs, now, def], list, true)) {
             let val = this.get(["book", lang, path]);
             if (val) { return val; }

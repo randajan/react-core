@@ -33,7 +33,7 @@ class CoreProvider extends BaseProvider {
   }
 
   getBody() {
-    return jet.obj.get(this, "refs.modal.refs.body");
+    return jet.map.dig(this, "refs.modal.refs.body");
   }
 
   fetchSelfProps() {
@@ -41,8 +41,8 @@ class CoreProvider extends BaseProvider {
 
     return {
       id, className, ref:"modal",
-      onLoad: _ => jet.run(onLoad, this),
-      flags:jet.react.fetchFlags({ ...CoreProvider.defaultFlags, ...flags }, this.base)
+      onLoad: _ => jet.fce.run(onLoad, this),
+      flags:jet.rele.flags({ ...CoreProvider.defaultFlags, ...flags }, this.base)
     };
 
   }

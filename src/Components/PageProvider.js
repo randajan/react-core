@@ -31,7 +31,7 @@ function PageProvider({ location, history }) {
     ];
 
     page.set(location);
-    return _=>jet.run(cleanUp);
+    return _=>jet.fce.run(cleanUp);
   }, []);
 
   return null;

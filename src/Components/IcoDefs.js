@@ -6,7 +6,7 @@ import Core from "./CoreProvider";
 
 function IcoDefs() {
     const icons = Core.useSerf("icons");
-    const straps = jet.get("object", Core.useVal("icons.straps"));
+    const straps = jet.obj.tap(Core.useVal("icons.straps"));
     const viewBox = Core.useVal("icons.viewBox");
     const selfProps = {
         xmlns:'http://www.w3.org/2000/svg',

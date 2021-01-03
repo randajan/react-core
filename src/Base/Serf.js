@@ -10,22 +10,22 @@ class Serf {
         path = jet.str.to(path);
         if (!path) { throw new BaseErr("Serf path is required"); }
 
-        jet.obj.addProperty(this, { parent, path });
+        jet.obj.prop.add(this, { parent, path });
 
         ([
-            "get", "is", "getType", "isType", "isFull", "isEmpty", "pull", "rem", "lock", 
+            "get", "is", "getType", "isType", "isFull", "pull", "rem", "lock", 
             "tag", "open", "mount", "fitTo", "fitType", "fitDefault",
             "store", "storeLocal", "storeSession", "storeApi"
         ]).map(k=>{
-            jet.obj.addProperty(this, k, (path, ...args)=>parent[k]([this.path, path], ...args));
+            jet.obj.prop.add(this, k, (path, ...args)=>parent[k]([this.path, path], ...args));
         });
 
         (["set", "push"]).map(k=>{
-            jet.obj.addProperty(this, k, (path, value, force)=>parent[k](...this.untieArgs(path, value, force, "object", "boolean", true)));
+            jet.obj.prop.add(this, k, (path, value, force)=>parent[k](...this.untieArgs(path, value, force, "obj", "bol", true)));
         });
 
-        jet.obj.map({eye:"function", spy:"function", fit:"function", pip:"function"}, (t,k)=>{
-            jet.obj.addProperty(this, k, (path, exe, after)=>parent[k](...this.untieArgs(path, exe, after, t, "function")));
+        jet.map.it({eye:"fce", spy:"fce", fit:"fce", pip:"fce"}, (t,k)=>{
+            jet.obj.prop.add(this, k, (path, exe, after)=>parent[k](...this.untieArgs(path, exe, after, t, "fce")));
         })
 
         if (data !== undefined) { this.push(data); }

@@ -4,19 +4,22 @@ import Lang from "../Mods/Lang";
 
 class LangLib {
     constructor(priority, path, list, fetch) {
-        [priority, path, fetch] = jet.get([["number", priority], ["string", path], ["function", fetch]]);
+        priority = jet.num.tap(priority);
+        path = jet.str.to(path);
+        fetch = jet.fce.tap(fetch);
+
         list = Lang.validateList(list);
-        jet.obj.addProperty(this, { priority, path, list }, null, false, true)
-        jet.obj.addProperty(this, "fetch", async lang => {
+        jet.obj.prop.add(this, { priority, path, list }, null, false, true)
+        jet.obj.prop.add(this, "fetch", async lang => {
             if (!list.includes(lang)) {return}
             const data = await fetch(lang);
-            return path ? jet.obj.set({}, path, data, true) : jet.filter("object", data);
+            return path ? jet.map.put({}, path, data, true) : jet.obj.only(data);
         })
     }
 
     static create(priority, path, list, fetch) {
-        if (jet.is(LangLib, priority)) { return priority; }
-        return new LangLib(...jet.untie({ priority, path, list, fetch }));
+        if (jet.type.is(LangLib, priority)) { return priority; }
+        return new LangLib(priority, path, list, fetch);
     }
 }
 

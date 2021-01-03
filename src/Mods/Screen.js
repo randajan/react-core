@@ -23,7 +23,7 @@ class Screen extends Serf {
     constructor(Core, path, sizes) {
         super(Core, path);
 
-        jet.obj.addProperty(this, { sizes:{} }, null, false, true);
+        jet.obj.prop.add(this, { sizes:{} }, null, false, true);
 
         Object.defineProperties(this, {
             width:{get:_=>Math.max(document.documentElement.clientWidth, window.innerWidth)},
@@ -34,17 +34,17 @@ class Screen extends Serf {
 
         window.addEventListener("resize", _=>this.set());
 
-        this.addSize(jet.obj.merge(DEFAULTSIZES, sizes));
+        this.addSize(jet.map.merge(DEFAULTSIZES, sizes));
     }
 
-    fetchSize() { return jet.obj.map(this.sizes, check=>jet.to("boolean", check, this.width, this.height)); }
+    fetchSize() { return jet.map.of(this.sizes, check=>jet.bol.to(check, this.width, this.height)); }
 
     addSize(size, check) {
         const sizes = this.sizes;
-        check = jet.get("function", check);
+        check = jet.fce.tap(check);
 
-        if (jet.is("mapable", size)) {jet.obj.map(size, (v,k)=>sizes[k] = v || check);}
-        else if (jet.is("string", size)) {sizes[size] = check}
+        if (jet.type.is.map(size)) {jet.map.it(size, (v,k)=>sizes[k] = v || check);}
+        else if (jet.str.is(size)) {sizes[size] = check}
         else {return false;}
 
         return this.set(this.fetchSize());
