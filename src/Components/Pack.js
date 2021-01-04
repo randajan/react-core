@@ -77,7 +77,7 @@ class Pack extends Component {
 
   getLevel() {
     const { context, props } = this;
-    return jet.num.to(props.level) + (!props.sandbox && context) ? context.getLevel() + this.hasCaptions() : 0;
+    return jet.num.to(props.level) + ((!props.sandbox && context) ? context.getLevel() + this.hasCaptions() : 0);
   }
 
   render() {

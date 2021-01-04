@@ -8,6 +8,7 @@ import jet from "@randajan/react-jetpack";
 function Custom(props) {
   const Tag = jet.str.to(props.tag) || "div";
   const p = {...props}
+  delete p.inView;
   delete p.tag;
   return <Tag {...p} />
 }
