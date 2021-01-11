@@ -1,5 +1,7 @@
 import React from 'react';
 
+import jet from "@randajan/react-jetpack";
+
 import Ico from "./Ico";
 import Pack from "./Pack";
 import Caption from "./Caption";

@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import jet from "@randajan/react-jetpack";
+
 import Pack from "./Pack";
 
 import { css } from "@randajan/react-popup";

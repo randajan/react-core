@@ -27,7 +27,7 @@ function TrayBar() {
 
 const coreConfig = {
   //nostore:true,
-  debug:true,
+  //debug:true,
   version:"1.0.5",
   cryptKey:"XYZ",
   langDefault:"en",
