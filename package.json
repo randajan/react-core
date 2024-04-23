@@ -71,7 +71,7 @@
     "eslint-plugin-promise": "^4.0.0",
     "eslint-plugin-react": "^7.21.2",
     "eslint-plugin-standard": "^3.1.0",
-    "gh-pages": "^1.2.0",
+    "gh-pages": "^5.0.0",
     "react-scripts": "^1.1.4",
     "react-dom": "^15.0.0 || ^16.0.0",
     "rollup": "^0.64.1",
